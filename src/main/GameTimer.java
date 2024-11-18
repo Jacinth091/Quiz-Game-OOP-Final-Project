@@ -22,6 +22,7 @@ public class GameTimer {
             setTime();
 
         });
+        gameTimer.setDelay(1000);
     }
 
 
@@ -33,6 +34,10 @@ public class GameTimer {
 
 
 
+    }
+
+    public void startTimer(){
+        gameTimer.start();
     }
 
 
