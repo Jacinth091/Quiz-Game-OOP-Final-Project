@@ -170,8 +170,14 @@ public class MyFrame extends JFrame  {
         StartButton.addActionListener(
                 (e) -> {
                     System.out.printf("Start button selected");
+                    SwingUtilities.invokeLater(() ->{
+                        QuizGameGUI quizGameGUI = new QuizGameGUI();
+                        quizGameGUI.setVisible(true);
+
+                    });
                     StartButton.setVisible(false);
                     BackButton.setVisible(false);
+
                 }
         );
         StartButton.setFocusable(false);
