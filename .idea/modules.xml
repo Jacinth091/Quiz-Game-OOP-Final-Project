@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Quiz_Game_OOP.iml" filepath="$PROJECT_DIR$/Quiz_Game_OOP.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NETBEANS-quizGame.iml" filepath="$PROJECT_DIR$/NETBEANS-quizGame.iml" />
     </modules>
   </component>
 </project>
