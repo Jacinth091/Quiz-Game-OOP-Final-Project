@@ -1,4 +1,4 @@
-package main;
+package main.logic;
 
 import javax.swing.Timer;
 

@@ -12,9 +12,9 @@ is divided into following sections:
   - execution
   - debugging
   - javadoc
-  - test compilation
-  - test execution
-  - test debugging
+  - backend.test compilation
+  - backend.test execution
+  - backend.test debugging
   - applet
   - cleanup
 
@@ -27,7 +27,7 @@ is divided into following sections:
             </not>
         </condition>
     </fail>
-    <target depends="test,jar,javadoc" description="Build and test whole project." name="default"/>
+    <target depends="backend.test,jar,javadoc" description="Build and backend.test whole project." name="default"/>
     <!-- 
                 ======================
                 INITIALIZATION SECTION 
@@ -216,7 +216,7 @@ is divided into following sections:
         </condition>
         <condition property="have.tests">
             <or>
-                <available file="${test.src.dir}"/>
+                <available file="${backend.test.src.dir}"/>
             </or>
         </condition>
         <condition property="have.sources">
@@ -284,12 +284,12 @@ is divided into following sections:
         <available file="${meta.inf.dir}/persistence.xml" property="has.persistence.xml"/>
         <condition property="junit.available">
             <or>
-                <available classname="org.junit.Test" classpath="${run.test.classpath}"/>
-                <available classname="junit.framework.Test" classpath="${run.test.classpath}"/>
+                <available classname="org.junit.Test" classpath="${run.backend.test.classpath}"/>
+                <available classname="junit.framework.Test" classpath="${run.backend.test.classpath}"/>
             </or>
         </condition>
         <condition property="testng.available">
-            <available classname="org.testng.annotations.Test" classpath="${run.test.classpath}"/>
+            <available classname="org.testng.annotations.Test" classpath="${run.backend.test.classpath}"/>
         </condition>
         <condition property="junit+testng.available">
             <and>
@@ -311,13 +311,13 @@ is divided into following sections:
     </target>
     <target depends="-pre-init,-init-private,-init-user,-init-project,-do-init" name="-init-check">
         <fail unless="src.dir">Must set src.dir</fail>
-        <fail unless="test.src.dir">Must set test.src.dir</fail>
+        <fail unless="backend.test.src.dir">Must set backend.test.src.dir</fail>
         <fail unless="build.dir">Must set build.dir</fail>
         <fail unless="dist.dir">Must set dist.dir</fail>
         <fail unless="build.classes.dir">Must set build.classes.dir</fail>
         <fail unless="dist.javadoc.dir">Must set dist.javadoc.dir</fail>
-        <fail unless="build.test.classes.dir">Must set build.test.classes.dir</fail>
-        <fail unless="build.test.results.dir">Must set build.test.results.dir</fail>
+        <fail unless="build.backend.test.classes.dir">Must set build.backend.test.classes.dir</fail>
+        <fail unless="build.backend.test.results.dir">Must set build.backend.test.results.dir</fail>
         <fail unless="build.classes.excludes">Must set build.classes.excludes</fail>
         <fail unless="dist.jar">Must set dist.jar</fail>
     </target>
@@ -514,21 +514,21 @@ is divided into following sections:
             <and>
                 <istrue value="${junit.available}"/>
                 <not>
-                    <isset property="test.method"/>
+                    <isset property="backend.test.method"/>
                 </not>
             </and>
         </condition>
         <condition else="false" property="nb.junit.single" value="true">
             <and>
                 <istrue value="${junit.available}"/>
-                <isset property="test.method"/>
+                <isset property="backend.test.method"/>
             </and>
         </condition>
     </target>
-    <target name="-init-test-properties">
-        <property name="test.binaryincludes" value="&lt;nothing&gt;"/>
-        <property name="test.binarytestincludes" value=""/>
-        <property name="test.binaryexcludes" value=""/>
+    <target name="-init-backend.test-properties">
+        <property name="backend.test.binaryincludes" value="&lt;nothing&gt;"/>
+        <property name="backend.test.binarytestincludes" value=""/>
+        <property name="backend.test.binaryexcludes" value=""/>
     </target>
     <target depends="-init-modules-supported" if="modules.supported.internal" name="-init-macrodef-junit-prototype-with-module">
         <macrodef name="junit-prototype" uri="http://www.netbeans.org/ns/j2se-project/3">
@@ -539,20 +539,20 @@ is divided into following sections:
                 <property name="junit.forkmode" value="perTest"/>
                 <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" jvm="${platform.java}" showoutput="true" tempdir="${build.dir}">
                     <syspropertyset>
-                        <propertyref prefix="test-sys-prop."/>
-                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                        <propertyref prefix="backend.test-sys-prop."/>
+                        <mapper from="backend.test-sys-prop.*" to="*" type="glob"/>
                     </syspropertyset>
                     <classpath>
-                        <path path="${run.test.classpath}"/>
+                        <path path="${run.backend.test.classpath}"/>
                     </classpath>
                     <modulepath>
-                        <path path="${run.test.modulepath}"/>
+                        <path path="${run.backend.test.modulepath}"/>
                     </modulepath>
                     <formatter type="brief" usefile="false"/>
                     <formatter type="xml"/>
                     <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
                     <jvmarg value="-ea"/>
-                    <jvmarg line="${run.test.jvmargs}"/>
+                    <jvmarg line="${run.backend.test.jvmargs}"/>
                     <customizePrototype/>
                 </junit>
             </sequential>
@@ -567,11 +567,11 @@ is divided into following sections:
                 <property name="junit.forkmode" value="perTest"/>
                 <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" jvm="${platform.java}" showoutput="true" tempdir="${build.dir}">
                     <syspropertyset>
-                        <propertyref prefix="test-sys-prop."/>
-                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                        <propertyref prefix="backend.test-sys-prop."/>
+                        <mapper from="backend.test-sys-prop.*" to="*" type="glob"/>
                     </syspropertyset>
                     <classpath>
-                        <path path="${run.test.classpath}"/>
+                        <path path="${run.backend.test.classpath}"/>
                     </classpath>
                     <formatter type="brief" usefile="false"/>
                     <formatter type="xml"/>
@@ -582,7 +582,7 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-test-properties,-init-macrodef-junit-prototype-with-module,-init-macrodef-junit-prototype-without-module" if="${nb.junit.single}" name="-init-macrodef-junit-single" unless="${nb.junit.batch}">
+    <target depends="-init-backend.test-properties,-init-macrodef-junit-prototype-with-module,-init-macrodef-junit-prototype-without-module" if="${nb.junit.single}" name="-init-macrodef-junit-single" unless="${nb.junit.batch}">
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
@@ -592,14 +592,14 @@ is divided into following sections:
             <sequential>
                 <j2seproject3:junit-prototype>
                     <customizePrototype>
-                        <test methods="@{testmethods}" name="@{testincludes}" todir="${build.test.results.dir}"/>
+                        <test methods="@{testmethods}" name="@{testincludes}" todir="${build.backend.test.results.dir}"/>
                         <customize/>
                     </customizePrototype>
                 </j2seproject3:junit-prototype>
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-test-properties,-init-macrodef-junit-prototype-with-module,-init-macrodef-junit-prototype-without-module" if="${nb.junit.batch}" name="-init-macrodef-junit-batch" unless="${nb.junit.single}">
+    <target depends="-init-backend.test-properties,-init-macrodef-junit-prototype-with-module,-init-macrodef-junit-prototype-without-module" if="${nb.junit.batch}" name="-init-macrodef-junit-batch" unless="${nb.junit.single}">
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
@@ -609,12 +609,12 @@ is divided into following sections:
             <sequential>
                 <j2seproject3:junit-prototype>
                     <customizePrototype>
-                        <batchtest todir="${build.test.results.dir}">
-                            <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                        <batchtest todir="${build.backend.test.results.dir}">
+                            <fileset dir="${backend.test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
                                 <filename name="@{testincludes}"/>
                             </fileset>
-                            <fileset dir="${build.test.classes.dir}" excludes="@{excludes},${excludes},${test.binaryexcludes}" includes="${test.binaryincludes}">
-                                <filename name="${test.binarytestincludes}"/>
+                            <fileset dir="${build.backend.test.classes.dir}" excludes="@{excludes},${excludes},${backend.test.binaryexcludes}" includes="${backend.test.binaryincludes}">
+                                <filename name="${backend.test.binarytestincludes}"/>
                             </fileset>
                         </batchtest>
                         <customize/>
@@ -633,22 +633,22 @@ is divided into following sections:
             <element name="customize" optional="true"/>
             <sequential>
                 <condition else="" property="testng.methods.arg" value="@{testincludes}.@{testmethods}">
-                    <isset property="test.method"/>
+                    <isset property="backend.test.method"/>
                 </condition>
-                <union id="test.set">
-                    <fileset dir="${test.src.dir}" excludes="@{excludes},**/*.xml,${excludes}" includes="@{includes}">
+                <union id="backend.test.set">
+                    <fileset dir="${backend.test.src.dir}" excludes="@{excludes},**/*.xml,${excludes}" includes="@{includes}">
                         <filename name="@{testincludes}"/>
                     </fileset>
                 </union>
-                <taskdef classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}" name="testng"/>
-                <testng classfilesetref="test.set" failureProperty="tests.failed" jvm="${platform.java}" listeners="org.testng.reporters.VerboseReporter" methods="${testng.methods.arg}" mode="${testng.mode}" outputdir="${build.test.results.dir}" suitename="NETBEANS-quizGame" testname="TestNG tests" workingDir="${work.dir}">
-                    <xmlfileset dir="${build.test.classes.dir}" includes="@{testincludes}"/>
+                <taskdef classname="org.testng.TestNGAntTask" classpath="${run.backend.test.classpath}" name="testng"/>
+                <testng classfilesetref="backend.test.set" failureProperty="tests.failed" jvm="${platform.java}" listeners="org.testng.reporters.VerboseReporter" methods="${testng.methods.arg}" mode="${testng.mode}" outputdir="${build.backend.test.results.dir}" suitename="NETBEANS-quizGame" testname="TestNG tests" workingDir="${work.dir}">
+                    <xmlfileset dir="${build.backend.test.classes.dir}" includes="@{testincludes}"/>
                     <propertyset>
-                        <propertyref prefix="test-sys-prop."/>
-                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                        <propertyref prefix="backend.test-sys-prop."/>
+                        <mapper from="backend.test-sys-prop.*" to="*" type="glob"/>
                     </propertyset>
                     <classpath>
-                        <path path="${run.test.classpath}"/>
+                        <path path="${run.backend.test.classpath}"/>
                     </classpath>
                     <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
                     <customize/>
@@ -656,8 +656,8 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target name="-init-macrodef-test-impl">
-        <macrodef name="test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+    <target name="-init-macrodef-backend.test-impl">
+        <macrodef name="backend.test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -669,7 +669,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target depends="-init-macrodef-junit" if="${junit.available}" name="-init-macrodef-junit-impl">
-        <macrodef name="test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+        <macrodef name="backend.test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -683,7 +683,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target depends="-init-macrodef-testng" if="${testng.available}" name="-init-macrodef-testng-impl">
-        <macrodef name="test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+        <macrodef name="backend.test-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -696,8 +696,8 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-test-impl,-init-macrodef-junit-impl,-init-macrodef-testng-impl" name="-init-macrodef-test">
-        <macrodef name="test" uri="http://www.netbeans.org/ns/j2se-project/3">
+    <target depends="-init-macrodef-backend.test-impl,-init-macrodef-junit-impl,-init-macrodef-testng-impl" name="-init-macrodef-backend.test">
+        <macrodef name="backend.test" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -713,7 +713,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target depends="-init-macrodef-junit" if="${junit.available}" name="-init-macrodef-junit-debug-impl">
-        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+        <macrodef name="backend.test-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -735,20 +735,20 @@ is divided into following sections:
             <attribute default="" name="testMethod"/>
             <element name="customize2" optional="true"/>
             <sequential>
-                <condition else="-testclass @{testClass}" property="test.class.or.method" value="-methods @{testClass}.@{testMethod}">
-                    <isset property="test.method"/>
+                <condition else="-testclass @{testClass}" property="backend.test.class.or.method" value="-methods @{testClass}.@{testMethod}">
+                    <isset property="backend.test.method"/>
                 </condition>
-                <condition else="-suitename NETBEANS-quizGame -testname @{testClass} ${test.class.or.method}" property="testng.cmd.args" value="@{testClass}">
+                <condition else="-suitename NETBEANS-quizGame -testname @{testClass} ${backend.test.class.or.method}" property="testng.cmd.args" value="@{testClass}">
                     <matches pattern=".*\.xml" string="@{testClass}"/>
                 </condition>
-                <delete dir="${build.test.results.dir}" quiet="true"/>
-                <mkdir dir="${build.test.results.dir}"/>
-                <j2seproject3:debug classname="org.testng.TestNG" classpath="${debug.test.classpath}">
+                <delete dir="${build.backend.test.results.dir}" quiet="true"/>
+                <mkdir dir="${build.backend.test.results.dir}"/>
+                <j2seproject3:debug classname="org.testng.TestNG" classpath="${debug.backend.test.classpath}">
                     <customizeDebuggee>
                         <customize2/>
                         <jvmarg value="-ea"/>
                         <arg line="${testng.debug.mode}"/>
-                        <arg line="-d ${build.test.results.dir}"/>
+                        <arg line="-d ${build.backend.test.results.dir}"/>
                         <arg line="-listener org.testng.reporters.VerboseReporter"/>
                         <arg line="${testng.cmd.args}"/>
                     </customizeDebuggee>
@@ -768,8 +768,8 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-junit-debug-impl" if="${junit.available}" name="-init-macrodef-test-debug-junit">
-        <macrodef name="test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
+    <target depends="-init-macrodef-junit-debug-impl" if="${junit.available}" name="-init-macrodef-backend.test-debug-junit">
+        <macrodef name="backend.test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -786,8 +786,8 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-testng-debug-impl" if="${testng.available}" name="-init-macrodef-test-debug-testng">
-        <macrodef name="test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
+    <target depends="-init-macrodef-testng-debug-impl" if="${testng.available}" name="-init-macrodef-backend.test-debug-testng">
+        <macrodef name="backend.test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -798,15 +798,15 @@ is divided into following sections:
                 <j2seproject3:testng-debug-impl testClass="@{testClass}" testMethod="@{testMethod}">
                     <customize2>
                         <syspropertyset>
-                            <propertyref prefix="test-sys-prop."/>
-                            <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                            <propertyref prefix="backend.test-sys-prop."/>
+                            <mapper from="backend.test-sys-prop.*" to="*" type="glob"/>
                         </syspropertyset>
                     </customize2>
                 </j2seproject3:testng-debug-impl>
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-test-debug-junit,-init-macrodef-test-debug-testng" name="-init-macrodef-test-debug"/>
+    <target depends="-init-macrodef-backend.test-debug-junit,-init-macrodef-backend.test-debug-testng" name="-init-macrodef-backend.test-debug"/>
     <!--
                 pre NB7.2 profiling section; consider it deprecated
             -->
@@ -1053,7 +1053,7 @@ is divided into following sections:
         <property name="annotation.processing.processor.options" value=""/>
         <property name="annotation.processing.run.all.processors" value="true"/>
         <property name="javac.processorpath" value="${javac.classpath}"/>
-        <property name="javac.test.processorpath" value="${javac.test.classpath}"/>
+        <property name="javac.backend.test.processorpath" value="${javac.backend.test.classpath}"/>
         <condition property="ap.supported.internal" value="true">
             <not>
                 <matches pattern="1\.[0-5](\..*)?" string="${javac.source}"/>
@@ -1071,7 +1071,7 @@ is divided into following sections:
     <target depends="-init-ap-cmdline-properties,-init-ap-cmdline-supported" name="-init-ap-cmdline">
         <property name="ap.cmd.line.internal" value=""/>
     </target>
-    <target depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-test,-init-macrodef-test-debug,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar,-init-ap-cmdline" name="init"/>
+    <target depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-backend.test,-init-macrodef-backend.test-debug,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar,-init-ap-cmdline" name="init"/>
     <!--
                 ===================
                 COMPILATION SECTION
@@ -1365,9 +1365,9 @@ is divided into following sections:
         <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
         <j2seproject1:java classname="${run.class}"/>
     </target>
-    <target depends="init,compile-test-single" name="run-test-with-main">
+    <target depends="init,compile-backend.test-single" name="run-backend.test-with-main">
         <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
-        <j2seproject1:java classname="${run.class}" classpath="${run.test.classpath}"/>
+        <j2seproject1:java classname="${run.class}" classpath="${run.backend.test.classpath}"/>
     </target>
     <!--
                 =================
@@ -1377,8 +1377,8 @@ is divided into following sections:
     <target depends="init" if="netbeans.home" name="-debug-start-debugger">
         <j2seproject1:nbjpdastart name="${debug.class}"/>
     </target>
-    <target depends="init" if="netbeans.home" name="-debug-start-debugger-main-test">
-        <j2seproject1:nbjpdastart classpath="${debug.test.classpath}" name="${debug.class}"/>
+    <target depends="init" if="netbeans.home" name="-debug-start-debugger-main-backend.test">
+        <j2seproject1:nbjpdastart classpath="${debug.backend.test.classpath}" name="${debug.class}"/>
     </target>
     <target depends="init,compile" name="-debug-start-debuggee">
         <j2seproject3:debug>
@@ -1397,11 +1397,11 @@ is divided into following sections:
         <j2seproject3:debug classname="${debug.class}"/>
     </target>
     <target depends="init,compile-single,-debug-start-debugger,-debug-start-debuggee-single" if="netbeans.home" name="debug-single"/>
-    <target depends="init,compile-test-single" if="netbeans.home" name="-debug-start-debuggee-main-test">
+    <target depends="init,compile-backend.test-single" if="netbeans.home" name="-debug-start-debuggee-main-backend.test">
         <fail unless="debug.class">Must select one file in the IDE or set debug.class</fail>
-        <j2seproject3:debug classname="${debug.class}" classpath="${debug.test.classpath}"/>
+        <j2seproject3:debug classname="${debug.class}" classpath="${debug.backend.test.classpath}"/>
     </target>
-    <target depends="init,compile-test-single,-debug-start-debugger-main-test,-debug-start-debuggee-main-test" if="netbeans.home" name="debug-test-with-main"/>
+    <target depends="init,compile-backend.test-single,-debug-start-debugger-main-backend.test,-debug-start-debuggee-main-backend.test" if="netbeans.home" name="debug-backend.test-with-main"/>
     <target depends="init" name="-pre-debug-fix">
         <fail unless="fix.includes">Must set fix.includes</fail>
         <property name="javac.includes" value="${fix.includes}.java"/>
@@ -1450,11 +1450,11 @@ is divided into following sections:
             </customize>
         </profile>
     </target>
-    <target depends="-init-macrodef-junit,profile-init,compile-test-single" if="profiler.info.jvmargs.agent" name="-profile-test-single-pre72">
+    <target depends="-init-macrodef-junit,profile-init,compile-backend.test-single" if="profiler.info.jvmargs.agent" name="-profile-backend.test-single-pre72">
         <fail unless="netbeans.home">This target only works when run from inside the NetBeans IDE.</fail>
         <nbprofiledirect>
             <classpath>
-                <path path="${run.test.classpath}"/>
+                <path path="${run.backend.test.classpath}"/>
             </classpath>
         </nbprofiledirect>
         <j2seproject3:junit excludes="${excludes}" includes="${includes}" testincludes="${profile.class}" testmethods="">
@@ -1464,7 +1464,7 @@ is divided into following sections:
                 <jvmarg value="${profiler.info.jvmargs.agent}"/>
                 <jvmarg line="${profiler.info.jvmargs}"/>
                 <classpath>
-                    <path path="${run.test.classpath}"/>
+                    <path path="${run.backend.test.classpath}"/>
                 </classpath>
             </customize>
         </j2seproject3:junit>
@@ -1489,16 +1489,16 @@ is divided into following sections:
         <startprofiler/>
         <antcall target="run-single"/>
     </target>
-    <target depends="-profile-test-single-pre72" description="Profile a selected test in the IDE." name="profile-test-single"/>
-    <target depends="-profile-check" description="Profile a selected test in the IDE." if="profiler.configured" name="profile-test" unless="profiler.info.jvmargs">
-        <fail unless="test.includes">Must select some files in the IDE or set test.includes</fail>
+    <target depends="-profile-backend.test-single-pre72" description="Profile a selected backend.test in the IDE." name="profile-backend.test-single"/>
+    <target depends="-profile-check" description="Profile a selected backend.test in the IDE." if="profiler.configured" name="profile-backend.test" unless="profiler.info.jvmargs">
+        <fail unless="backend.test.includes">Must select some files in the IDE or set backend.test.includes</fail>
         <startprofiler/>
-        <antcall target="test-single"/>
+        <antcall target="backend.test-single"/>
     </target>
-    <target depends="-profile-check" description="Profile a selected class in the IDE." if="profiler.configured" name="profile-test-with-main">
+    <target depends="-profile-check" description="Profile a selected class in the IDE." if="profiler.configured" name="profile-backend.test-with-main">
         <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
         <startprofiler/>
-        <antcall target="run-test-with-main"/>
+        <antcall target="run-backend.test-with-main"/>
     </target>
     <target depends="-profile-check,-profile-applet-pre72" if="profiler.configured" name="profile-applet" unless="profiler.info.jvmargs.agent">
         <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
@@ -1564,161 +1564,161 @@ is divided into following sections:
                 TEST COMPILATION SECTION
                 =========================
             -->
-    <target depends="init,compile" if="have.tests" name="-pre-pre-compile-test">
-        <mkdir dir="${build.test.classes.dir}"/>
+    <target depends="init,compile" if="have.tests" name="-pre-pre-compile-backend.test">
+        <mkdir dir="${build.backend.test.classes.dir}"/>
     </target>
-    <target name="-pre-compile-test">
+    <target name="-pre-compile-backend.test">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="-init-source-module-properties" if="named.module.internal" name="-init-test-javac-module-properties-with-module">
-        <j2seproject3:modulename property="test.module.name" sourcepath="${test.src.dir}"/>
-        <condition else="${empty.dir}" property="javac.test.sourcepath" value="${test.src.dir}">
+    <target depends="-init-source-module-properties" if="named.module.internal" name="-init-backend.test-javac-module-properties-with-module">
+        <j2seproject3:modulename property="backend.test.module.name" sourcepath="${backend.test.src.dir}"/>
+        <condition else="${empty.dir}" property="javac.backend.test.sourcepath" value="${backend.test.src.dir}">
             <and>
-                <isset property="test.module.name"/>
-                <length length="0" string="${test.module.name}" when="greater"/>
+                <isset property="backend.test.module.name"/>
+                <length length="0" string="${backend.test.module.name}" when="greater"/>
             </and>
         </condition>
-        <condition else="--patch-module ${module.name}=${test.src.dir} --add-reads ${module.name}=ALL-UNNAMED" property="javac.test.compilerargs" value="--add-reads ${test.module.name}=ALL-UNNAMED">
+        <condition else="--patch-module ${module.name}=${backend.test.src.dir} --add-reads ${module.name}=ALL-UNNAMED" property="javac.backend.test.compilerargs" value="--add-reads ${backend.test.module.name}=ALL-UNNAMED">
             <and>
-                <isset property="test.module.name"/>
-                <length length="0" string="${test.module.name}" when="greater"/>
+                <isset property="backend.test.module.name"/>
+                <length length="0" string="${backend.test.module.name}" when="greater"/>
             </and>
         </condition>
     </target>
-    <target depends="-init-source-module-properties" if="named.module.internal" name="-init-test-run-module-properties">
-        <condition else="${module.name}" property="run.test.addexport.source.module.internal" value="${test.module.name}">
+    <target depends="-init-source-module-properties" if="named.module.internal" name="-init-backend.test-run-module-properties">
+        <condition else="${module.name}" property="run.backend.test.addexport.source.module.internal" value="${backend.test.module.name}">
             <and>
-                <isset property="test.module.name"/>
-                <length length="0" string="${test.module.name}" when="greater"/>
+                <isset property="backend.test.module.name"/>
+                <length length="0" string="${backend.test.module.name}" when="greater"/>
             </and>
         </condition>
-        <fileset dir="${build.test.classes.dir}" id="run.test.packages.internal" includes="**/*.class"/>
-        <property location="${build.test.classes.dir}" name="build.test.classes.dir.abs.internal"/>
-        <pathconvert pathsep=" " property="run.test.addexports.internal" refid="run.test.packages.internal">
+        <fileset dir="${build.backend.test.classes.dir}" id="run.backend.test.packages.internal" includes="**/*.class"/>
+        <property location="${build.backend.test.classes.dir}" name="build.backend.test.classes.dir.abs.internal"/>
+        <pathconvert pathsep=" " property="run.backend.test.addexports.internal" refid="run.backend.test.packages.internal">
             <chainedmapper>
                 <regexpmapper from="^(.*)\Q${file.separator}\E.*\.class$$" to="\1"/>
                 <filtermapper>
                     <uniqfilter/>
-                    <replacestring from="${build.test.classes.dir.abs.internal}" to=""/>
+                    <replacestring from="${build.backend.test.classes.dir.abs.internal}" to=""/>
                 </filtermapper>
                 <cutdirsmapper dirs="1"/>
-                <packagemapper from="*" to="--add-exports ${run.test.addexport.source.module.internal}/*=ALL-UNNAMED"/>
+                <packagemapper from="*" to="--add-exports ${run.backend.test.addexport.source.module.internal}/*=ALL-UNNAMED"/>
             </chainedmapper>
         </pathconvert>
-        <condition else="--patch-module ${module.name}=${build.test.classes.dir} --add-modules ${module.name} --add-reads ${module.name}=ALL-UNNAMED ${run.test.addexports.internal}" property="run.test.jvmargs" value="--add-modules ${test.module.name} --add-reads ${test.module.name}=ALL-UNNAMED ${run.test.addexports.internal}">
+        <condition else="--patch-module ${module.name}=${build.backend.test.classes.dir} --add-modules ${module.name} --add-reads ${module.name}=ALL-UNNAMED ${run.backend.test.addexports.internal}" property="run.backend.test.jvmargs" value="--add-modules ${backend.test.module.name} --add-reads ${backend.test.module.name}=ALL-UNNAMED ${run.backend.test.addexports.internal}">
             <and>
-                <isset property="test.module.name"/>
-                <length length="0" string="${test.module.name}" when="greater"/>
+                <isset property="backend.test.module.name"/>
+                <length length="0" string="${backend.test.module.name}" when="greater"/>
             </and>
         </condition>
     </target>
-    <target depends="-init-source-module-properties" name="-init-test-module-properties-without-module" unless="named.module.internal">
-        <property name="javac.test.sourcepath" value="${empty.dir}"/>
-        <property name="javac.test.compilerargs" value=""/>
-        <property name="run.test.jvmargs" value=""/>
+    <target depends="-init-source-module-properties" name="-init-backend.test-module-properties-without-module" unless="named.module.internal">
+        <property name="javac.backend.test.sourcepath" value="${empty.dir}"/>
+        <property name="javac.backend.test.compilerargs" value=""/>
+        <property name="run.backend.test.jvmargs" value=""/>
     </target>
-    <target depends="-init-test-javac-module-properties-with-module,-init-test-module-properties-without-module" name="-init-test-module-properties"/>
-    <target if="do.depend.true" name="-compile-test-depend">
-        <j2seproject3:depend classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
+    <target depends="-init-backend.test-javac-module-properties-with-module,-init-backend.test-module-properties-without-module" name="-init-backend.test-module-properties"/>
+    <target if="do.depend.true" name="-compile-backend.test-depend">
+        <j2seproject3:depend classpath="${javac.backend.test.classpath}" destdir="${build.backend.test.classes.dir}" srcdir="${backend.test.src.dir}"/>
     </target>
-    <target depends="init,deps-jar,compile,-init-test-module-properties,-pre-pre-compile-test,-pre-compile-test,-compile-test-depend" if="have.tests" name="-do-compile-test">
-        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" modulepath="${javac.test.modulepath}" processorpath="${javac.test.processorpath}" sourcepath="${javac.test.sourcepath}" srcdir="${test.src.dir}">
+    <target depends="init,deps-jar,compile,-init-backend.test-module-properties,-pre-pre-compile-backend.test,-pre-compile-backend.test,-compile-backend.test-depend" if="have.tests" name="-do-compile-backend.test">
+        <j2seproject3:javac apgeneratedsrcdir="${build.backend.test.classes.dir}" classpath="${javac.backend.test.classpath}" debug="true" destdir="${build.backend.test.classes.dir}" modulepath="${javac.backend.test.modulepath}" processorpath="${javac.backend.test.processorpath}" sourcepath="${javac.backend.test.sourcepath}" srcdir="${backend.test.src.dir}">
             <customize>
-                <compilerarg line="${javac.test.compilerargs}"/>
+                <compilerarg line="${javac.backend.test.compilerargs}"/>
             </customize>
         </j2seproject3:javac>
-        <copy todir="${build.test.classes.dir}">
-            <fileset dir="${test.src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        <copy todir="${build.backend.test.classes.dir}">
+            <fileset dir="${backend.test.src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
-    <target name="-post-compile-test">
+    <target name="-post-compile-backend.test">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="init,compile,-pre-pre-compile-test,-pre-compile-test,-do-compile-test,-post-compile-test" name="compile-test"/>
-    <target name="-pre-compile-test-single">
+    <target depends="init,compile,-pre-pre-compile-backend.test,-pre-compile-backend.test,-do-compile-backend.test,-post-compile-backend.test" name="compile-backend.test"/>
+    <target name="-pre-compile-backend.test-single">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="init,deps-jar,compile,-init-test-module-properties,-pre-pre-compile-test,-pre-compile-test-single" if="have.tests" name="-do-compile-test-single">
+    <target depends="init,deps-jar,compile,-init-backend.test-module-properties,-pre-pre-compile-backend.test,-pre-compile-backend.test-single" if="have.tests" name="-do-compile-backend.test-single">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
-        <j2seproject3:force-recompile destdir="${build.test.classes.dir}"/>
-        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" excludes="" includes="${javac.includes}, module-info.java" modulepath="${javac.test.modulepath}" processorpath="${javac.test.processorpath}" sourcepath="${test.src.dir}" srcdir="${test.src.dir}">
+        <j2seproject3:force-recompile destdir="${build.backend.test.classes.dir}"/>
+        <j2seproject3:javac apgeneratedsrcdir="${build.backend.test.classes.dir}" classpath="${javac.backend.test.classpath}" debug="true" destdir="${build.backend.test.classes.dir}" excludes="" includes="${javac.includes}, module-info.java" modulepath="${javac.backend.test.modulepath}" processorpath="${javac.backend.test.processorpath}" sourcepath="${backend.test.src.dir}" srcdir="${backend.test.src.dir}">
             <customize>
-                <compilerarg line="${javac.test.compilerargs}"/>
+                <compilerarg line="${javac.backend.test.compilerargs}"/>
             </customize>
         </j2seproject3:javac>
-        <copy todir="${build.test.classes.dir}">
-            <fileset dir="${test.src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        <copy todir="${build.backend.test.classes.dir}">
+            <fileset dir="${backend.test.src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
-    <target name="-post-compile-test-single">
+    <target name="-post-compile-backend.test-single">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="init,compile,-pre-pre-compile-test,-pre-compile-test-single,-do-compile-test-single,-post-compile-test-single" name="compile-test-single"/>
+    <target depends="init,compile,-pre-pre-compile-backend.test,-pre-compile-backend.test-single,-do-compile-backend.test-single,-post-compile-backend.test-single" name="compile-backend.test-single"/>
     <!--
                 =======================
                 TEST EXECUTION SECTION
                 =======================
             -->
-    <target depends="init" if="have.tests" name="-pre-test-run">
-        <mkdir dir="${build.test.results.dir}"/>
+    <target depends="init" if="have.tests" name="-pre-backend.test-run">
+        <mkdir dir="${build.backend.test.results.dir}"/>
     </target>
-    <target depends="init,compile-test,-init-test-run-module-properties,-pre-test-run" if="have.tests" name="-do-test-run">
+    <target depends="init,compile-backend.test,-init-backend.test-run-module-properties,-pre-backend.test-run" if="have.tests" name="-do-backend.test-run">
         <j2seproject3:test includes="${includes}" testincludes="**/*Test.java"/>
     </target>
-    <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
+    <target depends="init,compile-backend.test,-pre-backend.test-run,-do-backend.test-run" if="have.tests" name="-post-backend.test-run">
         <fail if="tests.failed" unless="ignore.failing.tests">Some tests failed; see details above.</fail>
     </target>
-    <target depends="init" if="have.tests" name="test-report"/>
-    <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse" description="Run unit tests." name="test"/>
-    <target depends="init" if="have.tests" name="-pre-test-run-single">
-        <mkdir dir="${build.test.results.dir}"/>
+    <target depends="init" if="have.tests" name="backend.test-report"/>
+    <target depends="init" if="netbeans.home+have.tests" name="-backend.test-browse"/>
+    <target depends="init,compile-backend.test,-pre-backend.test-run,-do-backend.test-run,backend.test-report,-post-backend.test-run,-backend.test-browse" description="Run unit tests." name="backend.test"/>
+    <target depends="init" if="have.tests" name="-pre-backend.test-run-single">
+        <mkdir dir="${build.backend.test.results.dir}"/>
     </target>
-    <target depends="init,compile-test-single,-init-test-run-module-properties,-pre-test-run-single" if="have.tests" name="-do-test-run-single">
-        <fail unless="test.includes">Must select some files in the IDE or set test.includes</fail>
-        <j2seproject3:test excludes="" includes="${test.includes}" testincludes="${test.includes}"/>
+    <target depends="init,compile-backend.test-single,-init-backend.test-run-module-properties,-pre-backend.test-run-single" if="have.tests" name="-do-backend.test-run-single">
+        <fail unless="backend.test.includes">Must select some files in the IDE or set backend.test.includes</fail>
+        <j2seproject3:test excludes="" includes="${backend.test.includes}" testincludes="${backend.test.includes}"/>
     </target>
-    <target depends="init,compile-test-single,-pre-test-run-single,-do-test-run-single" if="have.tests" name="-post-test-run-single">
+    <target depends="init,compile-backend.test-single,-pre-backend.test-run-single,-do-backend.test-run-single" if="have.tests" name="-post-backend.test-run-single">
         <fail if="tests.failed" unless="ignore.failing.tests">Some tests failed; see details above.</fail>
     </target>
-    <target depends="init,compile-test-single,-init-test-run-module-properties,-pre-test-run-single,-do-test-run-single,-post-test-run-single" description="Run single unit test." name="test-single"/>
-    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-do-test-run-single-method">
-        <fail unless="test.class">Must select some files in the IDE or set test.class</fail>
-        <fail unless="test.method">Must select some method in the IDE or set test.method</fail>
-        <j2seproject3:test excludes="" includes="${javac.includes}" testincludes="${test.class}" testmethods="${test.method}"/>
+    <target depends="init,compile-backend.test-single,-init-backend.test-run-module-properties,-pre-backend.test-run-single,-do-backend.test-run-single,-post-backend.test-run-single" description="Run single unit backend.test." name="backend.test-single"/>
+    <target depends="init,compile-backend.test-single,-pre-backend.test-run-single" if="have.tests" name="-do-backend.test-run-single-method">
+        <fail unless="backend.test.class">Must select some files in the IDE or set backend.test.class</fail>
+        <fail unless="backend.test.method">Must select some method in the IDE or set backend.test.method</fail>
+        <j2seproject3:test excludes="" includes="${javac.includes}" testincludes="${backend.test.class}" testmethods="${backend.test.method}"/>
     </target>
-    <target depends="init,compile-test-single,-pre-test-run-single,-do-test-run-single-method" if="have.tests" name="-post-test-run-single-method">
+    <target depends="init,compile-backend.test-single,-pre-backend.test-run-single,-do-backend.test-run-single-method" if="have.tests" name="-post-backend.test-run-single-method">
         <fail if="tests.failed" unless="ignore.failing.tests">Some tests failed; see details above.</fail>
     </target>
-    <target depends="init,compile-test-single,-init-test-run-module-properties,-pre-test-run-single,-do-test-run-single-method,-post-test-run-single-method" description="Run single unit test." name="test-single-method"/>
+    <target depends="init,compile-backend.test-single,-init-backend.test-run-module-properties,-pre-backend.test-run-single,-do-backend.test-run-single-method,-post-backend.test-run-single-method" description="Run single unit backend.test." name="backend.test-single-method"/>
     <!--
                 =======================
                 TEST DEBUGGING SECTION
                 =======================
             -->
-    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test">
-        <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testincludes="${javac.includes}"/>
+    <target depends="init,compile-backend.test-single,-pre-backend.test-run-single" if="have.tests" name="-debug-start-debuggee-backend.test">
+        <fail unless="backend.test.class">Must select one file in the IDE or set backend.test.class</fail>
+        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${backend.test.class}" testincludes="${javac.includes}"/>
     </target>
-    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test-method">
-        <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <fail unless="test.method">Must select some method in the IDE or set test.method</fail>
-        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testMethod="${test.method}" testincludes="${test.class}" testmethods="${test.method}"/>
+    <target depends="init,compile-backend.test-single,-pre-backend.test-run-single" if="have.tests" name="-debug-start-debuggee-backend.test-method">
+        <fail unless="backend.test.class">Must select one file in the IDE or set backend.test.class</fail>
+        <fail unless="backend.test.method">Must select some method in the IDE or set backend.test.method</fail>
+        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${backend.test.class}" testMethod="${backend.test.method}" testincludes="${backend.test.class}" testmethods="${backend.test.method}"/>
     </target>
-    <target depends="init,compile-test" if="netbeans.home+have.tests" name="-debug-start-debugger-test">
-        <j2seproject1:nbjpdastart classpath="${debug.test.classpath}" name="${test.class}"/>
+    <target depends="init,compile-backend.test" if="netbeans.home+have.tests" name="-debug-start-debugger-backend.test">
+        <j2seproject1:nbjpdastart classpath="${debug.backend.test.classpath}" name="${test.class}"/>
     </target>
-    <target depends="init,compile-test-single,-init-test-run-module-properties,-debug-start-debugger-test,-debug-start-debuggee-test" name="debug-test"/>
-    <target depends="init,compile-test-single,-init-test-run-module-properties,-debug-start-debugger-test,-debug-start-debuggee-test-method" name="debug-test-method"/>
-    <target depends="debug-test-method" name="debug-single-method"/>
-    <target depends="init,-pre-debug-fix,compile-test-single" if="netbeans.home" name="-do-debug-fix-test">
-        <j2seproject1:nbjpdareload dir="${build.test.classes.dir}"/>
+    <target depends="init,compile-backend.test-single,-init-backend.test-run-module-properties,-debug-start-debugger-backend.test,-debug-start-debuggee-backend.test" name="debug-backend.test"/>
+    <target depends="init,compile-backend.test-single,-init-backend.test-run-module-properties,-debug-start-debugger-backend.test,-debug-start-debuggee-backend.test-method" name="debug-backend.test-method"/>
+    <target depends="debug-backend.test-method" name="debug-single-method"/>
+    <target depends="init,-pre-debug-fix,compile-backend.test-single" if="netbeans.home" name="-do-debug-fix-backend.test">
+        <j2seproject1:nbjpdareload dir="${build.backend.test.classes.dir}"/>
     </target>
-    <target depends="init,-pre-debug-fix,-do-debug-fix-test" if="netbeans.home" name="debug-fix-test"/>
+    <target depends="init,-pre-debug-fix,-do-debug-fix-backend.test" if="netbeans.home" name="debug-fix-backend.test"/>
     <!--
                 =========================
                 APPLET EXECUTION SECTION

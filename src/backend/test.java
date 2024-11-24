@@ -1,10 +1,11 @@
+package backend;
 
 import java.sql.*;
 import java.util.*;
 
 public class test{
     public static void main(String[] args) {
-        // Database connection details
+        // backend.Database connection details
         Database database = new Database();
         Scanner console = new Scanner(System.in);
 
