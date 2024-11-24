@@ -3,8 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package main.ui;
+import backend.Database;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.sql.SQLException;
 
 
 /**
@@ -12,11 +14,13 @@ import java.awt.event.ActionEvent;
  * @author laroc
  */
 public class SignIn extends javax.swing.JFrame {
-
+    
+    private Database db;
 
     private String userName;
     private String password;
-    public SignIn() {
+    public SignIn(Database db) {
+        this.db = db;
         initComponents();
         this.setLocationRelativeTo(null);
 
@@ -92,7 +96,11 @@ public class SignIn extends javax.swing.JFrame {
         });
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loginButtonActionPerformed(evt);
+                try{
+                    loginButtonActionPerformed(evt);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -121,6 +129,11 @@ public class SignIn extends javax.swing.JFrame {
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 signUpButtonMouseExited(evt);
+            }
+        });
+        signUpButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                signUpButtonActionPerformed(evt);
             }
         });
 
@@ -239,16 +252,30 @@ public class SignIn extends javax.swing.JFrame {
         loginButton.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
     }//GEN-LAST:event_loginButtonMouseExited
 
-    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        // TODO add your handling code here:
-        System.out.println("Login Button");
-        userName = UserField.getText();
+    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) throws SQLException {//GEN-FIRST:event_loginButtonActionPerformed
+       System.out.println("Login Button");
+
+        // Get user inputs
+        userName = UserField.getText().trim();
         password = PasswordField.getText();
-        
-        System.out.println(userName);
-        System.out.println(password);
-        
-        new HomeForm().setVisible(true);
+
+        // Validate inputs
+        if (userName.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Please fill in all fields.");
+            return;
+        }
+
+        // Perform database query
+        boolean proceed = db.validateUserLogIn(userName, password);
+
+        // Handle the result
+        if (proceed) {
+            new HomeForm().setVisible(true); // Open the HomeForm on successful login
+            this.dispose(); // Close the login form
+        } else {
+            // Feedback is already handled inside the dbSelQuery method
+        }
+
 
     }//GEN-LAST:event_loginButtonActionPerformed
 
@@ -263,6 +290,11 @@ public class SignIn extends javax.swing.JFrame {
     private void jPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseClicked
       // TODO add your handling code here:
     }//GEN-LAST:event_jPanel1MouseClicked
+
+    private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signUpButtonActionPerformed
+        // TODO add your handling code here:
+        new RegisterForm(db).setVisible(true);
+    }//GEN-LAST:event_signUpButtonActionPerformed
 
 
     
@@ -299,11 +331,11 @@ public class SignIn extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new SignIn().setVisible(true);
-            }
-        });
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new SignIn().setVisible(true);
+//            }
+//        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

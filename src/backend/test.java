@@ -1,3 +1,4 @@
+/*
 package backend;
 
 import java.sql.*;
@@ -58,22 +59,22 @@ public class test{
 
 }
 
-class Database{
-   private String url = "jdbc:mysql://localhost:3306/practice"; // Replace with your database name
-    private String user = "root"; // Default username for XAMPP
-    private String password = ""; // Default password is empty
-
-   Database(){
-       //default
-   }
-
-   public String getUrl(){
-       return this.url;
-   }
-    public String getUser(){
-        return this.user;
-    }
-    public String getPassword(){
-        return this.password;
-    }
-}
+//class Database{
+//   private String url = "jdbc:mysql://localhost:3306/practice"; // Replace with your database name
+//    private String user = "root"; // Default username for XAMPP
+//    private String password = ""; // Default password is empty
+//
+//   Database(){
+//       //default
+//   }
+//
+//   public String getUrl(){
+//       return this.url;
+//   }
+//    public String getUser(){
+//        return this.user;
+//    }
+//    public String getPassword(){
+//        return this.password;
+//    }
+//}*/
