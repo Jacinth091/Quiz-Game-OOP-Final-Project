@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package main.ui;
-
 import java.awt.*;
 
 
@@ -269,10 +268,7 @@ public class Main extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-//                new Main().setVisible(true);
-//                new homeQUIZ().setVisible(true);
-                new MyFrame().setVisible(true);
-
+                new Main().setVisible(true);
             }
         });
     }
