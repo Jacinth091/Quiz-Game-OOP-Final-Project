@@ -1,44 +1,34 @@
 package main.logic;
 
 import backend.Database;
+import backend.Helper;
 
 import java.sql.SQLException;
 import main.ui.SignIn;
+import backend.Database;
+import backend.DatabaseManager;
+import backend.Helper;
+import backend.AccountManager.LogInManager;
+import backend.AccountManager.UserManager;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args){
+        
+        DatabaseManager dbManager = new DatabaseManager();
 
-        Database db = Database.getInstance();
 
-
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SignIn(db).setVisible(true);
-                try{
-                    addAdminAccount(db);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+   java.awt.EventQueue.invokeLater(() -> {
+            try {
+                // Pass dbManager to the SignIn form
+                new App(dbManager).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                dbManager.closeConnection(); // Ensure the connection is closed properly
             }
         });
-
-
-
-
-
-
-
-
     }
-    public static void addAdminAccount(Database db) throws SQLException {
 
-        if(!db.validateUserLogIn(db.getUser(), db.getPass())){
-            db.insertDataToTable(db.getUser(), db.getPass());
-        }
-        else{
-            System.out.println("Admin is added already!");
-        }
-    }
+
+
 }
