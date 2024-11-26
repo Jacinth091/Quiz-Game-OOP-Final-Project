@@ -4,18 +4,32 @@
  */
 package main.ui;
 
+import java.awt.Color;
+import backend.Database;
+import backend.DatabaseManager;
+
 /**
  *
  * @author laroc
  */
 public class HomeForm extends javax.swing.JFrame {
-
+    private DatabaseManager dbManager;
     /**
      * Creates new form homeQUIZ
      */
+    
+    public HomeForm(DatabaseManager dbManager) {
+        this.dbManager = dbManager;
+        initComponents();
+        setLocationRelativeTo(null);
+
+        
+    }
     public HomeForm() {
         initComponents();
-        this.setLocationRelativeTo(null);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
 
     }
 
@@ -28,22 +42,35 @@ public class HomeForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        homeQuizPanel = new javax.swing.JPanel();
         singlePlayBtn = new javax.swing.JButton();
         multiPlayBtn = new javax.swing.JButton();
         leaderBoardBtn = new javax.swing.JButton();
         tutorBtn = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
+        LogoutBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 51));
-        jPanel1.setPreferredSize(new java.awt.Dimension(559, 664));
+        homeQuizPanel.setBackground(new java.awt.Color(0, 0, 51));
+        homeQuizPanel.setPreferredSize(new java.awt.Dimension(559, 664));
 
         singlePlayBtn.setBackground(new java.awt.Color(0, 51, 102));
         singlePlayBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         singlePlayBtn.setForeground(new java.awt.Color(255, 255, 255));
         singlePlayBtn.setText("Singleplayer");
+        singlePlayBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        singlePlayBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                singlePlayBtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                singlePlayBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                singlePlayBtnMouseExited(evt);
+            }
+        });
         singlePlayBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 singlePlayBtnActionPerformed(evt);
@@ -54,6 +81,18 @@ public class HomeForm extends javax.swing.JFrame {
         multiPlayBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         multiPlayBtn.setForeground(new java.awt.Color(255, 255, 255));
         multiPlayBtn.setText("Multiplayer");
+        multiPlayBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        multiPlayBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                multiPlayBtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                multiPlayBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                multiPlayBtnMouseExited(evt);
+            }
+        });
         multiPlayBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 multiPlayBtnActionPerformed(evt);
@@ -64,6 +103,15 @@ public class HomeForm extends javax.swing.JFrame {
         leaderBoardBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         leaderBoardBtn.setForeground(new java.awt.Color(255, 255, 255));
         leaderBoardBtn.setText("Leaderboards");
+        leaderBoardBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        leaderBoardBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                leaderBoardBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                leaderBoardBtnMouseExited(evt);
+            }
+        });
         leaderBoardBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 leaderBoardBtnActionPerformed(evt);
@@ -74,36 +122,67 @@ public class HomeForm extends javax.swing.JFrame {
         tutorBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         tutorBtn.setForeground(new java.awt.Color(255, 255, 255));
         tutorBtn.setText("Tutorial");
+        tutorBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tutorBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                tutorBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                tutorBtnMouseExited(evt);
+            }
+        });
 
         jLabel5.setFont(new java.awt.Font("Montserrat", 1, 48)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Quiz Game");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(38, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(multiPlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(singlePlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(leaderBoardBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tutorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(218, 218, 218))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(70, 70, 70))))
+        LogoutBtn.setBackground(new java.awt.Color(0, 51, 102));
+        LogoutBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        LogoutBtn.setForeground(new java.awt.Color(255, 255, 255));
+        LogoutBtn.setText("Logout");
+        LogoutBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        LogoutBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LogoutBtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                LogoutBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                LogoutBtnMouseExited(evt);
+            }
+        });
+        LogoutBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LogoutBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout homeQuizPanelLayout = new javax.swing.GroupLayout(homeQuizPanel);
+        homeQuizPanel.setLayout(homeQuizPanelLayout);
+        homeQuizPanelLayout.setHorizontalGroup(
+            homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeQuizPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(multiPlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(singlePlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(leaderBoardBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tutorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(LogoutBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(218, 218, 218))
+            .addGroup(homeQuizPanelLayout.createSequentialGroup()
+                .addGap(75, 75, 75)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(74, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(50, 50, 50)
+        homeQuizPanelLayout.setVerticalGroup(
+            homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeQuizPanelLayout.createSequentialGroup()
+                .addGap(41, 41, 41)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(36, 36, 36)
+                .addGap(45, 45, 45)
                 .addComponent(singlePlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(32, 32, 32)
                 .addComponent(multiPlayBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -111,36 +190,97 @@ public class HomeForm extends javax.swing.JFrame {
                 .addComponent(leaderBoardBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(40, 40, 40)
                 .addComponent(tutorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(169, Short.MAX_VALUE))
+                .addGap(39, 39, 39)
+                .addComponent(LogoutBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(104, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(homeQuizPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
+            .addComponent(homeQuizPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void singlePlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singlePlayBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_singlePlayBtnActionPerformed
+
     private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
         // TODO add your handling code here:
-        new MultiPlayer().setVisible(true);
-        this.setVisible(false);
+  
     }//GEN-LAST:event_multiPlayBtnActionPerformed
 
     private void leaderBoardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderBoardBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_leaderBoardBtnActionPerformed
 
-    private void singlePlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singlePlayBtnActionPerformed
+    private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
+            new SinglePlayer(dbManager).getSingleLogic().startTimer();
+            this.setVisible(false);
         // TODO add your handling code here:
-    }//GEN-LAST:event_singlePlayBtnActionPerformed
+    }//GEN-LAST:event_singlePlayBtnMouseClicked
+
+    private void multiPlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseClicked
+            new MultiPlayer(dbManager).setVisible(true);
+            this.setVisible(false);        // TODO add your handling code here:
+    }//GEN-LAST:event_multiPlayBtnMouseClicked
+
+    private void LogoutBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseClicked
+        new SignIn(dbManager).setVisible(true);
+         this.setVisible(false);   // TODO add your handling code here:
+    }//GEN-LAST:event_LogoutBtnMouseClicked
+
+    private void singlePlayBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseEntered
+        singlePlayBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+    }//GEN-LAST:event_singlePlayBtnMouseEntered
+
+    private void multiPlayBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseEntered
+        multiPlayBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+    }//GEN-LAST:event_multiPlayBtnMouseEntered
+
+    private void leaderBoardBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseEntered
+        leaderBoardBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+    }//GEN-LAST:event_leaderBoardBtnMouseEntered
+
+    private void tutorBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tutorBtnMouseEntered
+        tutorBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+    }//GEN-LAST:event_tutorBtnMouseEntered
+
+    private void LogoutBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseEntered
+        LogoutBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+    }//GEN-LAST:event_LogoutBtnMouseEntered
+
+    private void singlePlayBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseExited
+       singlePlayBtn.setBackground(Color.decode("#003366"));         // TODO add your handling code here:
+    }//GEN-LAST:event_singlePlayBtnMouseExited
+
+    private void multiPlayBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseExited
+        multiPlayBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+    }//GEN-LAST:event_multiPlayBtnMouseExited
+
+    private void leaderBoardBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseExited
+        leaderBoardBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+    }//GEN-LAST:event_leaderBoardBtnMouseExited
+
+    private void tutorBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tutorBtnMouseExited
+        tutorBtn.setBackground(Color.decode("#003366"));         // TODO add your handling code here:
+    }//GEN-LAST:event_tutorBtnMouseExited
+
+    private void LogoutBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseExited
+        LogoutBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+    }//GEN-LAST:event_LogoutBtnMouseExited
+
+    private void LogoutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_LogoutBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -179,8 +319,9 @@ public class HomeForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton LogoutBtn;
+    private javax.swing.JPanel homeQuizPanel;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JButton leaderBoardBtn;
     private javax.swing.JButton multiPlayBtn;
     private javax.swing.JButton singlePlayBtn;

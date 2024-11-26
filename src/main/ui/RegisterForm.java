@@ -4,23 +4,38 @@
  */
 package main.ui;
 import backend.Database;
+import backend.DatabaseManager;
+
+import backend.AccountManager.UserManager;
+import backend.AccountManager.LogInManager;
+
+
+import backend.Helper;
+
+import main.logic.Main;
+import javax.swing.*;
+import java.sql.SQLException;
 
 /**
  *
  * @author laroc
  */
 public class RegisterForm extends javax.swing.JFrame {
-
+    private Helper util = new Helper();
     private String userName, password, reEnterPassword; 
-    private Database db;
     
-    public RegisterForm(Database db) {
-        this.db = db;
-        initComponents();   
-        setLocationRelativeTo(null);
+    private DatabaseManager dbManager;
+    private UserManager userAccount;
+    private LogInManager logIn;
+    private ImageIcon eyeOpen;
+    private ImageIcon eyeClose;
 
+
+    public RegisterForm(DatabaseManager dbManager){
+        this.dbManager = dbManager;
+        initComponents();
+        setLocationRelativeTo(null);
     }
-    
     public RegisterForm(){
         initComponents();
         setLocationRelativeTo(null);
@@ -44,7 +59,7 @@ public class RegisterForm extends javax.swing.JFrame {
         signUpBtn = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        signUpButton = new javax.swing.JButton();
+        logInBtn = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel8 = new javax.swing.JLabel();
         PasswordField = new javax.swing.JPasswordField();
@@ -115,25 +130,25 @@ public class RegisterForm extends javax.swing.JFrame {
         jLabel3.setForeground(new java.awt.Color(0, 0, 128));
         jLabel3.setText("Already have an account");
 
-        signUpButton.setBackground(new java.awt.Color(0, 51, 102));
-        signUpButton.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        signUpButton.setForeground(new java.awt.Color(255, 255, 255));
-        signUpButton.setText("Log In");
-        signUpButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        signUpButton.setBorderPainted(false);
-        signUpButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        signUpButton.setFocusable(false);
-        signUpButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        logInBtn.setBackground(new java.awt.Color(0, 51, 102));
+        logInBtn.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        logInBtn.setForeground(new java.awt.Color(255, 255, 255));
+        logInBtn.setText("Log In");
+        logInBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        logInBtn.setBorderPainted(false);
+        logInBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        logInBtn.setFocusable(false);
+        logInBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                signUpButtonMouseEntered(evt);
+                logInBtnMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                signUpButtonMouseExited(evt);
+                logInBtnMouseExited(evt);
             }
         });
-        signUpButton.addActionListener(new java.awt.event.ActionListener() {
+        logInBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                signUpButtonActionPerformed(evt);
+                logInBtnActionPerformed(evt);
             }
         });
 
@@ -175,7 +190,7 @@ public class RegisterForm extends javax.swing.JFrame {
             }
         });
 
-        eyeLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        eyeLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         eyeLabel1.setText("eye");
         eyeLabel1.setOpaque(true);
         eyeLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -186,6 +201,9 @@ public class RegisterForm extends javax.swing.JFrame {
                 eyeLabel1MouseReleased(evt);
             }
         });
+        javax.swing.ImageIcon eyeOpen =  util.resizeImageIcon("src/Assets/icons/eye.png", 25,25);
+        eyeLabel1.setIcon(eyeOpen);
+        eyeLabel1.setHorizontalAlignment(JLabel.CENTER);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -203,7 +221,7 @@ public class RegisterForm extends javax.swing.JFrame {
                         .addGap(83, 83, 83)
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
-                        .addComponent(signUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(logInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -247,7 +265,7 @@ public class RegisterForm extends javax.swing.JFrame {
                 .addGap(12, 12, 12)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(signUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(logInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
@@ -277,7 +295,7 @@ public class RegisterForm extends javax.swing.JFrame {
                 .addComponent(jLabel9)
                 .addGap(60, 60, 60)
                 .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(119, Short.MAX_VALUE))
+                .addContainerGap(83, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -288,7 +306,7 @@ public class RegisterForm extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 736, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -302,29 +320,36 @@ public class RegisterForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_PasswordFieldActionPerformed
 
-    private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signUpButtonActionPerformed
+    private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_signUpButtonActionPerformed
+        new Main().runApp();
+        this.setVisible(false);
+//        dispose();
+    }//GEN-LAST:event_logInBtnActionPerformed
 
-    private void signUpButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpButtonMouseExited
-        signUpButton.setBackground(java.awt.Color.decode("#003366"));        // TODO add your handling code here:
-    }//GEN-LAST:event_signUpButtonMouseExited
+    private void logInBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logInBtnMouseExited
+        logInBtn.setBackground(java.awt.Color.decode("#003366"));        // TODO add your handling code here:
+    }//GEN-LAST:event_logInBtnMouseExited
 
-    private void signUpButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpButtonMouseEntered
-        signUpButton.setBackground(java.awt.Color.decode("#000080"));        // TODO add your handling code here:
-    }//GEN-LAST:event_signUpButtonMouseEntered
+    private void logInBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logInBtnMouseEntered
+        logInBtn.setBackground(java.awt.Color.decode("#000080"));        // TODO add your handling code here:
+    }//GEN-LAST:event_logInBtnMouseEntered
 
     private void signUpBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signUpBtnActionPerformed
         // TODO add your handling code here:
         boolean reEnterValue = false;
+        boolean isUserUnique = false;
         System.out.println("Sign Up Button");
-        userName = UserField.getText();
+        userName = UserField.getText().trim();
         password = PasswordField.getText();
         reEnterPassword = reEnterPasswordField.getText();
 
         // Validate inputs
         if (userName.isEmpty() || password.isEmpty() || reEnterPassword.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(null, "Please fill in all fields.");
+            return;
+        }else if(password.length() < 8 || reEnterPassword.length() < 8){
+            javax.swing.JOptionPane.showMessageDialog(null, "Minimum of atleast 8 characters");
             return;
         }
 
@@ -338,21 +363,35 @@ public class RegisterForm extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Re enter password doesn't match!, try again!");
         }
         else{
-            new SignIn(db).setVisible(true);
+            
+            try{
+                boolean isLoggedIn = new LogInManager(dbManager).logInUser(userName, password);
+                
+                if(isLoggedIn){
+                    javax.swing.JOptionPane.showMessageDialog(this, "This account already exist");
+                }
+                else{
+                    int code = javax.swing.JOptionPane.showConfirmDialog(this, "Do you want to create this account?", "Confirm", JOptionPane.YES_NO_OPTION);
+                    switch(code){
+                        case 0:
+                            new UserManager(this.dbManager).createUser(userName, password);
+                            dispose();
+                            new Main().runApp();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                
+
+  
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+
         }
 
-        //        if(!isTheSame){
-            //            System.out.println(userName);
-            //            System.out.println(password);
-            //
-            //            System.out.println(reEnterPassword);
-            //            new HomeForm().setVisible(true);
-            //
-            //        }else{
-            //            javax.swing.JOptionPane.showMessageDialog(null, "Password is not the same, enter again");
-            //            dispose();
-            //            new RegisterForm().setVisible(true);
-            //        }
     }//GEN-LAST:event_signUpBtnActionPerformed
 
     private void signUpBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpBtnMouseExited
@@ -442,9 +481,9 @@ public class RegisterForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JButton logInBtn;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPasswordField reEnterPasswordField;
     private javax.swing.JButton signUpBtn;
-    private javax.swing.JButton signUpButton;
     // End of variables declaration//GEN-END:variables
 }
