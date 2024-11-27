@@ -18,6 +18,7 @@ import java.sql.SQLException;
 public class DatabaseManager {
     
     private Database db;
+    private DatabaseManagerCallback dbManCallback;
     
     
     public DatabaseManager() {
@@ -29,6 +30,10 @@ public class DatabaseManager {
           }
     }
     
+    
+    public void setCallback(DatabaseManagerCallback callback){
+        this.dbManCallback = callback;
+    }
 
 
     // Insert a new user into the database
@@ -129,3 +134,4 @@ public class DatabaseManager {
     }
 
 }
+
