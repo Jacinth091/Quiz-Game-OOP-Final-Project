@@ -179,6 +179,7 @@ public class RegisterForm extends javax.swing.JFrame {
         });
 
         eyeLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        eyeLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         eyeLabel2.setText("eye");
         eyeLabel2.setOpaque(true);
         eyeLabel2.addMouseListener(new java.awt.event.MouseAdapter() {

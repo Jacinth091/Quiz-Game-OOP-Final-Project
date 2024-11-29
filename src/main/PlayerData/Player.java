@@ -10,41 +10,20 @@ package main.PlayerData;
  */
 public class Player {
     
-    private String userId, userName, playerId, playerName;
+    private String playerId, playerName;
     
     private int singlePlay_Score = 0;
     private int multiPlay_Score = 0;
     
 
-    public Player(String userId, String userName , String playerId, String playerName, int singlePlay_Score, int multiPlay_Score) {
-        this.userId = userId;
-        this.userName = userName;
+    public Player( String playerId, String playerName, int singlePlay_Score, int multiPlay_Score) {
         this.playerId = playerId;
         this.playerName = playerName;
         this.singlePlay_Score = singlePlay_Score;
         this.multiPlay_Score = multiPlay_Score;
     }
-    
-    
-    
-    
-    
+    public Player(){}
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public String getPlayerId() {
         return playerId;

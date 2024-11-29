@@ -7,7 +7,7 @@ package backend.AccountManager;
 import backend.Database;
 import backend.DatabaseManager;
 import java.sql.SQLException;
-
+import java.sql.Connection;
 
 /**
  *
@@ -22,6 +22,9 @@ public class LogInManager {
     
     public boolean logInUser(String userName, String userPass) throws SQLException{
         return dbManager.validateLogin(userName, userPass);
+    }
+        public boolean logInUser(Connection connection, String userName, String userPass) throws SQLException{
+        return dbManager.validateLogin(connection, userName, userPass);
     }
     
 }

@@ -61,7 +61,29 @@ public class DatabaseManager {
         String selQuery = "SELECT user_Pass FROM user WHERE user_Name = ?";
 
         try (Connection connection = db.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(selQuery)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(selQuery)) {
+            preparedStatement.setString(1, userName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedPassword = resultSet.getString("user_Pass");
+                isValid = storedPassword.equals(userPassword);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;  // Propagate the SQLException
+        }
+
+        return isValid;
+    }
+    
+        public boolean validateLogin(Connection connection, String userName, String userPassword) throws SQLException {
+        boolean isValid = false;
+        String selQuery = "SELECT user_Pass FROM user WHERE user_Name = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(selQuery)) 
+        {
             preparedStatement.setString(1, userName);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -92,7 +114,84 @@ public class DatabaseManager {
 //        
 //        
 //    }
+        
+    public String getUserId(Connection connection, String userName) throws SQLException{
+        String userId = "";
+        String query = "SELECT user_Id FROM user WHERE user_Name = ?";
+        
+        try(PreparedStatement prepStatement = connection.prepareStatement(query)){
+            prepStatement.setString(1, userName);
+            ResultSet resultSet = prepStatement.executeQuery();
 
+            if(resultSet.next()){
+                userId = resultSet.getString("user_Id");
+            }
+
+
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        return userId; 
+    }
+        
+    public boolean checkIfUserHasPlayerAcc(Connection connection, String userName) throws SQLException{
+        boolean flag = false;
+        String query = "SELECT player_Id FROM player WHERE user_Id = ?";
+        String userID, playerID;
+        try(PreparedStatement prepStatement = connection.prepareStatement(query)){
+                        
+            userID  = getUserId(connection, userName);
+            prepStatement.setString(1, userID);
+            ResultSet resultSet = prepStatement.executeQuery();
+
+            if(resultSet.next()){
+                playerID = resultSet.getString("player_Id");
+                System.out.println("Player ID: " + playerID);
+                flag = true;
+            }
+            else{
+                flag = false;
+            }
+
+            
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            throw e;
+        }
+        
+        return flag;
+
+        
+    }
+    
+    public boolean createPlayerAccount(Connection connection, String playerName, String userId){
+        boolean flag = false;
+        String query = "INSERT INTO player (player_Name, user_Id, singlePlay_HighScore, multiPlay_HighScore) VALUES (?, ?,?,?) ";
+        try(PreparedStatement prepStatement = connection.prepareStatement(query)){
+            prepStatement.setString(1, playerName);
+            prepStatement.setString(2, userId);
+            prepStatement.setString(3, "0");
+            prepStatement.setString(4, "0");
+
+            int rowsAffected = prepStatement.executeUpdate();
+            if(rowsAffected > 0){
+                flag = true;
+            }
+            else{
+                flag = false;
+            }
+
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        
+        return flag;
+
+    }
+    
     // Other CRUD operations (example: read all users)
     public void displayAllUsers() throws SQLException {
         String query = "SELECT * FROM user";
@@ -101,12 +200,35 @@ public class DatabaseManager {
              ResultSet resultSet = statement.executeQuery(query)) {
 
             while (resultSet.next()) {
+                String userID = resultSet.getString("user_Id");
                 String userName = resultSet.getString("user_Name");
                 String userPassword = resultSet.getString("user_Pass");
-                System.out.println("Username: " + userName + ", Password: " + userPassword);
+                System.out.println("UserId: "+userID + " Username: " + userName + ", Password: " + userPassword);
             }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            throw e;  // Propagate the SQLException
+        }
+
+    }
+    
+        public void displayAllUsers(Connection connection) throws SQLException {
+        String query = "SELECT * FROM user";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            while (resultSet.next()) {
+                String userID = resultSet.getString("user_Id");
+                String userName = resultSet.getString("user_Name");
+                String userPassword = resultSet.getString("user_Pass");
+                System.out.println("UserId: "+userID + " Username: " + userName + ", Password: " + userPassword);
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            throw e;  // Propagate the SQLException
         }
     }
+
     
     public void testConnection() {
         try (Connection connection = db.getConnection()) {
@@ -122,16 +244,33 @@ public class DatabaseManager {
     }
     
     public void closeConnection() {
-        if (db.getConnection() != null) {
-            try {
-                db.getConnection().close();
-                System.out.println("Database connection closed.");
-            } catch (SQLException e) {
-                System.err.println("Failed to close database connection.");
-                e.printStackTrace();
+        
+        try(Connection connection = db.getConnection())
+        {
+            if ( connection != null) {
+                try {
+                    db.getConnection().close();
+                    System.out.println("Database connection closed.");
+                } catch (SQLException e) {
+                    System.err.println("Failed to close database connection.");
+                    e.printStackTrace();
+                }
             }
+        }catch(SQLException e){
+            e.printStackTrace();
+            
         }
+        
+        
+  
     }
 
+    public Database getDb() {
+        return db;
+    }
+
+    
+    
+    
 }
 

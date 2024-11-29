@@ -10,6 +10,9 @@ import backend.AccountManager.LogInManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
+import java.sql.Connection;
+
+import main.PlayerData.Session;
 
 
 /**
@@ -17,6 +20,7 @@ import java.sql.SQLException;
  * @author laroc
  */
 public class SignIn extends javax.swing.JFrame {
+    private  Session session;
     private DatabaseManager dbManager;
     private LogInManager logIn;
     private String userName;
@@ -25,6 +29,7 @@ public class SignIn extends javax.swing.JFrame {
     
     public SignIn(DatabaseManager dbManager) {
         this.dbManager = dbManager;
+        this.session = new Session();
 
         initComponents();
         this.setLocationRelativeTo(null);
@@ -264,35 +269,7 @@ public class SignIn extends javax.swing.JFrame {
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt)  {//GEN-FIRST:event_loginButtonActionPerformed
        System.out.println("Login Button");
-
-        // Get user inputs
-        userName = UserField.getText().trim();
-        password = PasswordField.getText();
-
-        // Validate inputs
-        if (userName.isEmpty() || password.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Please fill in all fields.");
-            return;
-        }else if( password.length() < 8 ){
-            javax.swing.JOptionPane.showMessageDialog(null, "Minimum atleast 8 characters for your password!");
-            return;
-        }
-        
-        try{
-
-            // Perform database query
-            boolean isLoggedIn = new LogInManager(dbManager).logInUser(userName, password);
-            // Handle the result
-            if (isLoggedIn) {
-                new HomeForm(dbManager).setVisible(true); // Open the HomeForm on successful login
-                this.dispose(); // Close the login form
-            } else {
-                javax.swing.JOptionPane.showMessageDialog(this, "Account doesn't exist");
-            }
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-
+       loginUserAccount();
 
     }//GEN-LAST:event_loginButtonActionPerformed
 
@@ -320,7 +297,46 @@ public class SignIn extends javax.swing.JFrame {
      * @param args the command line arguments
      */
 
+    public void loginUserAccount(){
+              // Get user inputs
+        userName = UserField.getText().trim();
+        password = PasswordField.getText();
 
+        // Validate inputs
+        if (userName.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Please fill in all fields.");
+            return;
+        }else if( password.length() < 8 ){
+            javax.swing.JOptionPane.showMessageDialog(null, "Minimum atleast 8 characters for your password!");
+            return;
+        }
+
+        try(Connection connection = dbManager.getDb().getConnection()){
+            // Perform database query
+            boolean isLoggedIn = new LogInManager(dbManager).logInUser(connection, userName, password);
+//            dbManager.displayAllUsers(connection);
+            session.setUserId(dbManager.getUserId(connection, userName));
+            boolean hasPlayerAccount = dbManager.checkIfUserHasPlayerAcc(connection, userName);
+            
+            if(!isLoggedIn){
+                javax.swing.JOptionPane.showMessageDialog(this, "Account doesn't exist");
+                
+            }
+            else if(!hasPlayerAccount){
+                javax.swing.JOptionPane.showMessageDialog(this, "No Player Account, create one first!");
+                new CreatePlayer(dbManager, session).setVisible(true);
+                this.dispose();
+            }
+            else if(isLoggedIn && hasPlayerAccount){
+                new HomeForm(dbManager).setVisible(true); // Open the HomeForm on successful login
+                this.dispose(); // Close the login form
+            }
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
 
 
     public static void main(String args[]) {

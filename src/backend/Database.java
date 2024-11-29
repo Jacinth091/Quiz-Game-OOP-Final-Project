@@ -23,9 +23,6 @@ public class Database {
             this.connection = openConnection(); 
             System.out.println("Connected to the database successfully!");
 
-
-
-
         } catch (ClassNotFoundException e) {
             System.err.println("MySQL JDBC Driver not found!");
             e.printStackTrace();
@@ -47,24 +44,26 @@ public class Database {
         return instance;
     }
 
-    public Connection openConnection() throws SQLException{
-        return DriverManager.getConnection(url, username, password);
-    }
-    
-   public String getUrl(){
-       return this.url;
-   }
-    public String getUser(){
-        return this.username;
-    }
-    public String getPassword(){
-        return this.password;
-    }
-    
-
-
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            openConnection(); // Reopen the connection if it's null or closed
+        }
         return connection;
     }
 
+    public Connection openConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            connection = DriverManager.getConnection(url, username, password);
+        }
+        return connection;
+    }
+
+    public void closeConnection() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+        }
+    }
 }
+
+
+
