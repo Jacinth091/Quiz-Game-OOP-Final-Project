@@ -3,27 +3,28 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package main.ui;
-import backend.Database;
-import backend.DatabaseManager;
+import backend.Database.Database;
+import backend.Database.DatabaseManager;
 
 import backend.AccountManager.UserManager;
 import backend.AccountManager.LogInManager;
 
 
-import backend.Helper;
+import backend.Images;
 
-import main.logic.Main;
 import javax.swing.*;
 import java.sql.SQLException;
+import main.logic.AppContext;
 
 /**
  *
  * @author laroc
  */
 public class RegisterForm extends javax.swing.JFrame {
-    private Helper util = new Helper();
+    private Images util = new Images();
     private String userName, password, reEnterPassword; 
     
+    private AppContext appContext;
     private DatabaseManager dbManager;
     private UserManager userAccount;
     private LogInManager logIn;
@@ -31,8 +32,9 @@ public class RegisterForm extends javax.swing.JFrame {
     private ImageIcon eyeClose;
 
 
-    public RegisterForm(DatabaseManager dbManager){
-        this.dbManager = dbManager;
+    public RegisterForm(AppContext appContext){
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -202,7 +204,7 @@ public class RegisterForm extends javax.swing.JFrame {
                 eyeLabel1MouseReleased(evt);
             }
         });
-        javax.swing.ImageIcon eyeOpen =  util.resizeImageIcon("src/Assets/icons/eye.png", 25,25);
+//        javax.swing.ImageIcon eyeOpen =  util.resizeImageIcon("src/Assets/icons/eye.png", 25,25);
         eyeLabel1.setIcon(eyeOpen);
         eyeLabel1.setHorizontalAlignment(JLabel.CENTER);
 
@@ -323,7 +325,7 @@ public class RegisterForm extends javax.swing.JFrame {
 
     private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
         // TODO add your handling code here:
-        new Main().runApp();
+        new SignIn(appContext).setVisible(true);
         this.setVisible(false);
 //        dispose();
     }//GEN-LAST:event_logInBtnActionPerformed
@@ -377,16 +379,13 @@ public class RegisterForm extends javax.swing.JFrame {
                         case 0:
                             new UserManager(this.dbManager).createUser(userName, password);
                             dispose();
-                            new Main().runApp();
+                            new SignIn(appContext).setVisible(true);
                             break;
                         default:
                             break;
                     }
                 }
 
-                
-
-  
             }catch(SQLException e){
                 e.printStackTrace();
             }

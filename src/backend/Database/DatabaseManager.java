@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package backend;
+package backend.Database;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * @author PCC
  */
 public class DatabaseManager {
-    
+    private static DatabaseManager instance;
     private Database db;
     private DatabaseManagerCallback dbManCallback;
     
@@ -34,7 +34,13 @@ public class DatabaseManager {
     public void setCallback(DatabaseManagerCallback callback){
         this.dbManCallback = callback;
     }
-
+    
+    public static synchronized DatabaseManager getInstance(){
+        if(instance == null){
+            instance = new DatabaseManager();
+        }
+        return instance;
+    }
 
     // Insert a new user into the database
     public void insertUser(String userName, String userPassword) throws SQLException {
@@ -78,7 +84,7 @@ public class DatabaseManager {
         return isValid;
     }
     
-        public boolean validateLogin(Connection connection, String userName, String userPassword) throws SQLException {
+    public boolean validateLogin(Connection connection, String userName, String userPassword) throws SQLException {
         boolean isValid = false;
         String selQuery = "SELECT user_Pass FROM user WHERE user_Name = ?";
 
@@ -99,22 +105,7 @@ public class DatabaseManager {
 
         return isValid;
     }
-//    
-//    public boolean validateUsername(){
-//        boolean isUnique = false;
-//        
-//        String query = "SELECT user_Name FROM user";
-//        
-//        try(Connection connection = db.openConnection()){
-//            PreparedStatement pState = connection.pState(query);
-//            ResultSet reSet = pState.executeQuery();
-//            
-//            
-//        }
-//        
-//        
-//    }
-        
+
     public String getUserId(Connection connection, String userName) throws SQLException{
         String userId = "";
         String query = "SELECT user_Id FROM user WHERE user_Name = ?";
@@ -168,7 +159,7 @@ public class DatabaseManager {
     
     public boolean createPlayerAccount(Connection connection, String playerName, String userId){
         boolean flag = false;
-        String query = "INSERT INTO player (player_Name, user_Id, singlePlay_HighScore, multiPlay_HighScore) VALUES (?, ?,?,?) ";
+        String query = "INSERT INTO player (player_Name, user_Id, singlePlay_HighScore, multiPlay_HighScore) VALUES (?,?,?,?) ";
         try(PreparedStatement prepStatement = connection.prepareStatement(query)){
             prepStatement.setString(1, playerName);
             prepStatement.setString(2, userId);
@@ -192,6 +183,33 @@ public class DatabaseManager {
 
     }
     
+    
+    public String[] getPlayerAccount(Connection connection, String userId) throws SQLException{
+        String[] data = null;
+        String query = "SELECT * FROM player WHERE user_Id = ?";
+        try(PreparedStatement prepStatement = connection.prepareStatement(query)){
+            prepStatement.setString(1, userId);
+            ResultSet resultSet = prepStatement.executeQuery();
+            
+            if(resultSet.next()){
+                String playerID = resultSet.getString("player_Id");
+                String playerName = resultSet.getString("player_Name");
+                String singleHighScore = resultSet.getString("singlePlay_HighScore");
+                String multiHighScore = resultSet.getString("multiPlay_HighScore");
+
+                data = new String[] {
+                    playerID, playerName, singleHighScore, multiHighScore
+                };
+            }
+
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        
+        return data;
+    }
+    
     // Other CRUD operations (example: read all users)
     public void displayAllUsers() throws SQLException {
         String query = "SELECT * FROM user";
@@ -212,7 +230,7 @@ public class DatabaseManager {
 
     }
     
-        public void displayAllUsers(Connection connection) throws SQLException {
+    public void displayAllUsers(Connection connection) throws SQLException {
         String query = "SELECT * FROM user";
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {

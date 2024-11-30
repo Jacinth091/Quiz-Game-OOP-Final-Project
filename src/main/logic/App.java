@@ -4,10 +4,7 @@
  */
 package main.logic;
 
-import backend.Database;
-import backend.DatabaseManager;
-import backend.Helper;
-import backend.AccountManager.LogInManager;
+
 import backend.AccountManager.UserManager;
 
 import main.ui.SignIn;
@@ -22,35 +19,64 @@ import java.sql.SQLException;
  */
 public class App {
     
-   private Helper util;
-   private DatabaseManager dbManager ;
+    private final AppContext appContext;
     
-    public App(DatabaseManager dbManager){
-        this.dbManager = dbManager;
-        util = new Helper();
+    public App(AppContext appContext){
+        this.appContext = appContext;
     }
     
+
     
     public void start() throws SQLException{
 
-        if(dbManager.validateLogin("admin", "admin123")){
-            System.out.println("Admin Account Already Exists!");
+        java.awt.EventQueue.invokeLater(() -> {
+            try{
+                createAdminAccount();
+                
+                /* Set the Nimbus look and feel */
+                //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        else{
-            UserManager admin = new UserManager(dbManager);
-            admin.createUser("admin", "admin123");
-            
+        //</editor-fold>
+                //</editor-fold>
+                new SignIn(appContext).setVisible(true);  
 
-        }
-        new SignIn(dbManager).setVisible(true);
+            }
+            catch(SQLException e){
+                e.printStackTrace();
+            }
+        });
+        
+        
         
 
     }
     
-    public void initObjects() throws NullPointerException{
-    
-    
-    
+    private void createAdminAccount() throws SQLException{
+        if(appContext.getDbManager().validateLogin("admin", "admin123")){
+            System.out.println("Admin Account Already Exists!");
+        }
+        else{
+            UserManager admin = new UserManager(appContext.getDbManager());
+            admin.createUser("admin", "admin123");
+       }
     }
     
     

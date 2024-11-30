@@ -4,8 +4,8 @@
  */
 package backend.AccountManager;
 
-import backend.Database;
-import backend.DatabaseManager;
+import backend.Database.Database;
+import backend.Database.DatabaseManager;
 import java.sql.SQLException;
 
 /**

@@ -11,7 +11,7 @@ package main.PlayerData;
  * @author PCC
  */
 public class Session {
-    
+    private static Session instance;
     private String userId, userName;
     private Player player;
 
@@ -19,12 +19,21 @@ public class Session {
     }
     
     
-    
+    public static synchronized Session getInstance(){
+        if(instance == null){
+            instance = new Session();
+        }
+        return instance;
+    }
     
     
 
     public Player getPlayer() {
         return player;
+    }
+    
+    public void setPlayer(Player player){
+        this.player = player;
     }
 
     

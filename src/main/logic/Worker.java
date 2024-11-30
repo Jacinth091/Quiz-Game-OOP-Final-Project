@@ -4,8 +4,8 @@
  */
 package main.logic;
 
-import backend.DatabaseManager;
-import backend.DatabaseManagerCallback;
+import backend.Database.DatabaseManager;
+import backend.Database.DatabaseManagerCallback;
 
 
 /**

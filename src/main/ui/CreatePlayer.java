@@ -4,29 +4,32 @@
  */
 package main.ui;
 
-import backend.DatabaseManager;
+import backend.Database.DatabaseManager;
 
-import main.ui.CreatePlayer;
+import main.logic.AppContext;
 import main.PlayerData.Session;
 
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import main.PlayerData.Player;
 
 /**
  *
  * @author PCC
  */
 public class CreatePlayer extends javax.swing.JFrame {
+    private AppContext appContext;
     private DatabaseManager dbManager;
     private Session session;
     private String playerName;
     /**
      * Creates new form CreatePlayer
      */
-    public CreatePlayer(DatabaseManager dbManager, Session session) {
-        this.dbManager = dbManager;
-        this.session = session;
+    public CreatePlayer(AppContext appContext) {
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
+        this.session = appContext.getSession();
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -142,33 +145,30 @@ public class CreatePlayer extends javax.swing.JFrame {
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(88, 88, 88))
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(82, 82, 82)
-                        .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addGap(72, 72, 72)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(77, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(65, 65, 65)
+                .addGap(83, 83, 83)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(70, 70, 70)
+                .addGap(50, 50, 50)
                 .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(217, Short.MAX_VALUE))
+                .addContainerGap(219, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,6 +193,13 @@ public class CreatePlayer extends javax.swing.JFrame {
     private void createPlayerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPlayerBtnActionPerformed
         System.out.println("Player has been Created!");
         
+        createPlayerAccount();
+
+
+    }//GEN-LAST:event_createPlayerBtnActionPerformed
+
+    private void createPlayerAccount(){
+              
         String userId;
         playerName = UserField.getText().trim();
         
@@ -212,9 +219,10 @@ public class CreatePlayer extends javax.swing.JFrame {
 
             }
             else{
-                javax.swing.JOptionPane.showMessageDialog(this, "Player Account ws successfuuly Added!");
+                javax.swing.JOptionPane.showMessageDialog(this, "Player Account was successfuuly Added!");
                 System.out.println("Account Created");
-                 new HomeForm(dbManager).setVisible(true); // Open the HomeForm on successful login
+                session.setPlayer(getPlayerDetails(connection, userId));
+                new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
                 this.dispose(); // Close the login form
 
             }
@@ -224,10 +232,22 @@ public class CreatePlayer extends javax.swing.JFrame {
         catch(SQLException e){
             e.printStackTrace();
         }
+    }
+    
+    private Player getPlayerDetails(Connection connection, String user_Id)throws SQLException{
+        Player player = null;
+        
+        try{
+            String[] data = dbManager.getPlayerAccount(connection, user_Id);
+            
+            player = new Player(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
 
-
-    }//GEN-LAST:event_createPlayerBtnActionPerformed
-
+        return player;
+    }
     /**
      * @param args the command line arguments
      */

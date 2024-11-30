@@ -3,16 +3,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package main.ui;
-import backend.Database;
-import backend.DatabaseManager;
+import backend.Database.Database;
+import backend.Database.DatabaseManager;
 import backend.AccountManager.LogInManager;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import main.PlayerData.Player;
 
 import main.PlayerData.Session;
+import main.logic.AppContext;
 
 
 /**
@@ -20,22 +24,27 @@ import main.PlayerData.Session;
  * @author laroc
  */
 public class SignIn extends javax.swing.JFrame {
-    private  Session session;
+    private AppContext appContext;
+    private Session session;
     private DatabaseManager dbManager;
     private LogInManager logIn;
     private String userName;
     private String password;
 
     
-    public SignIn(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
-        this.session = new Session();
+    public SignIn(AppContext appContext) {
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
+        this.session = appContext.getSession();
 
         initComponents();
         this.setLocationRelativeTo(null);
 
     }
     public SignIn() {
+        this.appContext = AppContext.getInstance();
+        this.dbManager = appContext.getDbManager();
+        this.session = appContext.getSession();
         initComponents();
         this.setLocationRelativeTo(null);
 
@@ -287,14 +296,13 @@ public class SignIn extends javax.swing.JFrame {
 
     private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signUpButtonActionPerformed
         // TODO add your handling code here:
-        new RegisterForm(dbManager).setVisible(true);
+        new RegisterForm(appContext).setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_signUpButtonActionPerformed
 
 
     
     /**
-     * @param args the command line arguments
      */
 
     public void loginUserAccount(){
@@ -312,10 +320,12 @@ public class SignIn extends javax.swing.JFrame {
         }
 
         try(Connection connection = dbManager.getDb().getConnection()){
+            String userId;
             // Perform database query
             boolean isLoggedIn = new LogInManager(dbManager).logInUser(connection, userName, password);
 //            dbManager.displayAllUsers(connection);
-            session.setUserId(dbManager.getUserId(connection, userName));
+            userId = dbManager.getUserId(connection, userName);
+            session.setUserId(userId);
             boolean hasPlayerAccount = dbManager.checkIfUserHasPlayerAcc(connection, userName);
             
             if(!isLoggedIn){
@@ -324,11 +334,12 @@ public class SignIn extends javax.swing.JFrame {
             }
             else if(!hasPlayerAccount){
                 javax.swing.JOptionPane.showMessageDialog(this, "No Player Account, create one first!");
-                new CreatePlayer(dbManager, session).setVisible(true);
+                new CreatePlayer(appContext).setVisible(true);
                 this.dispose();
             }
             else if(isLoggedIn && hasPlayerAccount){
-                new HomeForm(dbManager).setVisible(true); // Open the HomeForm on successful login
+                session.setPlayer(getPlayerDetails(connection, userId));
+                new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
                 this.dispose(); // Close the login form
             }
             
@@ -336,6 +347,21 @@ public class SignIn extends javax.swing.JFrame {
             e.printStackTrace();
         }
 
+    }
+    
+    private Player getPlayerDetails(Connection connection, String user_Id)throws SQLException{
+        Player player = null;
+        
+        try{
+            String[] data = dbManager.getPlayerAccount(connection, user_Id);
+            
+            player = new Player(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+
+        return player;
     }
 
 

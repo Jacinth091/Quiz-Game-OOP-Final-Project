@@ -5,7 +5,7 @@
 package main.logic;
 
 
-import backend.DatabaseManager;
+import backend.Database.DatabaseManager;
 import javax.swing.Timer;
 //import main.logic.GameTimer;
 

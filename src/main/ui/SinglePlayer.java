@@ -4,9 +4,11 @@
  */
 package main.ui;
 
-import backend.DatabaseManager;
+import backend.Database.DatabaseManager;
+import main.logic.AppContext;
 import java.awt.Color;
 import javax.swing.Timer;
+import main.PlayerData.Session;
 
 /**
  *
@@ -14,17 +16,21 @@ import javax.swing.Timer;
  * @author Jacinth
  */
 public class SinglePlayer extends javax.swing.JFrame {
-
+    private AppContext appContext;
     private DatabaseManager dbManager;
+    private Session session;
 
     private SinglePlayerLogic singleLogic;
 
     /**
      * Creates new form singlePlayer
+     * @param appContext
      */
-    public SinglePlayer(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
-        singleLogic = new SinglePlayerLogic(dbManager, this);
+    public SinglePlayer(AppContext appContext) {
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
+        this.session = appContext.getSession();
+        singleLogic = new SinglePlayerLogic(appContext, this);
 
         initComponents();
         setLocationRelativeTo(null);
@@ -54,7 +60,7 @@ public class SinglePlayer extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        mainPanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         mainQuestionLabel = new javax.swing.JLabel();
         choiceQ = new javax.swing.JButton();
@@ -67,14 +73,16 @@ public class SinglePlayer extends javax.swing.JFrame {
         SLabel = new javax.swing.JLabel();
         goBack = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
-        ply1Name = new javax.swing.JLabel();
-        ply1Score = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
+        ply1Name = new javax.swing.JLabel();
+        SocreLabel = new javax.swing.JLabel();
+        SocreLabel1 = new javax.swing.JLabel();
+        plyScore = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 51));
+        mainPanel.setBackground(new java.awt.Color(0, 0, 51));
 
         jPanel2.setBackground(new java.awt.Color(102, 153, 255));
 
@@ -92,7 +100,7 @@ public class SinglePlayer extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(59, 59, 59)
                 .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -107,6 +115,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
         choiceQ.setText("Mars");
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceQ.setFocusable(false);
         choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceQMouseEntered(evt);
@@ -126,6 +135,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceA.setForeground(new java.awt.Color(255, 255, 255));
         choiceA.setText("Earth");
         choiceA.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceA.setFocusable(false);
         choiceA.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceAMouseEntered(evt);
@@ -145,6 +155,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceS.setForeground(new java.awt.Color(255, 255, 255));
         choiceS.setText("Jupiter");
         choiceS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceS.setFocusable(false);
         choiceS.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceSMouseEntered(evt);
@@ -156,14 +167,17 @@ public class SinglePlayer extends javax.swing.JFrame {
 
         QLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         QLabel.setForeground(new java.awt.Color(0, 204, 255));
+        QLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         QLabel.setText("Q");
 
         ALabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         ALabel.setForeground(new java.awt.Color(0, 204, 255));
+        ALabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ALabel.setText("E");
 
         Wlabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         Wlabel.setForeground(new java.awt.Color(0, 204, 255));
+        Wlabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         Wlabel.setText("W");
 
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
@@ -171,6 +185,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
         choiceW.setText("Jupiter");
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceW.setFocusable(false);
         choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceWMouseEntered(evt);
@@ -182,6 +197,7 @@ public class SinglePlayer extends javax.swing.JFrame {
 
         SLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         SLabel.setForeground(new java.awt.Color(0, 204, 255));
+        SLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         SLabel.setText("R");
 
         goBack.setBackground(new java.awt.Color(0, 102, 204));
@@ -189,6 +205,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         goBack.setForeground(new java.awt.Color(255, 255, 255));
         goBack.setText("Go back");
         goBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        goBack.setFocusable(false);
         goBack.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 goBackMouseClicked(evt);
@@ -201,206 +218,212 @@ public class SinglePlayer extends javax.swing.JFrame {
             }
         });
 
-        jPanel3.setBackground(new java.awt.Color(0, 102, 153));
-        jPanel3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel3.setBackground(null);
 
-        ply1Name.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
+        jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
+        jSeparator2.setPreferredSize(new java.awt.Dimension(0, 2));
+
+        ply1Name.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         ply1Name.setForeground(new java.awt.Color(255, 255, 255));
         ply1Name.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        ply1Name.setText("JACINTH");
+        ply1Name.setText(session.getPlayer().getPlayerName()
+        );
 
-        ply1Score.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        ply1Score.setForeground(new java.awt.Color(255, 255, 255));
-        ply1Score.setText("Score:  123");
+        SocreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        SocreLabel.setForeground(new java.awt.Color(255, 255, 255));
+        SocreLabel.setText("Score:");
 
-        jSeparator2.setForeground(new java.awt.Color(0, 0, 0));
-        jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        SocreLabel1.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        SocreLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        SocreLabel1.setText("Name:");
+
+        plyScore.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyScore.setForeground(new java.awt.Color(255, 255, 255));
+        plyScore.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyScore.setText("0");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ply1Name, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ply1Score, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(SocreLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ply1Name, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(SocreLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(plyScore, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jSeparator2)
-                .addContainerGap())
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(ply1Name, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ply1Score, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE))
-                .addGap(0, 2, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SocreLabel1)
+                    .addComponent(ply1Name, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SocreLabel)
+                    .addComponent(plyScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(20, 20, 20))
         );
 
-        timerLabel.setBackground(new java.awt.Color(51, 255, 51));
-        timerLabel.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        timerLabel.setFont(new java.awt.Font("Montserrat", 1, 24)); // NOI18N
         timerLabel.setForeground(new java.awt.Color(255, 255, 255));
         timerLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        timerLabel.setText("00:00");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(108, 108, 108)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(choiceQ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(QLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(choiceA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(ALabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(90, 90, 90)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(choiceS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(Wlabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(SLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGap(21, 21, 21)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(choiceQ, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(choiceA, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(88, 88, 88)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(choiceS, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(85, 85, 85)))
-                .addGap(24, 24, 24))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(181, 181, 181)
-                .addComponent(QLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(Wlabel)
-                .addGap(169, 169, 169))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(goBack)
-                .addGap(158, 158, 158)
-                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(203, 203, 203))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(179, 179, 179)
-                .addComponent(ALabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(SLabel)
-                .addGap(170, 170, 170))
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(238, 238, 238)
+                                .addComponent(goBack))))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(237, 237, 237)
+                        .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(goBack)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(timerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(31, 31, 31)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(goBack)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
+                .addComponent(timerLabel)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                        .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Wlabel)
-                            .addComponent(QLabel))
-                        .addGap(41, 41, 41)
-                        .addComponent(choiceS, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(choiceA, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(SLabel)
-                    .addComponent(ALabel))
-                .addContainerGap(58, Short.MAX_VALUE))
+                        .addComponent(Wlabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(choiceS, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(SLabel))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(230, 230, 230)
+                        .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(QLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(choiceA, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ALabel)))
+                .addContainerGap(81, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void choiceQActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceQActionPerformed
+    private void goBackMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseExited
+        goBack.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQActionPerformed
-
-    private void choiceAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceAActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAActionPerformed
-
-    private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
-        new HomeForm(dbManager).setVisible(true);
-        
-        this.setVisible(false);        // TODO add your handling code here:
-        singleLogic.stopTimer();
-    }//GEN-LAST:event_goBackMouseClicked
-
-    private void choiceQMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseEntered
-        choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseEntered
-
-    private void choiceWMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseEntered
-        choiceW.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseEntered
-
-    private void choiceAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseEntered
-        choiceA.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAMouseEntered
-
-    private void choiceSMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseEntered
-        choiceS.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceSMouseEntered
-
-    private void choiceQMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseExited
-        choiceQ.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseExited
-
-    private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
-        choiceW.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseExited
-
-    private void choiceAMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseExited
-        choiceA.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAMouseExited
-
-    private void choiceSMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseExited
-        choiceS.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceSMouseExited
+    }//GEN-LAST:event_goBackMouseExited
 
     private void goBackMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseEntered
         goBack.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_goBackMouseEntered
 
-    private void goBackMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseExited
-        goBack.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
+        new HomeForm(appContext).setVisible(true);
+
+        this.setVisible(false);        // TODO add your handling code here:
+        singleLogic.stopTimer();
+    }//GEN-LAST:event_goBackMouseClicked
+
+    private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
+        choiceW.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_goBackMouseExited
+    }//GEN-LAST:event_choiceWMouseExited
+
+    private void choiceWMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseEntered
+        choiceW.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceWMouseEntered
+
+    private void choiceSMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseExited
+        choiceS.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceSMouseExited
+
+    private void choiceSMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseEntered
+        choiceS.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceSMouseEntered
+
+    private void choiceAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceAActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceAActionPerformed
+
+    private void choiceAMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseExited
+        choiceA.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceAMouseExited
+
+    private void choiceAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseEntered
+        choiceA.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceAMouseEntered
+
+    private void choiceQActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceQActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceQActionPerformed
+
+    private void choiceQMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseExited
+        choiceQ.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceQMouseExited
+
+    private void choiceQMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseEntered
+        choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_choiceQMouseEntered
 
     /**
      * @param args the command line arguments
@@ -455,38 +478,47 @@ public class SinglePlayer extends javax.swing.JFrame {
     private javax.swing.JLabel ALabel;
     private javax.swing.JLabel QLabel;
     private javax.swing.JLabel SLabel;
+    private javax.swing.JLabel SocreLabel;
+    private javax.swing.JLabel SocreLabel1;
     private javax.swing.JLabel Wlabel;
     private javax.swing.JButton choiceA;
     private javax.swing.JButton choiceQ;
     private javax.swing.JButton choiceS;
     private javax.swing.JButton choiceW;
     private javax.swing.JButton goBack;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel mainQuestionLabel;
     private javax.swing.JLabel ply1Name;
-    private javax.swing.JLabel ply1Score;
+    private javax.swing.JLabel plyScore;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
 }
 
 class SinglePlayerLogic{
+    private AppContext appContext;
     private DatabaseManager dbManager;
     private SinglePlayer singlePlayer;
     private Timer gameTimer;
-    private long timeElapsedInSeconds, timeRemainingInSeconds =30 * 60;
+    private long timeElapsedInSeconds, timeRemainingInSeconds =1 * 60;
     private long timerMinutes = 0;
     private long timerSeconds = 0;
     
-    public SinglePlayerLogic(DatabaseManager dbManager, SinglePlayer singlePlayer){
-        this.dbManager = dbManager;
+    // GamePlay
+    
+    private int playerScore =0;
+    
+    public SinglePlayerLogic(AppContext appContext, SinglePlayer singlePlayer){
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
         this.singlePlayer = singlePlayer;
         
-        
-        
     }
+    
+    
+    
     public void startTimer() {
         if (gameTimer == null || !gameTimer.isRunning()) {
             // Update the label immediately

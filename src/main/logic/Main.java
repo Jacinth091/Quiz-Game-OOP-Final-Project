@@ -1,22 +1,14 @@
 package main.logic;
 
-import backend.Database;
-import backend.Helper;
 
 import java.sql.SQLException;
-import main.ui.SignIn;
-import backend.Database;
-import backend.DatabaseManager;
-import backend.Helper;
-import backend.AccountManager.LogInManager;
-import backend.AccountManager.UserManager;
-import main.ui.HomeForm;
+
 
 public class Main {
 
     public static void main(String[] args){
-        
-        runApp();
+        AppContext appContext = AppContext.getInstance();
+        runApp(appContext);
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -25,16 +17,16 @@ public class Main {
         });
         
     }
-    public static void runApp(){
-        DatabaseManager dbManager = new DatabaseManager();
+    public static void runApp(AppContext appContext){
            java.awt.EventQueue.invokeLater(() -> {
             try {
                 // Pass dbManager to the SignIn form
-                new App(dbManager).start();
-            } catch (Exception e) {
+                new App(appContext).start();
+            } catch (SQLException e) {
                 e.printStackTrace();
+                System.exit(0);
             } finally {
-                dbManager.closeConnection(); // Ensure the connection is closed properly
+                appContext.getDbManager().closeConnection(); // Ensure the connection is closed properly
             }
         });
     }

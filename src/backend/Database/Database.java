@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package backend;
+package backend.Database;
 import java.sql.*;
 /**
  *
@@ -33,12 +33,10 @@ public class Database {
     
     
     public static Database getInstance() throws SQLException {
-        if (instance == null) {
-            synchronized (Database.class) { // Thread-safe initialization
-                if (instance == null) {
-                    instance = new Database();
-
-                }
+        synchronized (Database.class) { // Thread-safe initialization
+            if (instance == null) {
+                instance = new Database();
+                
             }
         }
         return instance;

@@ -6,20 +6,21 @@ package main.ui;
 
 import java.awt.Color;
 
-import backend.Database;
-import backend.DatabaseManager;
-import main.ui.HomeForm;
+import backend.Database.DatabaseManager;
+import main.logic.AppContext;
 /**
  *
  * @author laroc
  */
 public class MultiPlayer extends javax.swing.JFrame {
+    private AppContext appContext;
     private DatabaseManager dbManager;
     /**
      * Creates new form MultiPlayer
      */
-    public MultiPlayer(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
+    public MultiPlayer(AppContext appContext) {
+        this.appContext = appContext;
+        this.dbManager = appContext.getDbManager();
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
@@ -460,7 +461,7 @@ public class MultiPlayer extends javax.swing.JFrame {
     }//GEN-LAST:event_ply2Btn1ActionPerformed
 
     private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
-            new HomeForm(dbManager).setVisible(true);
+            new HomeForm(appContext).setVisible(true);
             this.setVisible(false);        // TODO add your handling code here:
     }//GEN-LAST:event_goBackMouseClicked
 
