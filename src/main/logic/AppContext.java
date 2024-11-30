@@ -16,8 +16,10 @@ public class AppContext {
     private static AppContext instance;
     private DatabaseManager dbManager;
     private Session session;
+    private GameLogic gameLogic;
     private Images imgs;
     
+    private GameEnums.GameMode gameMode;
     
     private AppContext(){}
     
@@ -52,7 +54,12 @@ public class AppContext {
     }
     
     
-    
+    public GameLogic getGameLogic(GameEnums.GameMode gameMode) {
+        if (gameLogic == null) {
+            gameLogic = GameLogic.getInstance(session, gameMode);
+        }
+        return gameLogic;
+    }
     
     
 }

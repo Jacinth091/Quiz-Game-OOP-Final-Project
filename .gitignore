@@ -25,6 +25,7 @@ bin/
 /nbdist/
 /.nb-gradle/
 .form
+.class
 /build
 /build/classes
 /nbproject

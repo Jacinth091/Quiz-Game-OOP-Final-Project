@@ -5,10 +5,14 @@
 package main.ui;
 
 import backend.Database.DatabaseManager;
+import backend.Questions.Question;
 import main.logic.AppContext;
 import java.awt.Color;
-import javax.swing.Timer;
+import main.PlayerData.Player;
 import main.PlayerData.Session;
+import main.logic.GameEnums;
+import main.logic.GameLogic;
+import main.logic.SinglePlayerLogic;
 
 /**
  *
@@ -16,9 +20,12 @@ import main.PlayerData.Session;
  * @author Jacinth
  */
 public class SinglePlayer extends javax.swing.JFrame {
+    private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
+
     private AppContext appContext;
     private DatabaseManager dbManager;
     private Session session;
+    private GameLogic gameLogic;
 
     private SinglePlayerLogic singleLogic;
 
@@ -30,8 +37,14 @@ public class SinglePlayer extends javax.swing.JFrame {
         this.appContext = appContext;
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
-        singleLogic = new SinglePlayerLogic(appContext, this);
-
+        this.gameLogic = appContext.getGameLogic(gameMode);
+        singleLogic = new SinglePlayerLogic(appContext, gameMode,this);
+        
+        
+        mainQuestionLabel.setText("");
+        
+        
+        
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
@@ -41,12 +54,18 @@ public class SinglePlayer extends javax.swing.JFrame {
     }
 
     public SinglePlayer() {
+        this.appContext = AppContext.getInstance();
+        this.dbManager = appContext.getDbManager();
+        this.session = appContext.getSession();
+        session.setPlayer(new Player("1", "Gwapo", 0, 0));
+        singleLogic = new SinglePlayerLogic(appContext,gameMode, this);
 
         initComponents();
 
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
+        singleLogic.startTimer();
 
 
     }
@@ -424,7 +443,15 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_choiceQMouseEntered
-
+    
+    public void displayQuestion(){
+        Question current = gameLogic.getQuestionFromMap();
+        
+        mainQuestionLabel.setText(current.getQuestionText());
+//        for()
+        
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -497,73 +524,3 @@ public class SinglePlayer extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 }
 
-class SinglePlayerLogic{
-    private AppContext appContext;
-    private DatabaseManager dbManager;
-    private SinglePlayer singlePlayer;
-    private Timer gameTimer;
-    private long timeElapsedInSeconds, timeRemainingInSeconds =1 * 60;
-    private long timerMinutes = 0;
-    private long timerSeconds = 0;
-    
-    // GamePlay
-    
-    private int playerScore =0;
-    
-    public SinglePlayerLogic(AppContext appContext, SinglePlayer singlePlayer){
-        this.appContext = appContext;
-        this.dbManager = appContext.getDbManager();
-        this.singlePlayer = singlePlayer;
-        
-    }
-    
-    
-    
-    public void startTimer() {
-        if (gameTimer == null || !gameTimer.isRunning()) {
-            // Update the label immediately
-            timerMinutes = timeRemainingInSeconds / 60;
-            timerSeconds = timeRemainingInSeconds % 60;
-            singlePlayer.updateTimeLabel(timerMinutes, timerSeconds);
-
-            countDownTimer(); // Initialize the timer
-            gameTimer.start(); // Start the timer
-        }
-     }
-
-     public void stopTimer() {
-         if (gameTimer != null && gameTimer.isRunning()) {
-             gameTimer.stop(); // Stop the timer
-         }
-     }
-
-    public void countDownTimer(){
-        if(gameTimer == null){
-            gameTimer = new Timer(0,(ae) -> {
-
-                timerMinutes = timeRemainingInSeconds / 60;
-                timerSeconds = timeRemainingInSeconds % 60;
-                singlePlayer.updateTimeLabel(timerMinutes, timerSeconds);
-                System.out.println(String.format("Time Remaining: %02d:%02d", timerMinutes, timerSeconds)); // Print remaining time
-                timeRemainingInSeconds--;
-
-
-            });
-            gameTimer.setDelay(1000);
-        
-        }
-        
-    }
-
-    public long getTimerMinutes() {
-        return timerMinutes;
-    }
-
-    public long getTimerSeconds() {
-        return timerSeconds;
-    }
-
-    public long getTimeRemainingInSeconds() {
-        return timeRemainingInSeconds;
-    }
-}

@@ -4,29 +4,37 @@
  */
 package backend.Questions;
 
+import java.util.List;
+import main.logic.GameEnums;
+
 /**
  *
  * @author PCC
  */
-enum QuestionType{
-    Single,
-    Multi,
-}
+
 
 
 public class Question {
-    
-    private QuestionType quesType;
-    private String questionText;  // Stores the question text
-    private String[] options;     // Stores the multiple-choice options
-    private char correctAnswer;   // Stores the correct answer (e.g., 'A', 'B', 'C', 'D')
 
-    // Constructor to initialize all fields
-    public Question(String questionText, String[] options, char correctAnswer, QuestionType quesType) {
+    private GameEnums.Difficulty difficulty;
+    private String questionText;  // Stores the question text
+    private List<String> options;     // Stores the multiple-choice options
+    private String correctAnswer;   // Stores the correct answer (e.g., 'A', 'B', 'C', 'D')
+    private boolean isQuestionUsed = false;
+
+
+    
+    public Question(String questionText, List<String> options, String correctAnswer, GameEnums.Difficulty difficulty) {
         this.questionText = questionText;
         this.options = options;
         this.correctAnswer = correctAnswer;
-        this.quesType = quesType;
+        this.difficulty = difficulty;
+    }
+    
+    public Question(String questionText, List<String> options, String correctAnswer) {
+        this.questionText = questionText;
+        this.options = options;
+        this.correctAnswer = correctAnswer;
     }
 
     
@@ -43,34 +51,44 @@ public class Question {
     }
 
     // Getter for options
-    public String[] getOptions() {
+    public List<String> getOptions() {
         return options;
     }
 
     // Setter for options
-    public void setOptions(String[] options) {
-        if (options.length != 4) {
+    public void setOptions(List<String> options) {
+        if (options.size() != 4) {
             throw new IllegalArgumentException("There must be exactly 4 options.");
         }
         this.options = options;
     }
+    
+    
 
     // Getter for correctAnswer
-    public char getCorrectAnswer() {
-        return correctAnswer;
+//    public char getCorrectAnswer() {
+//        return correctAnswer;
+//    }
+//
+//    // Setter for correctAnswer
+//    public void setCorrectAnswer(char correctAnswer) {
+//        if (correctAnswer < 'A' || correctAnswer > 'D') {
+//            throw new IllegalArgumentException("Correct answer must be one of 'A', 'B', 'C', or 'D'.");
+//        }
+//        this.correctAnswer = correctAnswer;
+//    }
+//
+//    // Method to check if an answer is correct
+//    public boolean isCorrect(char answer) {
+//        return Character.toUpperCase(answer) == correctAnswer;
+//    }
+
+    public boolean getIsQuestionUsed() {
+        return isQuestionUsed;
     }
 
-    // Setter for correctAnswer
-    public void setCorrectAnswer(char correctAnswer) {
-        if (correctAnswer < 'A' || correctAnswer > 'D') {
-            throw new IllegalArgumentException("Correct answer must be one of 'A', 'B', 'C', or 'D'.");
-        }
-        this.correctAnswer = correctAnswer;
-    }
-
-    // Method to check if an answer is correct
-    public boolean isCorrect(char answer) {
-        return Character.toUpperCase(answer) == correctAnswer;
+    public void setIsQuestionUsed(boolean isQuestionUsed) {
+        this.isQuestionUsed = isQuestionUsed;
     }
 
 }

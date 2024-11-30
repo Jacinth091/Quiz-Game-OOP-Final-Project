@@ -8,11 +8,12 @@ public class Main {
 
     public static void main(String[] args){
         AppContext appContext = AppContext.getInstance();
-        runApp(appContext);
+//        runApp(appContext);
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainThread().startThread();
+//                new MainThread().startThread();
+                runApp(appContext);
             }
         });
         
