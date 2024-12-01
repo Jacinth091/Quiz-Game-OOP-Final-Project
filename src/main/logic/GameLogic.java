@@ -6,20 +6,26 @@ package main.logic;
 
 import backend.Questions.Question;
 import backend.Questions.QuestionLogic;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import main.PlayerData.Session;
 import java.util.Random;
+import javax.swing.Timer;
+import main.update.GameTimeUpdate;
 
 /**
  *
  * @author PCC
  */
+
 public class GameLogic {
     private static GameLogic instance;
+//    private GameTimeUpdate gameTimeUp;
     private GameEnums.GameMode gameMode;
     private Session session;
     private QuestionLogic qLogic;
+    private GameTimer gameTimer;
     private Random rand;
     
     // Player 
@@ -32,22 +38,21 @@ public class GameLogic {
     private Map<Question, String> playerAns= new HashMap<>();
 
     private int questionsUsed =0;
+    private Question current;
 
     
     public GameLogic(Session session, GameEnums.GameMode gameMode ){
         this.session = session;
         this.gameMode = gameMode;
+//        gameTimeUp = new GameTimeUpdate();
         qLogic = new QuestionLogic();
         rand = new Random();
+        this.gameTimer = new GameTimer();
         initializeQuestionMap();
         
     }
     
-//    public Question getQuestionToDisplay(int index){
-//        return qLogic.getQuesData().getQuestions().get(index);
-//            
-//    }
-    
+
     public Question getQuestionFromMap(){
         Question tempQues = null;
         while(true){
@@ -68,16 +73,7 @@ public class GameLogic {
     public void addPlayerAnswerToList(String playerAnswer, int index){
         playerAns.put(qLogic.getQuesData().getQuestions().get(index), playerAnswer);
     }
-//    
-//    public int getUniqueRandomIndex(){
-//        int index =0;
-//        for(Question question : qLogic.getQuesData().getQuestions()){
-//            if(question.getIsQuestionUsed()){
-//                index = 
-//            }
-//        }
-//    }
-//    
+
     private void initializeQuestionMap(){
         for(int i =0; i < qLogic.getQuesData().getQuestions().size(); i++){
             questions.put((i+1), qLogic.getQuesData().getQuestions().get(i));
@@ -96,6 +92,9 @@ public class GameLogic {
         }
     }
     
+    
+    
+    // Getter And Setters
     public static synchronized GameLogic getInstance(Session session, GameEnums.GameMode gameMode){
         if(instance == null){
             instance = new GameLogic(session, gameMode);
@@ -117,8 +116,49 @@ public class GameLogic {
     }
 
 
+    public Question getCurrent() {
+        if(current == null){
+            current = getQuestionFromMap();
+        }
+        return current;
+    }
     
+        // Method to start the game timer
+    public void startTimer() {
+        gameTimer.startTimer();
+    }
+
+    // Method to stop the game timer
+    public void stopTimer() {
+        gameTimer.stopTimer();
+    }
+    
+    public void resetTimer() {
+        gameTimer.restartTimer();
+    }
+
+    // Method to get current time from the GameTimer
+    public String getCurrentTime() {
+        return gameTimer.getCurrentTime();
+    }
+
+    // Getter to expose the Timer object to other forms
+    public Timer getGameTimer() {
+        return gameTimer.getGameTimer();
+    }
+//
+//    public GameTimeUpdate getGameTimeUp() {
+//        return gameTimeUp;
+//    }
+    
+    public GameTimer getGameTimerClass(){
+        return gameTimer;
+    }
     
     
     
 }
+
+
+
+

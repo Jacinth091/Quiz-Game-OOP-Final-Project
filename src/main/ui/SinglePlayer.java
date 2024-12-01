@@ -13,14 +13,16 @@ import main.PlayerData.Player;
 import main.PlayerData.Session;
 import main.logic.GameEnums;
 import main.logic.GameLogic;
-import main.logic.SinglePlayerLogic;
+import main.logic.GameTimer;
+import main.logic.Updatable;
+import main.update.TimeUpdatable;
 
 /**
  *
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame {
+public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
     private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
 
     private AppContext appContext;
@@ -28,7 +30,7 @@ public class SinglePlayer extends javax.swing.JFrame {
     private Session session;
     private GameLogic gameLogic;
 
-    private SinglePlayerLogic singleLogic;
+    private Timer gameTimer;
     private Question current;
     private Question next;
     
@@ -43,15 +45,21 @@ public class SinglePlayer extends javax.swing.JFrame {
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
-        singleLogic = new SinglePlayerLogic(appContext, gameMode,this);
-        current = singleLogic.getCurrent();
-        
+//        gameTimer = gameLogic.getGameTimer();
+
+        current = gameLogic.getCurrent();
 //        displayQuestion();
+
+
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        singleLogic.startTimer();
+        
+        gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
+        
+        
+        gameLogic.startTimer();
 
 
     }
@@ -61,14 +69,14 @@ public class SinglePlayer extends javax.swing.JFrame {
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         session.setPlayer(new Player("1", "Gwapo", 0, 0));
-        singleLogic = new SinglePlayerLogic(appContext,gameMode, this);
+//        singleLogic = new GameTimer(appContext,gameMode, this);
 
         initComponents();
 
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        singleLogic.startTimer();
+//        singleLogic.startTimer();
 
 
     }
@@ -137,6 +145,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ.setText(current.getOptions().get(0));
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
+        choiceQ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceQMouseEntered(evt);
@@ -157,6 +166,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceE.setText(current.getOptions().get(2));
         choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceE.setFocusable(false);
+        choiceE.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceEMouseEntered(evt);
@@ -177,6 +187,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceR.setText(current.getOptions().get(3));
         choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceR.setFocusable(false);
+        choiceR.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceRMouseEntered(evt);
@@ -212,6 +223,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceW.setText(current.getOptions().get(1));
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
+        choiceW.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 choiceWMouseEntered(evt);
@@ -249,8 +261,10 @@ public class SinglePlayer extends javax.swing.JFrame {
             }
         });
 
+        jPanel3.setBackground(null);
+
         jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
-        jSeparator2.setPreferredSize(new java.awt.Dimension(0, 2));
+        jSeparator2.setPreferredSize(new java.awt.Dimension(0, 5));
 
         ply1Name.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         ply1Name.setForeground(new java.awt.Color(255, 255, 255));
@@ -338,7 +352,7 @@ public class SinglePlayer extends javax.swing.JFrame {
                                 .addGap(238, 238, 238)
                                 .addComponent(goBack))))
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(237, 237, 237)
+                        .addGap(242, 242, 242)
                         .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
@@ -351,11 +365,11 @@ public class SinglePlayer extends javax.swing.JFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(24, 24, 24)
                 .addComponent(timerLabel)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(Wlabel)
@@ -363,8 +377,8 @@ public class SinglePlayer extends javax.swing.JFrame {
                         .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SLabel))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(230, 230, 230)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                        .addGap(239, 239, 239)
                         .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(QLabel)
@@ -372,7 +386,7 @@ public class SinglePlayer extends javax.swing.JFrame {
                         .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ALabel)))
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -403,7 +417,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         new HomeForm(appContext).setVisible(true);
 
         this.setVisible(false);        // TODO add your handling code here:
-        singleLogic.stopTimer();
+        gameLogic.stopTimer();
     }//GEN-LAST:event_goBackMouseClicked
 
     private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
@@ -565,10 +579,10 @@ public class SinglePlayer extends javax.swing.JFrame {
         timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
     }
 
-    public SinglePlayerLogic getSingleLogic() {
-        return singleLogic;
+    @Override
+    public void timeUpdate(){
+        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
     }
-    
     
     
 

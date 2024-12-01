@@ -1,66 +1,85 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package main.logic;
 
+import java.util.ArrayList;
 import javax.swing.Timer;
+import main.update.TimeUpdatable;
 
+/**
+ *
+ * @author PCC
+ */
+public class GameTimer{
 
-
-public class GameTimer {
     private Timer gameTimer;
-//    private int totalGameTime = 15 * 60;
-    private long timeElapsedInSeconds;
+    private long timeElapsedInSeconds, timeRemainingInSeconds = 1 * 60;
     private long timerMinutes = 0;
     private long timerSeconds = 0;
+    
+    
+    private ArrayList<TimeUpdatable> timeUpdate;
+    
+ 
 
-    public GameTimer(Long timeElapsedInSeconds){
-        this.timeElapsedInSeconds = timeElapsedInSeconds;
-
-
-    }
-    public GameTimer(){
-        
-    }
-
-    public void countDownTimer(){
-        gameTimer = new Timer(1000, (ae) -> {
-            timeElapsedInSeconds--;
-            timerMinutes = timeElapsedInSeconds / 60;
-            timerSeconds = timeElapsedInSeconds % 60;
-            System.out.println(String.format("Time Remaining: %02d:%02d", timerMinutes, timerSeconds)); // Print remaining time
-
-        });
-        gameTimer.setDelay(1000);
+    public GameTimer() {
+        timeUpdate = new ArrayList<>();
     }
 
+    public void startTimer() {
+        if (gameTimer == null || !gameTimer.isRunning()) {
+           countDown();  // Update time immediately
+           notifyTimeUpdates();  // Notify listeners of the update
+           countDownTimer();  // Initialize the timer
+           gameTimer.start();  // Start the timer
+       }
+    }
 
-    public void countUptimer(){
-        gameTimer = new Timer(1000, (ae) -> {
-            timeElapsedInSeconds--;
-            timerMinutes = timeElapsedInSeconds / 60;
-            timerSeconds = timeElapsedInSeconds % 60;
-            System.out.println(String.format("Time Remaining: %02d:%02d", timerMinutes, timerSeconds)); // Print remaining time
-
-        });
-        gameTimer.setDelay(1000);
-
+    public void stopTimer() {
+        if (gameTimer != null && gameTimer.isRunning()) {
+            gameTimer.stop(); // Stop the timer
+            restartTimer();
+        }
     }
     
-
-    public void startTimer(){
-        gameTimer.start();
+    public void restartTimer(){
+        timeRemainingInSeconds = 1 * 60;
+        timerMinutes = 0;
+        timerSeconds = 0;
     }
 
-    public Timer getGameTimer() {
-        return gameTimer;
+    private void countDownTimer() {
+        if(gameTimer == null){
+            gameTimer = new Timer(0, (ae) -> {
+                notifyTimeUpdates();
+                countDown();
+            });
+            gameTimer.setDelay(1000);
+        }
     }
     
-    public void setTimer(Timer gameTimer){
-        this.gameTimer = gameTimer;
+        private void countDown() {
+        if (timeRemainingInSeconds >= 0) {
+            timerMinutes = timeRemainingInSeconds / 60;  // Update the minutes
+            timerSeconds = timeRemainingInSeconds % 60;  // Update the seconds
+            timeRemainingInSeconds--;  // Decrease the remaining time
+        }
+}
+    
+    
+    
+    public void addEventUpdate(TimeUpdatable eventUpdate) {
+        timeUpdate.add(eventUpdate);
     }
 
-    public long getTimeElapsedInSeconds() {
-        return timeElapsedInSeconds;
+    private synchronized void notifyTimeUpdates() {
+        for (TimeUpdatable eventUpdate : timeUpdate) {
+            eventUpdate.timeUpdate();
+        }
     }
-
+    
     public long getTimerMinutes() {
         return timerMinutes;
     }
@@ -69,8 +88,17 @@ public class GameTimer {
         return timerSeconds;
     }
 
-    
-    
+    public long getTimeRemainingInSeconds() {
+        return timeRemainingInSeconds;
+    }
 
+    public String getCurrentTime() {
+        return String.format("Time Remaining: %02d:%02d", timerMinutes, timerSeconds);
+    }
 
+    // Getter for Timer object to allow external control if needed
+    public Timer getGameTimer() {
+        return gameTimer;
+    }
+    
 }

@@ -8,22 +8,43 @@ import java.awt.Color;
 
 import backend.Database.DatabaseManager;
 import main.logic.AppContext;
+import main.logic.GameEnums;
+import main.logic.GameLogic;
+import main.logic.GameTimer;
+import main.update.TimeUpdatable;
 /**
  *
  * @author laroc
  */
-public class MultiPlayer extends javax.swing.JFrame {
+public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable{
+    private GameEnums.GameMode gameMode = GameEnums.GameMode.MULTIPLAYER;
+
     private AppContext appContext;
     private DatabaseManager dbManager;
+    private GameLogic gameLogic;
+//    private GameTimer gameTimer;
     /**
      * Creates new form MultiPlayer
      */
     public MultiPlayer(AppContext appContext) {
         this.appContext = appContext;
         this.dbManager = appContext.getDbManager();
+        
+        this.gameLogic = appContext.getGameLogic(gameMode);
+//        gameTimer = gameLogic.getGameTimer();
+
+        
+        
+        
+        
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        
+        gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
+        
+        
+        gameLogic.startTimer();
     }
 
     public MultiPlayer(){
@@ -80,33 +101,32 @@ public class MultiPlayer extends javax.swing.JFrame {
         mainQuestionLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         mainQuestionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        timerLabel.setBackground(new java.awt.Color(51, 255, 51));
-        timerLabel.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        timerLabel.setFont(new java.awt.Font("Montserrat", 1, 24)); // NOI18N
         timerLabel.setForeground(new java.awt.Color(255, 255, 255));
         timerLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        timerLabel.setText("30:00");
+        timerLabel.setText("00:00");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(217, 217, 217)
+                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(217, 217, 217)
-                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(54, 54, 54))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
+                .addComponent(timerLabel)
+                .addGap(39, 39, 39)
                 .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         ply1Btn1.setBackground(new java.awt.Color(102, 0, 153));
@@ -527,6 +547,8 @@ public class MultiPlayer extends javax.swing.JFrame {
     private void goBackMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseExited
          goBack.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
         // TODO add your handling code here:
+        gameLogic.stopTimer();
+
     }//GEN-LAST:event_goBackMouseExited
 
     /**
@@ -564,6 +586,18 @@ public class MultiPlayer extends javax.swing.JFrame {
             }
         });
     }
+    
+    public void updateTimeLabel(long timerMinutes, long timerSeconds){
+        timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
+    }
+
+    @Override
+    public void timeUpdate(){
+        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
+    }
+    
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ALabel;
