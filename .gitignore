@@ -11,6 +11,9 @@ out/
 .settings
 .springBeans
 .sts4-cache
+manifest.mf
+.xml
+
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
@@ -21,6 +24,11 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
+.form
+.class
+/build
+/build/classes
+/nbproject
 
 ### VS Code ###
 .vscode/
