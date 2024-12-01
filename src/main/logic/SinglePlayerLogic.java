@@ -5,8 +5,10 @@
 package main.logic;
 
 import backend.Database.DatabaseManager;
+import backend.Questions.Question;
 //import backend.Questions.Question;
 import backend.Questions.QuestionLogic;
+import java.util.List;
 import javax.swing.Timer;
 import main.ui.SinglePlayer;
 
@@ -29,6 +31,10 @@ public class SinglePlayerLogic{
     // GamePlay
     
     private int playerScore =0;
+    private Question current;
+    private Question next;
+    private String playerAnswer;
+    private int playerAnswerQuestionKey;
 
     
     public SinglePlayerLogic(AppContext appContext,GameEnums.GameMode gameMode, SinglePlayer singlePlayer){
@@ -37,12 +43,11 @@ public class SinglePlayerLogic{
         this.gameLogic = appContext.getGameLogic(gameMode);
         this.singlePlayer = singlePlayer;
         qLogic = new QuestionLogic();
-        
+
 //        gameLogic.displayAllQuestionsInMap();
         
         
     }
-    
     
     
     public void startTimer() {
@@ -74,10 +79,9 @@ public class SinglePlayerLogic{
 //                if(gameLogic.getQuestionsUsed() <= 30){
 //                    Question ques = gameLogic.getQuestionFromMap();
 //                    System.out.println(ques.getQuestionText());
+//                    singlePlayer.displayQuestion(ques);
 //                }
-//                
 
-//                singlePlayer.displayQuestion();
                 timeRemainingInSeconds--;
 
 
@@ -88,6 +92,10 @@ public class SinglePlayerLogic{
         
     }
 
+    
+
+    
+    // Getter and Setter
     public long getTimerMinutes() {
         return timerMinutes;
     }
@@ -98,5 +106,17 @@ public class SinglePlayerLogic{
 
     public long getTimeRemainingInSeconds() {
         return timeRemainingInSeconds;
+    }
+    
+    
+    public Question getCurrent() {
+        if(current == null){
+            current = gameLogic.getQuestionFromMap();
+        }
+        return current;
+    }
+
+    public void setCurrent(Question current) {
+        this.current = current;
     }
 }

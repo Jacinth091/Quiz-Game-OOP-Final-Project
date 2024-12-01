@@ -29,8 +29,8 @@ public class GameLogic {
     
     // Questions
     private final Map<Integer, Question> questions = new HashMap<>();
-
     private Map<Question, String> playerAns= new HashMap<>();
+
     private int questionsUsed =0;
 
     
@@ -49,10 +49,9 @@ public class GameLogic {
 //    }
     
     public Question getQuestionFromMap(){
-        int index =0;
         Question tempQues = null;
         while(true){
-            index = rand.nextInt(questions.size() - 1) + 1;
+            int index = rand.nextInt(questions.size() - 1) + 1;
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
@@ -116,6 +115,8 @@ public class GameLogic {
     public int getQuestionsUsed() {
         return questionsUsed;
     }
+
+
     
     
     

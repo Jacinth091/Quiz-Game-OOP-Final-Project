@@ -8,6 +8,7 @@ import backend.Database.DatabaseManager;
 import backend.Questions.Question;
 import main.logic.AppContext;
 import java.awt.Color;
+import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
 import main.logic.GameEnums;
@@ -28,7 +29,11 @@ public class SinglePlayer extends javax.swing.JFrame {
     private GameLogic gameLogic;
 
     private SinglePlayerLogic singleLogic;
-
+    private Question current;
+    private Question next;
+    
+    private boolean isProcessingFlag;
+    private Timer reEnableTimer;
     /**
      * Creates new form singlePlayer
      * @param appContext
@@ -39,17 +44,15 @@ public class SinglePlayer extends javax.swing.JFrame {
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
         singleLogic = new SinglePlayerLogic(appContext, gameMode,this);
+        current = singleLogic.getCurrent();
         
-        
-        mainQuestionLabel.setText("");
-        
-        
-        
+//        displayQuestion();
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
         singleLogic.startTimer();
+
 
     }
 
@@ -83,8 +86,8 @@ public class SinglePlayer extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         mainQuestionLabel = new javax.swing.JLabel();
         choiceQ = new javax.swing.JButton();
-        choiceA = new javax.swing.JButton();
-        choiceS = new javax.swing.JButton();
+        choiceE = new javax.swing.JButton();
+        choiceR = new javax.swing.JButton();
         QLabel = new javax.swing.JLabel();
         ALabel = new javax.swing.JLabel();
         Wlabel = new javax.swing.JLabel();
@@ -105,11 +108,10 @@ public class SinglePlayer extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(102, 153, 255));
 
-        mainQuestionLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        mainQuestionLabel.setFont(new java.awt.Font("Montserrat", 0, 18)); // NOI18N
         mainQuestionLabel.setForeground(new java.awt.Color(255, 255, 255));
-        mainQuestionLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        mainQuestionLabel.setText("ASA KO NAGKUWANG???????????????????????????????????????????????????? ");
-        mainQuestionLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        mainQuestionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mainQuestionLabel.setText(current.getQuestionText());
         mainQuestionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -132,7 +134,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ.setBackground(new java.awt.Color(0, 102, 204));
         choiceQ.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
-        choiceQ.setText("Mars");
+        choiceQ.setText(current.getOptions().get(0));
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
         choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -145,42 +147,47 @@ public class SinglePlayer extends javax.swing.JFrame {
         });
         choiceQ.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                choiceQActionPerformed(evt);
+                optQEvent(evt);
             }
         });
 
-        choiceA.setBackground(new java.awt.Color(0, 102, 204));
-        choiceA.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        choiceA.setForeground(new java.awt.Color(255, 255, 255));
-        choiceA.setText("Earth");
-        choiceA.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        choiceA.setFocusable(false);
-        choiceA.addMouseListener(new java.awt.event.MouseAdapter() {
+        choiceE.setBackground(new java.awt.Color(0, 102, 204));
+        choiceE.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceE.setForeground(new java.awt.Color(255, 255, 255));
+        choiceE.setText(current.getOptions().get(2));
+        choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceE.setFocusable(false);
+        choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceAMouseEntered(evt);
+                choiceEMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceAMouseExited(evt);
+                choiceEMouseExited(evt);
             }
         });
-        choiceA.addActionListener(new java.awt.event.ActionListener() {
+        choiceE.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                choiceAActionPerformed(evt);
+                optEEvent(evt);
             }
         });
 
-        choiceS.setBackground(new java.awt.Color(0, 102, 204));
-        choiceS.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        choiceS.setForeground(new java.awt.Color(255, 255, 255));
-        choiceS.setText("Jupiter");
-        choiceS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        choiceS.setFocusable(false);
-        choiceS.addMouseListener(new java.awt.event.MouseAdapter() {
+        choiceR.setBackground(new java.awt.Color(0, 102, 204));
+        choiceR.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceR.setForeground(new java.awt.Color(255, 255, 255));
+        choiceR.setText(current.getOptions().get(3));
+        choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        choiceR.setFocusable(false);
+        choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceSMouseEntered(evt);
+                choiceRMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceSMouseExited(evt);
+                choiceRMouseExited(evt);
+            }
+        });
+        choiceR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                optREvent(evt);
             }
         });
 
@@ -202,7 +209,7 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
         choiceW.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
-        choiceW.setText("Jupiter");
+        choiceW.setText(current.getOptions().get(1));
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
         choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -211,6 +218,11 @@ public class SinglePlayer extends javax.swing.JFrame {
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 choiceWMouseExited(evt);
+            }
+        });
+        choiceW.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                optWEvent(evt);
             }
         });
 
@@ -236,8 +248,6 @@ public class SinglePlayer extends javax.swing.JFrame {
                 goBackMouseExited(evt);
             }
         });
-
-        jPanel3.setBackground(null);
 
         jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
         jSeparator2.setPreferredSize(new java.awt.Dimension(0, 2));
@@ -311,11 +321,11 @@ public class SinglePlayer extends javax.swing.JFrame {
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(choiceQ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(QLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(choiceA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(ALabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(90, 90, 90)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(choiceS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(choiceR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(Wlabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(SLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -350,7 +360,7 @@ public class SinglePlayer extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(Wlabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceS, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SLabel))
                     .addGroup(mainPanelLayout.createSequentialGroup()
@@ -359,7 +369,7 @@ public class SinglePlayer extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(QLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceA, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ALabel)))
                 .addContainerGap(81, Short.MAX_VALUE))
@@ -406,33 +416,25 @@ public class SinglePlayer extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_choiceWMouseEntered
 
-    private void choiceSMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseExited
-        choiceS.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void choiceRMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseExited
+        choiceR.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_choiceSMouseExited
+    }//GEN-LAST:event_choiceRMouseExited
 
-    private void choiceSMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceSMouseEntered
-        choiceS.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
+    private void choiceRMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseEntered
+        choiceR.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_choiceSMouseEntered
+    }//GEN-LAST:event_choiceRMouseEntered
 
-    private void choiceAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceAActionPerformed
+    private void choiceEMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseExited
+        choiceE.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAActionPerformed
+    }//GEN-LAST:event_choiceEMouseExited
 
-    private void choiceAMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseExited
-        choiceA.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void choiceEMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseEntered
+        choiceE.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAMouseExited
-
-    private void choiceAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceAMouseEntered
-        choiceA.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceAMouseEntered
-
-    private void choiceQActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_choiceQActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQActionPerformed
+    }//GEN-LAST:event_choiceEMouseEntered
 
     private void choiceQMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseExited
         choiceQ.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
@@ -443,13 +445,83 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_choiceQMouseEntered
+
+    private void optQEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optQEvent
+        // TODO add your handling code here:
+        processPlayerAnswer();
+    }//GEN-LAST:event_optQEvent
+
+    private void optWEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optWEvent
+        // TODO add your handling code here:
+        processPlayerAnswer();
+    }//GEN-LAST:event_optWEvent
+
+    private void optEEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optEEvent
+        // TODO add your handling code here:
+        processPlayerAnswer();
+        
+    }//GEN-LAST:event_optEEvent
+
+    private void optREvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optREvent
+        // TODO add your handling code here:
+        processPlayerAnswer();
+    }//GEN-LAST:event_optREvent
     
-    public void displayQuestion(){
-        Question current = gameLogic.getQuestionFromMap();
+    
+    
+    public void processPlayerAnswer(){
+        if(isProcessingFlag) return;
+
+        if(reEnableTimer != null && reEnableTimer.isRunning()){
+            reEnableTimer.stop();
+        }
         
-        mainQuestionLabel.setText(current.getQuestionText());
-//        for()
+        isProcessingFlag = true;
+        choiceQ.setEnabled(false);
+        choiceW.setEnabled(false);
+        choiceE.setEnabled(false);
+        choiceR.setEnabled(false);
         
+        
+        System.out.println("Processing!...");
+//        checkAnswers();
+
+        
+        reEnableTimer = new Timer(500, (ae) ->{
+            choiceQ.setEnabled(true);
+            choiceW.setEnabled(true);
+            choiceE.setEnabled(true);
+            choiceR.setEnabled(true);
+            isProcessingFlag= false;
+
+        });
+        reEnableTimer.setDelay(1000);
+        reEnableTimer.start();
+            // Delay the next question display by 1 second
+        Timer nextQuestionTimer = new Timer(500, (ae) -> {
+            displayNextQuestion();
+        });
+        nextQuestionTimer.setRepeats(false); // Only execute once
+        nextQuestionTimer.start();
+    }
+    
+    public void displayNextQuestion(){
+        next = gameLogic.getQuestionFromMap();
+        char[] label = {'Q', 'W', 'E', 'R'};
+        System.out.println("Current Question:\n"+ next.getQuestionText());
+        for (int i =0; i < next.getOptions().size(); i++) {
+            System.out.println(label[i] + ") " + next.getOptions().get(i));
+        }
+        for (String line : next.getQuestionText().split("\n")) {
+           // Add <br> for each line to create a new line in HTML format
+           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", next.getQuestionText().split("\n")) + "</div></html>");
+        }
+
+            choiceQ.setText(next.getOptions().get(0));
+            choiceW.setText(next.getOptions().get(1));
+            choiceE.setText(next.getOptions().get(2));
+            choiceR.setText(next.getOptions().get(3));
+    
     }
     
     /**
@@ -508,9 +580,9 @@ public class SinglePlayer extends javax.swing.JFrame {
     private javax.swing.JLabel SocreLabel;
     private javax.swing.JLabel SocreLabel1;
     private javax.swing.JLabel Wlabel;
-    private javax.swing.JButton choiceA;
+    private javax.swing.JButton choiceE;
     private javax.swing.JButton choiceQ;
-    private javax.swing.JButton choiceS;
+    private javax.swing.JButton choiceR;
     private javax.swing.JButton choiceW;
     private javax.swing.JButton goBack;
     private javax.swing.JPanel jPanel2;

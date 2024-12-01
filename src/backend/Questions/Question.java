@@ -20,7 +20,7 @@ public class Question {
     private String questionText;  // Stores the question text
     private List<String> options;     // Stores the multiple-choice options
     private String correctAnswer;   // Stores the correct answer (e.g., 'A', 'B', 'C', 'D')
-    private boolean isQuestionUsed = false;
+    private boolean isQuestionUsed;
 
 
     
@@ -35,6 +35,7 @@ public class Question {
         this.questionText = questionText;
         this.options = options;
         this.correctAnswer = correctAnswer;
+        this.isQuestionUsed = false;
     }
 
     
