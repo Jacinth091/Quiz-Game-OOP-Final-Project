@@ -8,13 +8,13 @@ import backend.Database.DatabaseManager;
 import backend.Questions.Question;
 import main.logic.AppContext;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import javax.swing.JButton;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
 import main.logic.GameEnums;
 import main.logic.GameLogic;
-import main.logic.GameTimer;
-import main.logic.Updatable;
 import main.update.TimeUpdatable;
 
 /**
@@ -22,7 +22,7 @@ import main.update.TimeUpdatable;
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
+public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, java.awt.event.ActionListener{
     private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
 
     private AppContext appContext;
@@ -46,16 +46,19 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
 //        gameTimer = gameLogic.getGameTimer();
-
         current = gameLogic.getCurrent();
+
 //        displayQuestion();
 
-
+    
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
         
+
+        
+        displayFirstQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
         
         
@@ -143,6 +146,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         choiceQ.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
         choiceQ.setText(current.getOptions().get(0));
+        choiceQ.setActionCommand("choiceQ");
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
         choiceQ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -164,6 +168,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         choiceE.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceE.setForeground(new java.awt.Color(255, 255, 255));
         choiceE.setText(current.getOptions().get(2));
+        choiceE.setActionCommand("choiceE");
         choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceE.setFocusable(false);
         choiceE.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -185,6 +190,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         choiceR.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceR.setForeground(new java.awt.Color(255, 255, 255));
         choiceR.setText(current.getOptions().get(3));
+        choiceR.setActionCommand("choiceR");
         choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceR.setFocusable(false);
         choiceR.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -221,6 +227,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         choiceW.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
         choiceW.setText(current.getOptions().get(1));
+        choiceW.setActionCommand("choiceW");
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
         choiceW.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -261,7 +268,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
             }
         });
 
-        jPanel3.setBackground(null);
+        jPanel3.setBackground(new java.awt.Color(0, 0, 51));
 
         jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
         jSeparator2.setPreferredSize(new java.awt.Dimension(0, 5));
@@ -462,28 +469,31 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
 
     private void optQEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optQEvent
         // TODO add your handling code here:
-        processPlayerAnswer();
+        actionPerformed(evt);
     }//GEN-LAST:event_optQEvent
 
     private void optWEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optWEvent
         // TODO add your handling code here:
-        processPlayerAnswer();
+         actionPerformed(evt);
+
     }//GEN-LAST:event_optWEvent
 
     private void optEEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optEEvent
         // TODO add your handling code here:
-        processPlayerAnswer();
+         actionPerformed(evt);
+
         
     }//GEN-LAST:event_optEEvent
 
     private void optREvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optREvent
         // TODO add your handling code here:
-        processPlayerAnswer();
+        actionPerformed(evt);
+
     }//GEN-LAST:event_optREvent
     
     
     
-    public void processPlayerAnswer(){
+    public void processPlayerAnswer(String plyerAnswer){
         if(isProcessingFlag) return;
 
         if(reEnableTimer != null && reEnableTimer.isRunning()){
@@ -495,11 +505,11 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         choiceW.setEnabled(false);
         choiceE.setEnabled(false);
         choiceR.setEnabled(false);
-        
-        
-        System.out.println("Processing!...");
-//        checkAnswers();
 
+        System.out.println("Processing!...");
+//        processLogic(plyerAnswer);
+        gameLogic.addPlayerAnswerToList(plyerAnswer, current);
+        gameLogic.checkAnswerPerQuestion(plyerAnswer,current);
         
         reEnableTimer = new Timer(500, (ae) ->{
             choiceQ.setEnabled(true);
@@ -513,29 +523,69 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         reEnableTimer.start();
             // Delay the next question display by 1 second
         Timer nextQuestionTimer = new Timer(500, (ae) -> {
-            displayNextQuestion();
+            displayNextQuestion();  
+
+
+
         });
         nextQuestionTimer.setRepeats(false); // Only execute once
         nextQuestionTimer.start();
     }
     
-    public void displayNextQuestion(){
-        next = gameLogic.getQuestionFromMap();
-        char[] label = {'Q', 'W', 'E', 'R'};
-        System.out.println("Current Question:\n"+ next.getQuestionText());
-        for (int i =0; i < next.getOptions().size(); i++) {
-            System.out.println(label[i] + ") " + next.getOptions().get(i));
-        }
-        for (String line : next.getQuestionText().split("\n")) {
-           // Add <br> for each line to create a new line in HTML format
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", next.getQuestionText().split("\n")) + "</div></html>");
-        }
+    public void processLogic(String plyAnswer){
+  
 
-            choiceQ.setText(next.getOptions().get(0));
-            choiceW.setText(next.getOptions().get(1));
-            choiceE.setText(next.getOptions().get(2));
-            choiceR.setText(next.getOptions().get(3));
+    }
+
+    public void displayNextQuestion(){
+        current = gameLogic.getQuestionFromMap();
+//        char[] label = {'Q', 'W', 'E', 'R'};
+        System.out.println("Current Question:\n"+ current.getQuestionText());
+//        for (int i =0; i < current.getOptions().size(); i++) {
+//            System.out.println(label[i] + ") " + current.getOptions().get(i));
+//        }
+        for (String line : current.getQuestionText().split("\n")) {
+           // Add <br> for each line to create a new line in HTML format
+           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        }
+        choiceQ.setText("<html>" + String.join("<br>", current.getOptions().get(0).split("\n")) + "</html>");
+        choiceW.setText("<html>" + String.join("<br>", current.getOptions().get(1).split("\n")) + "</html>");
+        choiceE.setText("<html>" + String.join("<br>", current.getOptions().get(2).split("\n")) + "</html>");
+        choiceR.setText("<html>" + String.join("<br>", current.getOptions().get(3).split("\n")) + "</html>");
     
+    }
+    public void displayFirstQuestion(){
+
+        for (String line : current.getQuestionText().split("\n")) {
+           // Add <br> for each line to create a new line in HTML format
+           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        }
+        choiceQ.setText("<html>" + String.join("<br>", current.getOptions().get(0).split("\n")) + "</html>");
+        choiceW.setText("<html>" + String.join("<br>", current.getOptions().get(1).split("\n")) + "</html>");
+        choiceE.setText("<html>" + String.join("<br>", current.getOptions().get(2).split("\n")) + "</html>");
+        choiceR.setText("<html>" + String.join("<br>", current.getOptions().get(3).split("\n")) + "</html>");
+    }
+
+    public void updateTimeLabel(long timerMinutes, long timerSeconds){
+        timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
+    }
+
+    @Override
+    public void timeUpdate(){
+        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
+    }
+    
+   @Override
+    public void actionPerformed(ActionEvent e) {
+        String actionCmd = e.getActionCommand();
+        System.out.println(actionCmd);
+        if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
+            JButton src = (JButton) e.getSource();
+            String textFromBtn = src.getText();
+            String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+            System.out.println(plyAnswer);
+            processPlayerAnswer(plyAnswer);
+        }
     }
     
     /**
@@ -574,18 +624,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
         });
     }
 
-    
-    public void updateTimeLabel(long timerMinutes, long timerSeconds){
-        timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
-    }
-
-    @Override
-    public void timeUpdate(){
-        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
-    }
-    
-    
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ALabel;
@@ -608,5 +646,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable{
     private javax.swing.JLabel plyScore;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
+
+ 
 }
 

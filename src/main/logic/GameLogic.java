@@ -39,6 +39,7 @@ public class GameLogic {
 
     private int questionsUsed =0;
     private Question current;
+    private Question next;
 
     
     public GameLogic(Session session, GameEnums.GameMode gameMode ){
@@ -47,7 +48,9 @@ public class GameLogic {
 //        gameTimeUp = new GameTimeUpdate();
         qLogic = new QuestionLogic();
         rand = new Random();
+        
         this.gameTimer = new GameTimer();
+        
         initializeQuestionMap();
         
     }
@@ -70,8 +73,15 @@ public class GameLogic {
         return tempQues;
     }
     
-    public void addPlayerAnswerToList(String playerAnswer, int index){
-        playerAns.put(qLogic.getQuesData().getQuestions().get(index), playerAnswer);
+    public void addPlayerAnswerToList(String playerAnswer, Question currQuestion){
+        playerAns.put(currQuestion, playerAnswer);
+    }
+    
+    public void checkAnswerPerQuestion(String plyAnswer, Question currentQues){
+        String corAns= currentQues.getCorrectAnswer();
+        
+        System.out.println("\nCorrect Answer: " + corAns + "\nPlayer Answer: " + plyAnswer);
+        
     }
 
     private void initializeQuestionMap(){
@@ -92,6 +102,9 @@ public class GameLogic {
         }
     }
     
+    public void checkAnswers(String plyAnswer){
+        
+    }
     
     
     // Getter And Setters
@@ -121,6 +134,13 @@ public class GameLogic {
             current = getQuestionFromMap();
         }
         return current;
+    }
+    
+    public Question getNext() {
+        if(next == null){
+            next = getQuestionFromMap();
+        }
+        return next;
     }
     
         // Method to start the game timer
