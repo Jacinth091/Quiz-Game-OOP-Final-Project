@@ -29,7 +29,7 @@ public class GameLogic {
     private Random rand;
     
     // Player 
-    private int playerScore =0;
+    private int playerScore = 0;
     private int[] players_Score = new int[2];
     
     
@@ -77,10 +77,15 @@ public class GameLogic {
         playerAns.put(currQuestion, playerAnswer);
     }
     
-    public void checkAnswerPerQuestion(String plyAnswer, Question currentQues){
+    public boolean checkAnswerPerQuestion(String plyAnswer, Question currentQues){
         String corAns= currentQues.getCorrectAnswer();
-        
         System.out.println("\nCorrect Answer: " + corAns + "\nPlayer Answer: " + plyAnswer);
+        return currentQues.getCorrectAnswer().equals(plyAnswer); 
+        
+    }
+    
+    public String getCorrectAnswer(Question currentQues){
+        return currentQues.getCorrectAnswer();
         
     }
 

@@ -52,6 +52,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
 
     
         initComponents();
+        buttonEventsInit();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
@@ -71,15 +72,25 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         this.appContext = AppContext.getInstance();
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
+        this.gameLogic = appContext.getGameLogic(gameMode);
         session.setPlayer(new Player("1", "Gwapo", 0, 0));
-//        singleLogic = new GameTimer(appContext,gameMode, this);
+        current = gameLogic.getCurrent();
 
+
+    
         initComponents();
-
+        buttonEventsInit();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-//        singleLogic.startTimer();
+        
+
+        
+        displayFirstQuestion();
+        gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
+        
+        
+        gameLogic.startTimer();
 
 
     }
@@ -99,11 +110,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         choiceQ = new javax.swing.JButton();
         choiceE = new javax.swing.JButton();
         choiceR = new javax.swing.JButton();
-        QLabel = new javax.swing.JLabel();
-        ALabel = new javax.swing.JLabel();
-        Wlabel = new javax.swing.JLabel();
         choiceW = new javax.swing.JButton();
-        SLabel = new javax.swing.JLabel();
         goBack = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jSeparator2 = new javax.swing.JSeparator();
@@ -112,6 +119,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         SocreLabel1 = new javax.swing.JLabel();
         plyScore = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -130,42 +138,29 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(59, 59, 59)
-                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(64, Short.MAX_VALUE))
+                .addGap(33, 33, 33)
+                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 449, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(28, Short.MAX_VALUE)
-                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         choiceQ.setBackground(new java.awt.Color(0, 102, 204));
-        choiceQ.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceQ.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
         choiceQ.setText(current.getOptions().get(0));
         choiceQ.setActionCommand("choiceQ");
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
         choiceQ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceQMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceQMouseExited(evt);
-            }
-        });
-        choiceQ.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optQEvent(evt);
-            }
-        });
 
         choiceE.setBackground(new java.awt.Color(0, 102, 204));
-        choiceE.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceE.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceE.setForeground(new java.awt.Color(255, 255, 255));
         choiceE.setText(current.getOptions().get(2));
         choiceE.setActionCommand("choiceE");
@@ -180,14 +175,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 choiceEMouseExited(evt);
             }
         });
-        choiceE.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optEEvent(evt);
-            }
-        });
 
         choiceR.setBackground(new java.awt.Color(0, 102, 204));
-        choiceR.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceR.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceR.setForeground(new java.awt.Color(255, 255, 255));
         choiceR.setText(current.getOptions().get(3));
         choiceR.setActionCommand("choiceR");
@@ -202,29 +192,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 choiceRMouseExited(evt);
             }
         });
-        choiceR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optREvent(evt);
-            }
-        });
-
-        QLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        QLabel.setForeground(new java.awt.Color(0, 204, 255));
-        QLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        QLabel.setText("Q");
-
-        ALabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        ALabel.setForeground(new java.awt.Color(0, 204, 255));
-        ALabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        ALabel.setText("E");
-
-        Wlabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        Wlabel.setForeground(new java.awt.Color(0, 204, 255));
-        Wlabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        Wlabel.setText("W");
 
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
-        choiceW.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceW.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
         choiceW.setText(current.getOptions().get(1));
         choiceW.setActionCommand("choiceW");
@@ -239,16 +209,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 choiceWMouseExited(evt);
             }
         });
-        choiceW.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optWEvent(evt);
-            }
-        });
-
-        SLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        SLabel.setForeground(new java.awt.Color(0, 204, 255));
-        SLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        SLabel.setText("R");
 
         goBack.setBackground(new java.awt.Color(0, 102, 204));
         goBack.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -331,37 +291,41 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         timerLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         timerLabel.setText("00:00");
 
+        jLabel1.setFont(new java.awt.Font("Montserrat", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Time");
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(goBack)
+                .addGap(24, 24, 24))
+            .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(108, 108, 108)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(choiceQ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(QLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ALabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(90, 90, 90)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(choiceR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(Wlabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(SLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(225, 225, 225)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
+                        .addGap(45, 45, 45)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(238, 238, 238)
-                                .addComponent(goBack))))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(242, 242, 242)
-                        .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(choiceQ, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(50, 50, 50)
+                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
+                                    .addComponent(choiceR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -370,30 +334,21 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(goBack)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24)
-                .addComponent(timerLabel)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Wlabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(SLabel))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                        .addGap(239, 239, 239)
-                        .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(QLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ALabel)))
-                .addContainerGap(105, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timerLabel)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(36, 36, 36)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -404,7 +359,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -456,96 +413,80 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         choiceE.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_choiceEMouseEntered
-
-    private void choiceQMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseExited
-        choiceQ.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseExited
-
-    private void choiceQMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseEntered
-        choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseEntered
-
-    private void optQEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optQEvent
-        // TODO add your handling code here:
-        actionPerformed(evt);
-    }//GEN-LAST:event_optQEvent
-
-    private void optWEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optWEvent
-        // TODO add your handling code here:
-         actionPerformed(evt);
-
-    }//GEN-LAST:event_optWEvent
-
-    private void optEEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optEEvent
-        // TODO add your handling code here:
-         actionPerformed(evt);
-
-        
-    }//GEN-LAST:event_optEEvent
-
-    private void optREvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optREvent
-        // TODO add your handling code here:
-        actionPerformed(evt);
-
-    }//GEN-LAST:event_optREvent
     
     
-    
-    public void processPlayerAnswer(String plyerAnswer){
-        if(isProcessingFlag) return;
+    // TODO: Guba Pa na version 
+    /*
+        Kani na function kay dili pa mao
+    */
+    public void processPlayerAnswer(String playerAnswer) {
 
-        if(reEnableTimer != null && reEnableTimer.isRunning()){
+        if (isProcessingFlag) return; // Exit if already processing
+        if (reEnableTimer != null && reEnableTimer.isRunning()) {
             reEnableTimer.stop();
-        }
-        
-        isProcessingFlag = true;
-        choiceQ.setEnabled(false);
-        choiceW.setEnabled(false);
-        choiceE.setEnabled(false);
-        choiceR.setEnabled(false);
+        }   
+        isProcessingFlag = true; // Block interactions
+        System.out.println("Processing...");
 
-        System.out.println("Processing!...");
-//        processLogic(plyerAnswer);
-        gameLogic.addPlayerAnswerToList(plyerAnswer, current);
-        gameLogic.checkAnswerPerQuestion(plyerAnswer,current);
-        
-        reEnableTimer = new Timer(500, (ae) ->{
-            choiceQ.setEnabled(true);
-            choiceW.setEnabled(true);
-            choiceE.setEnabled(true);
-            choiceR.setEnabled(true);
-            isProcessingFlag= false;
+        boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+        changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current));
 
+ 
+        gameLogic.addPlayerAnswerToList(playerAnswer, current);
+
+        reEnableTimer = new Timer(650, (ae) -> {
+            resetButtonColors();
+            isProcessingFlag = false; 
+            System.out.println("Buttons re-enabled.");
         });
-        reEnableTimer.setDelay(1000);
+
+        reEnableTimer.setRepeats(false); 
         reEnableTimer.start();
-            // Delay the next question display by 1 second
-        Timer nextQuestionTimer = new Timer(500, (ae) -> {
+        
+
+        Timer nextQuestionTimer = new Timer(650, (ae) -> {
             displayNextQuestion();  
-
-
-
         });
         nextQuestionTimer.setRepeats(false); // Only execute once
         nextQuestionTimer.start();
     }
     
-    public void processLogic(String plyAnswer){
-  
+    public void resetButtonColors(){
+        choiceQ.setBackground(Color.decode("#0066CC"));
+        choiceW.setBackground(Color.decode("#0066CC"));
+        choiceE.setBackground(Color.decode("#0066CC"));
+        choiceR.setBackground(Color.decode("#0066CC"));
+
+    }
+    public void changeBtnColor(boolean isCorrect, String plyAnswer, String correctAnswer) {
+        // Define colors
+        Color correctColor = new Color(70, 229, 76); // Green
+        Color incorrectColor = new Color(229, 70, 70); // Red
+
+        resetButtonColors();
+        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
+
+        for (JButton choice : choices) {
+            String choiceText = choice.getText();
+            if (choiceText.contains(correctAnswer)) {
+                // Set the correct answer to green
+                choice.setBackground(correctColor);
+            } else {
+                // Set all other (incorrect) answers to red
+                choice.setBackground(incorrectColor);
+            }
+        }
 
     }
 
+
+
     public void displayNextQuestion(){
         current = gameLogic.getQuestionFromMap();
-//        char[] label = {'Q', 'W', 'E', 'R'};
+
         System.out.println("Current Question:\n"+ current.getQuestionText());
-//        for (int i =0; i < current.getOptions().size(); i++) {
-//            System.out.println(label[i] + ") " + current.getOptions().get(i));
-//        }
+        
         for (String line : current.getQuestionText().split("\n")) {
-           // Add <br> for each line to create a new line in HTML format
            mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
         }
         choiceQ.setText("<html>" + String.join("<br>", current.getOptions().get(0).split("\n")) + "</html>");
@@ -581,13 +522,102 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         System.out.println(actionCmd);
         if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
             JButton src = (JButton) e.getSource();
+            
             String textFromBtn = src.getText();
             String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
-            System.out.println(plyAnswer);
+//            System.out.println(plyAnswer);
             processPlayerAnswer(plyAnswer);
         }
     }
     
+    
+    
+    public void buttonEventsInit(){
+        // ChoiceQ
+        choiceQ.addActionListener((e) -> {
+            if (isProcessingFlag) return;
+            actionPerformed(e);
+        });
+        
+        choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceQ.setBackground(Color.decode("#6699FF")); 
+                
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceQ.setBackground(Color.decode("#0066CC")); 
+            }
+        });
+        
+        
+        choiceW.addActionListener(e -> {
+            if (isProcessingFlag) return;
+            actionPerformed(e);
+        });
+        choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceW.setBackground(Color.decode("#6699FF")); 
+                
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceW.setBackground(Color.decode("#0066CC"));
+            }
+        });
+
+        choiceE.addActionListener(e -> {
+            if (isProcessingFlag) return;
+            actionPerformed(e);
+        });
+        choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceE.setBackground(Color.decode("#6699FF"));
+                
+                
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceE.setBackground(Color.decode("#0066CC"));
+            }
+        });
+        
+
+        choiceR.addActionListener(e -> {
+            if (isProcessingFlag) return;
+            actionPerformed(e);
+        });
+        choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceR.setBackground(Color.decode("#6699FF")); 
+                
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(isProcessingFlag) return;
+                choiceR.setBackground(Color.decode("#0066CC"));
+            }
+        });
+                
+    }
+    
+    public void mouseEntered(JButton btn){
+        btn.setBackground(Color.decode("#6699FF")); 
+    }
+    public void mouseExited(){
+        
+    }
     /**
      * @param args the command line arguments
      */
@@ -626,17 +656,14 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel ALabel;
-    private javax.swing.JLabel QLabel;
-    private javax.swing.JLabel SLabel;
     private javax.swing.JLabel SocreLabel;
     private javax.swing.JLabel SocreLabel1;
-    private javax.swing.JLabel Wlabel;
     private javax.swing.JButton choiceE;
     private javax.swing.JButton choiceQ;
     private javax.swing.JButton choiceR;
     private javax.swing.JButton choiceW;
     private javax.swing.JButton goBack;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator2;
