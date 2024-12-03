@@ -60,13 +60,13 @@ public class GameTimer{
         }
     }
     
-        private void countDown() {
+    private void countDown() {
         if (timeRemainingInSeconds >= 0) {
             timerMinutes = timeRemainingInSeconds / 60;  // Update the minutes
             timerSeconds = timeRemainingInSeconds % 60;  // Update the seconds
             timeRemainingInSeconds--;  // Decrease the remaining time
         }
-}
+    }
     
     
     
@@ -79,6 +79,11 @@ public class GameTimer{
             eventUpdate.timeUpdate();
         }
     }
+    
+    
+    
+    
+    
     
     public long getTimerMinutes() {
         return timerMinutes;

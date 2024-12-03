@@ -25,4 +25,9 @@ public class GameEnums {
         STRATEGY,
         ADVENTURE;
     }
+    public enum GameState {
+        Play,
+        Pause,
+        GameOver
+    }
 }

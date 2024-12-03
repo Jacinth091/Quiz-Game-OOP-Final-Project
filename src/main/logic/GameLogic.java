@@ -23,6 +23,9 @@ public class GameLogic {
     private static GameLogic instance;
 //    private GameTimeUpdate gameTimeUp;
     private GameEnums.GameMode gameMode;
+    private GameEnums.GameState gameState;
+
+    
     private Session session;
     private QuestionLogic qLogic;
     private GameTimer gameTimer;
@@ -43,6 +46,7 @@ public class GameLogic {
 
     
     public GameLogic(Session session, GameEnums.GameMode gameMode ){
+        this.gameState = GameEnums.GameState.Play;
         this.session = session;
         this.gameMode = gameMode;
 //        gameTimeUp = new GameTimeUpdate();
@@ -108,8 +112,38 @@ public class GameLogic {
     }
     
     public void checkAnswers(String plyAnswer){
-        
+        if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
+            if(current.getCorrectAnswer().equals(plyAnswer)){
+                playerScore += 10;
+            }
+
+        }
+        else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
+            
+        }
+
     }
+    
+    public void checkAnswer(boolean isCorrect){
+        if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
+            if(isCorrect){
+                playerScore += 10;
+            }
+
+        }
+        else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
+            
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     // Getter And Setters
@@ -119,6 +153,16 @@ public class GameLogic {
         }
         return instance;
     }
+
+    public GameEnums.GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameEnums.GameState gameState) {
+        this.gameState = gameState;
+    }
+    
+    
 
     public int getPlayerScore() {
         return playerScore;

@@ -117,7 +117,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         ply1Name = new javax.swing.JLabel();
         SocreLabel = new javax.swing.JLabel();
         SocreLabel1 = new javax.swing.JLabel();
-        plyScore = new javax.swing.JLabel();
+        plyScoreLabel = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -247,10 +247,10 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         SocreLabel1.setForeground(new java.awt.Color(255, 255, 255));
         SocreLabel1.setText("Name:");
 
-        plyScore.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        plyScore.setForeground(new java.awt.Color(255, 255, 255));
-        plyScore.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyScore.setText("0");
+        plyScoreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyScoreLabel.setForeground(new java.awt.Color(255, 255, 255));
+        plyScoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -267,7 +267,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(SocreLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(plyScore, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(plyScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(9, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -282,7 +282,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(SocreLabel)
-                    .addComponent(plyScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(plyScoreLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(20, 20, 20))
         );
 
@@ -427,8 +427,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         }   
         isProcessingFlag = true; // Block interactions
         System.out.println("Processing...");
-
+        
         boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+        gameLogic.checkAnswer(isCorrect);
         changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current));
 
  
@@ -485,6 +486,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         current = gameLogic.getQuestionFromMap();
 
         System.out.println("Current Question:\n"+ current.getQuestionText());
+
+        
         
         for (String line : current.getQuestionText().split("\n")) {
            mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
@@ -496,7 +499,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     
     }
     public void displayFirstQuestion(){
+//        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
 
+        
         for (String line : current.getQuestionText().split("\n")) {
            // Add <br> for each line to create a new line in HTML format
            mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
@@ -510,16 +515,36 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     public void updateTimeLabel(long timerMinutes, long timerSeconds){
         timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
     }
+    public void updatePlayerScore(){
+        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
+        System.out.println("Score: " + gameLogic.getPlayerScore());
 
+    }
     @Override
     public void timeUpdate(){
-        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
+        
+        if(null != gameLogic.getGameState())
+            switch (gameLogic.getGameState()) {
+            case Play:
+                updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
+                updatePlayerScore();
+                break;
+            case Pause:
+                javax.swing.JOptionPane.showMessageDialog(this, "Pause");
+                break;
+            case GameOver:
+                javax.swing.JOptionPane.showMessageDialog(this, "Pause");
+                break;
+            default:
+                break;
+        }
+
     }
     
    @Override
     public void actionPerformed(ActionEvent e) {
         String actionCmd = e.getActionCommand();
-        System.out.println(actionCmd);
+//        System.out.println(actionCmd);
         if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
             JButton src = (JButton) e.getSource();
             
@@ -533,13 +558,15 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     
     
     public void buttonEventsInit(){
-        // ChoiceQ
-        choiceQ.addActionListener((e) -> {
-            if (isProcessingFlag) return;
-            actionPerformed(e);
-        });
+        JButton[] btns = {choiceQ, choiceW, choiceE, choiceR};
         
-        choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
+        for(JButton btn : btns){
+            btn.addActionListener((e) -> {
+                if(isProcessingFlag) return;
+                actionPerformed(e);
+            });
+            
+            btn.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 if(isProcessingFlag) return;
@@ -551,73 +578,12 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
                 if(isProcessingFlag) return;
                 choiceQ.setBackground(Color.decode("#0066CC")); 
             }
-        });
-        
-        
-        choiceW.addActionListener(e -> {
-            if (isProcessingFlag) return;
-            actionPerformed(e);
-        });
-        choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceW.setBackground(Color.decode("#6699FF")); 
-                
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceW.setBackground(Color.decode("#0066CC"));
-            }
-        });
-
-        choiceE.addActionListener(e -> {
-            if (isProcessingFlag) return;
-            actionPerformed(e);
-        });
-        choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceE.setBackground(Color.decode("#6699FF"));
-                
-                
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceE.setBackground(Color.decode("#0066CC"));
-            }
-        });
-        
-
-        choiceR.addActionListener(e -> {
-            if (isProcessingFlag) return;
-            actionPerformed(e);
-        });
-        choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceR.setBackground(Color.decode("#6699FF")); 
-                
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                choiceR.setBackground(Color.decode("#0066CC"));
-            }
-        });
-                
+            });
+            
+        }
+                        
     }
     
-    public void mouseEntered(JButton btn){
-        btn.setBackground(Color.decode("#6699FF")); 
-    }
-    public void mouseExited(){
-        
-    }
     /**
      * @param args the command line arguments
      */
@@ -670,7 +636,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel mainQuestionLabel;
     private javax.swing.JLabel ply1Name;
-    private javax.swing.JLabel plyScore;
+    private javax.swing.JLabel plyScoreLabel;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
 
