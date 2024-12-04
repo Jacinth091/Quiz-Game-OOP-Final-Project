@@ -9,6 +9,7 @@ import java.awt.Color;
 import backend.Database.DatabaseManager;
 import main.PlayerData.Session;
 import main.logic.AppContext;
+import main.logic.GameEnums;
 
 /**
  *
@@ -18,6 +19,7 @@ public class HomeForm extends javax.swing.JFrame {
     private AppContext appContext;
     private DatabaseManager dbManager;
     private Session session;
+    private GameEnums.GameState gameState;
     /**
      * Creates new form HomeForm
      * @param appContext
@@ -29,6 +31,8 @@ public class HomeForm extends javax.swing.JFrame {
         this.session = appContext.getSession();
         System.out.println("User ID: "+ session.getUserId());
         System.out.println("Player Name: " + session.getPlayer().getPlayerName().toUpperCase());
+        
+        this.gameState = appContext.getGameState();
         initComponents();
         setLocationRelativeTo(null);
 

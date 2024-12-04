@@ -4,6 +4,8 @@
  */
 package main.ui;
 
+import main.logic.AppContext;
+
 /**
  *
  * @author PCC
@@ -12,17 +14,29 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     private Thread loading;
     private int max, current, width,filledWidth;
     private boolean isLoadingComplete;
+    
+    private AppContext appContext;
 
     /**
      * Creates new form Loading
      */
-    public Loading() {
+    public Loading(AppContext appContext) {
+        this.appContext = appContext;
         initComponents();
         setLocationRelativeTo(null);
         setDefault();
 
         startThread();
     }
+    public Loading() {
+//        this.appContext = appContext;
+        initComponents();
+        setLocationRelativeTo(null);
+        setDefault();
+
+        startThread();
+    }
+    
     public void setDefault(){
         max =100;
         current =0;
@@ -184,13 +198,15 @@ public class Loading extends javax.swing.JFrame implements Runnable{
                     isLoadingComplete = true;
                 }
                 
-                Thread.sleep(50);
+                Thread.sleep(15);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
             
-            
+
         }
+        
+
         
     }
     public void updateLoadingBar(){

@@ -22,6 +22,8 @@ public class GameTimer{
     
     private ArrayList<TimeUpdatable> timeUpdate;
     
+    private boolean isPaused;
+    private boolean isGameOver;
  
 
     public GameTimer() {
@@ -30,11 +32,20 @@ public class GameTimer{
 
     public void startTimer() {
         if (gameTimer == null || !gameTimer.isRunning()) {
-           countDown();  // Update time immediately
-           notifyTimeUpdates();  // Notify listeners of the update
-           countDownTimer();  // Initialize the timer
-           gameTimer.start();  // Start the timer
-       }
+            if(isPaused){
+                isPaused =false;
+            }
+            else{
+                isPaused = false;
+                countDown();  
+                notifyTimeUpdates();  
+                countDownTimer();  
+            }
+            gameTimer.start();  
+
+        }
+        
+        
     }
 
     public void stopTimer() {
@@ -43,11 +54,19 @@ public class GameTimer{
             restartTimer();
         }
     }
+    public void pauseTimer() {
+        if (gameTimer != null && gameTimer.isRunning()) {
+            gameTimer.stop(); // Stop the timer to pause it
+            isPaused = true; // Set the pause state
+        }
+    }
     
     public void restartTimer(){
         timeRemainingInSeconds = 1 * 60;
         timerMinutes = 0;
         timerSeconds = 0;
+        isPaused = false;
+        isGameOver = false;
     }
 
     private void countDownTimer() {
@@ -61,11 +80,21 @@ public class GameTimer{
     }
     
     private void countDown() {
-        if (timeRemainingInSeconds >= 0) {
-            timerMinutes = timeRemainingInSeconds / 60;  // Update the minutes
-            timerSeconds = timeRemainingInSeconds % 60;  // Update the seconds
-            timeRemainingInSeconds--;  // Decrease the remaining time
-        }
+        if (timeRemainingInSeconds > 0) {
+            if(timerSeconds == 20){
+                isPaused = true;
+            }
+            timeRemainingInSeconds--; 
+            timerMinutes = timeRemainingInSeconds / 60;  
+            timerSeconds = timeRemainingInSeconds % 60; 
+ 
+      } else if(timeRemainingInSeconds == 0){
+          isGameOver = true;
+          gameTimer.stop();
+      }
+        
+        System.out.println("GameOver:? " + isGameOver);
+
     }
     
     
@@ -105,5 +134,23 @@ public class GameTimer{
     public Timer getGameTimer() {
         return gameTimer;
     }
+
+    public boolean getIsPaused() {
+        return isPaused;
+    }
+
+    public void setIsPaused(boolean isPaused) {
+        this.isPaused = isPaused;
+    }
+
+    public boolean getIsGameOver() {
+        return isGameOver;
+    }
+
+    public void setIsGameOver(boolean isGameOver) {
+        this.isGameOver = isGameOver;
+    }
+    
+    
     
 }

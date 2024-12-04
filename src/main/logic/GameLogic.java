@@ -21,9 +21,11 @@ import main.update.GameTimeUpdate;
 
 public class GameLogic {
     private static GameLogic instance;
+    private AppContext appContext;
 //    private GameTimeUpdate gameTimeUp;
     private GameEnums.GameMode gameMode;
     private GameEnums.GameState gameState;
+
 
     
     private Session session;
@@ -43,17 +45,24 @@ public class GameLogic {
     private int questionsUsed =0;
     private Question current;
     private Question next;
-
     
-    public GameLogic(Session session, GameEnums.GameMode gameMode ){
-        this.gameState = GameEnums.GameState.Play;
-        this.session = session;
+    
+    private boolean isPaused;
+    private boolean isGameOver;
+    
+    public GameLogic(AppContext appContext, GameEnums.GameMode gameMode ){
+        gameState = appContext.getGameState();
+        this.session = appContext.getSession();
         this.gameMode = gameMode;
 //        gameTimeUp = new GameTimeUpdate();
         qLogic = new QuestionLogic();
         rand = new Random();
         
         this.gameTimer = new GameTimer();
+        
+        isPaused = gameTimer.getIsPaused();
+        isGameOver = gameTimer.getIsGameOver();
+        
         
         initializeQuestionMap();
         
@@ -75,6 +84,30 @@ public class GameLogic {
             }
         }
         return tempQues;
+    }
+    
+    public Question getQuestionFromMap(int index){
+        Question tempQues = null;
+        while(true){
+            if(!questions.get(index).getIsQuestionUsed()){
+                tempQues = questions.get(index);
+                tempQues.setIsQuestionUsed(true);
+                if(gameState == GameEnums.GameState.GameOver){
+                    resetQuesStatus(tempQues);
+                    questionsUsed =0;
+                }
+                questionsUsed++;
+                System.out.println("Unique");
+                System.out.println("Questions Used: " + questionsUsed);
+
+                break;
+            }
+        }
+        return tempQues;
+    }
+    
+    public int getRandomIndex(){
+        return rand.nextInt(questions.size() - 1) + 1;
     }
     
     public void addPlayerAnswerToList(String playerAnswer, Question currQuestion){
@@ -136,7 +169,9 @@ public class GameLogic {
         }
     }
     
-    
+    public void resetQuesStatus(Question question){
+            question.setIsQuestionUsed(false);
+    }
     
     
     
@@ -147,22 +182,14 @@ public class GameLogic {
     
     
     // Getter And Setters
-    public static synchronized GameLogic getInstance(Session session, GameEnums.GameMode gameMode){
+    public static synchronized GameLogic getInstance(AppContext appContext, GameEnums.GameMode gameMode){
         if(instance == null){
-            instance = new GameLogic(session, gameMode);
+            instance = new GameLogic(appContext, gameMode);
         }
         return instance;
     }
 
-    public GameEnums.GameState getGameState() {
-        return gameState;
-    }
 
-    public void setGameState(GameEnums.GameState gameState) {
-        this.gameState = gameState;
-    }
-    
-    
 
     public int getPlayerScore() {
         return playerScore;
@@ -178,19 +205,19 @@ public class GameLogic {
     }
 
 
-    public Question getCurrent() {
-        if(current == null){
-            current = getQuestionFromMap();
-        }
-        return current;
-    }
-    
-    public Question getNext() {
-        if(next == null){
-            next = getQuestionFromMap();
-        }
-        return next;
-    }
+//    public Question getCurrent() {
+//        if(current == null){
+//            current = getQuestionFromMap(getRandomIndex());
+//        }
+//        return current;
+//    }
+//    
+//    public Question getNext() {
+//        if(next == null){
+//            next = getQuestionFromMap();
+//        }
+//        return next;
+//    }
     
         // Method to start the game timer
     public void startTimer() {
@@ -222,6 +249,30 @@ public class GameLogic {
     
     public GameTimer getGameTimerClass(){
         return gameTimer;
+    }
+
+    public boolean getIsPaused() {
+        return gameTimer.getIsPaused();
+    }
+
+    public void setIsPaused(boolean isPaused) {
+        gameTimer.setIsPaused(isPaused);
+    }
+
+    public boolean getIsGameOver() {
+        return gameTimer.getIsGameOver();
+    }
+
+    public void setIsGameOver(boolean isGameOver) {
+        gameTimer.setIsGameOver(isGameOver);
+    }
+
+    public GameEnums.GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameEnums.GameState gameState) {
+        appContext.setGameState(gameState);
     }
     
     

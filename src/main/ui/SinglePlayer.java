@@ -10,11 +10,16 @@ import main.logic.AppContext;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
 import main.logic.GameEnums;
+import static main.logic.GameEnums.GameState.GameOver;
+import static main.logic.GameEnums.GameState.Pause;
+import static main.logic.GameEnums.GameState.Play;
 import main.logic.GameLogic;
+import main.logic.Updatable;
 import main.update.TimeUpdatable;
 
 /**
@@ -22,7 +27,7 @@ import main.update.TimeUpdatable;
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, java.awt.event.ActionListener{
+public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, Updatable,java.awt.event.ActionListener{
     private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
 
     private AppContext appContext;
@@ -36,6 +41,10 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     
     private boolean isProcessingFlag;
     private Timer reEnableTimer;
+    
+    
+    
+
     /**
      * Creates new form singlePlayer
      * @param appContext
@@ -46,7 +55,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
 //        gameTimer = gameLogic.getGameTimer();
-        current = gameLogic.getCurrent();
+        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+
 
 //        displayQuestion();
 
@@ -59,12 +69,13 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         
 
         
-        displayFirstQuestion();
+        displayQuestion();
+        appContext.getGameThread().addEventUpdate(() -> update());
         gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
         
         
-        gameLogic.startTimer();
 
+        gameLogic.startTimer();
 
     }
 
@@ -74,7 +85,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
         session.setPlayer(new Player("1", "Gwapo", 0, 0));
-        current = gameLogic.getCurrent();
+        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
 
 
     
@@ -86,7 +97,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         
 
         
-        displayFirstQuestion();
+        displayQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
         
         
@@ -378,10 +389,15 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     }//GEN-LAST:event_goBackMouseEntered
 
     private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
-        new HomeForm(appContext).setVisible(true);
+//        new HomeForm(appContext).setVisible(true);
+        this.dispose();       // TODO add your handling code here:
 
-        this.setVisible(false);        // TODO add your handling code here:
-        gameLogic.stopTimer();
+        new PlayerStatsScreen(appContext).setVisible(true);
+
+
+////        appContext.setGameState(GameEnums.GameState.GameOver);
+//        gameLogic.stopTimer();
+
     }//GEN-LAST:event_goBackMouseClicked
 
     private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
@@ -465,8 +481,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         Color incorrectColor = new Color(229, 70, 70); // Red
 
         resetButtonColors();
-        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
 
+        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
         for (JButton choice : choices) {
             String choiceText = choice.getText();
             if (choiceText.contains(correctAnswer)) {
@@ -479,84 +495,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
         }
 
     }
-
-
-
-    public void displayNextQuestion(){
-        current = gameLogic.getQuestionFromMap();
-
-        System.out.println("Current Question:\n"+ current.getQuestionText());
-
-        
-        
-        for (String line : current.getQuestionText().split("\n")) {
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
-        }
-        choiceQ.setText("<html>" + String.join("<br>", current.getOptions().get(0).split("\n")) + "</html>");
-        choiceW.setText("<html>" + String.join("<br>", current.getOptions().get(1).split("\n")) + "</html>");
-        choiceE.setText("<html>" + String.join("<br>", current.getOptions().get(2).split("\n")) + "</html>");
-        choiceR.setText("<html>" + String.join("<br>", current.getOptions().get(3).split("\n")) + "</html>");
-    
-    }
-    public void displayFirstQuestion(){
-//        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
-
-        
-        for (String line : current.getQuestionText().split("\n")) {
-           // Add <br> for each line to create a new line in HTML format
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
-        }
-        choiceQ.setText("<html>" + String.join("<br>", current.getOptions().get(0).split("\n")) + "</html>");
-        choiceW.setText("<html>" + String.join("<br>", current.getOptions().get(1).split("\n")) + "</html>");
-        choiceE.setText("<html>" + String.join("<br>", current.getOptions().get(2).split("\n")) + "</html>");
-        choiceR.setText("<html>" + String.join("<br>", current.getOptions().get(3).split("\n")) + "</html>");
-    }
-
-    public void updateTimeLabel(long timerMinutes, long timerSeconds){
-        timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
-    }
-    public void updatePlayerScore(){
-        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
-        System.out.println("Score: " + gameLogic.getPlayerScore());
-
-    }
-    @Override
-    public void timeUpdate(){
-        
-        if(null != gameLogic.getGameState())
-            switch (gameLogic.getGameState()) {
-            case Play:
-                updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
-                updatePlayerScore();
-                break;
-            case Pause:
-                javax.swing.JOptionPane.showMessageDialog(this, "Pause");
-                break;
-            case GameOver:
-                javax.swing.JOptionPane.showMessageDialog(this, "Pause");
-                break;
-            default:
-                break;
-        }
-
-    }
-    
-   @Override
-    public void actionPerformed(ActionEvent e) {
-        String actionCmd = e.getActionCommand();
-//        System.out.println(actionCmd);
-        if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
-            JButton src = (JButton) e.getSource();
-            
-            String textFromBtn = src.getText();
-            String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
-//            System.out.println(plyAnswer);
-            processPlayerAnswer(plyAnswer);
-        }
-    }
-    
-    
-    
     public void buttonEventsInit(){
         JButton[] btns = {choiceQ, choiceW, choiceE, choiceR};
         
@@ -570,19 +508,135 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 if(isProcessingFlag) return;
-                choiceQ.setBackground(Color.decode("#6699FF")); 
+                btn.setBackground(Color.decode("#6699FF")); 
                 
             }
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 if(isProcessingFlag) return;
-                choiceQ.setBackground(Color.decode("#0066CC")); 
+                btn.setBackground(Color.decode("#0066CC")); 
             }
             });
             
         }
                         
     }
+
+    public void displayNextQuestion(){
+        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+        displayQuestion();
+    
+    }
+    public void displayQuestion(){
+        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
+        for (String line : current.getQuestionText().split("\n")) {
+           // Add <br> for each line to create a new line in HTML format
+           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+           for(int i =0; i < choices.length; i++){
+               choices[i].setText("<html>" + String.join("<br>", current.getOptions().get(i).split("\n")) + "</html>");
+           }
+        }
+    }
+
+    public void updateTimeLabel(long timerMinutes, long timerSeconds){
+        if(null != appContext.getGameState()){
+         switch(appContext.getGameState()){
+                case Play:
+                   timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
+                   System.out.println("Score: " + gameLogic.getPlayerScore());
+                   break;
+                case Pause:
+                    timerLabel.setText("Paused");
+                    gameLogic.setIsPaused(true);
+                    break;
+                case GameOver:
+//                   plyScoreLabel.setText("0");
+                   System.out.println("Score: " + gameLogic.getPlayerScore());
+                break;
+            }
+        }
+    }
+    public void updatePlayerScore(){
+        if(gameLogic.getIsPaused()){
+            plyScoreLabel.setText("Paused");
+        }
+        else{
+            plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
+            System.out.println("Score: " + gameLogic.getPlayerScore());
+        }
+    }
+    @Override
+    public void timeUpdate(){
+        if(gameLogic.getIsPaused()){
+            gameLogic.getGameTimerClass().pauseTimer();
+        }
+        else{
+            updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
+            updatePlayerScore();
+        }
+        
+
+
+
+    }
+    
+    @Override
+    public void update() {
+        if(null != appContext.getGameState())
+            switch (appContext.getGameState()) {
+            case Play:
+                if(gameLogic.getIsGameOver()){
+                    appContext.setGameState(GameOver);
+                }
+                
+                break;
+            case Pause:
+//                gameLogic.setIsPaused(true);
+//                JOptionPane.showMessageDialog(this, "GameOver!");
+                new PlayerStatsScreen(appContext).setVisible(true);
+                break;
+            case GameOver:
+//                gameLogic.setIsGameOver(true);
+                
+
+                gameLogic.getGameTimerClass().stopTimer();
+                plyScoreLabel.setText("0");
+                break;
+            default:
+                break;
+        }
+    }
+    
+   @Override
+    public void actionPerformed(ActionEvent e) {
+        String actionCmd = e.getActionCommand();
+//        System.out.println(actionCmd);
+        if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
+            JButton src = (JButton) e.getSource();
+            
+            String textFromBtn = src.getText();
+            String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+//            System.out.println(plyAnswer);
+
+            if(Play == gameLogic.getGameState()){
+                processPlayerAnswer(plyAnswer);
+            }
+            
+           
+        }
+        
+        
+//        switch(actionCmd){
+//            case "choiceQ":
+//                appContext.setGameState(GameOver);
+//            break;
+//        }
+
+    }
+    
+    
+    
+
     
     /**
      * @param args the command line arguments
@@ -639,6 +693,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, j
     private javax.swing.JLabel plyScoreLabel;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
+
+ 
 
  
 }
