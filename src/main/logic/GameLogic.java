@@ -12,6 +12,7 @@ import java.util.Map;
 import main.PlayerData.Session;
 import java.util.Random;
 import javax.swing.Timer;
+import static main.logic.GameEnums.GameState.GameOver;
 import main.update.GameTimeUpdate;
 
 /**
@@ -24,7 +25,6 @@ public class GameLogic {
     private AppContext appContext;
 //    private GameTimeUpdate gameTimeUp;
     private GameEnums.GameMode gameMode;
-    private GameEnums.GameState gameState;
 
 
     
@@ -51,18 +51,12 @@ public class GameLogic {
     private boolean isGameOver;
     
     public GameLogic(AppContext appContext, GameEnums.GameMode gameMode ){
-        gameState = appContext.getGameState();
         this.session = appContext.getSession();
         this.gameMode = gameMode;
-//        gameTimeUp = new GameTimeUpdate();
         qLogic = new QuestionLogic();
         rand = new Random();
         
         this.gameTimer = new GameTimer();
-        
-        isPaused = gameTimer.getIsPaused();
-        isGameOver = gameTimer.getIsGameOver();
-        
         
         initializeQuestionMap();
         
@@ -77,7 +71,6 @@ public class GameLogic {
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
                 questionsUsed++;
-                System.out.println("Unique");
                 System.out.println("Questions Used: " + questionsUsed);
 
                 break;
@@ -92,12 +85,11 @@ public class GameLogic {
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
-                if(gameState == GameEnums.GameState.GameOver){
+                if(GameOver.equals(getGameState())){
                     resetQuesStatus(tempQues);
                     questionsUsed =0;
                 }
                 questionsUsed++;
-                System.out.println("Unique");
                 System.out.println("Questions Used: " + questionsUsed);
 
                 break;
@@ -173,9 +165,14 @@ public class GameLogic {
             question.setIsQuestionUsed(false);
     }
     
-    
-    
-    
+    public void restartGame(){
+        getGameTimerClass().restartTimer();
+        playerScore = 0;
+
+    }
+    public void pauseGame(){
+        getGameTimerClass().pauseTimer();
+    }
     
     
     
@@ -251,29 +248,18 @@ public class GameLogic {
         return gameTimer;
     }
 
-    public boolean getIsPaused() {
-        return gameTimer.getIsPaused();
-    }
-
-    public void setIsPaused(boolean isPaused) {
-        gameTimer.setIsPaused(isPaused);
-    }
-
-    public boolean getIsGameOver() {
-        return gameTimer.getIsGameOver();
-    }
-
-    public void setIsGameOver(boolean isGameOver) {
-        gameTimer.setIsGameOver(isGameOver);
-    }
-
     public GameEnums.GameState getGameState() {
-        return gameState;
+        return gameTimer.getGameState();
     }
 
     public void setGameState(GameEnums.GameState gameState) {
-        appContext.setGameState(gameState);
+        gameTimer.setGameState(gameState);
     }
+
+//    public void setGameState(GameEnums.GameState gameState) {
+//        appContext.setGameState(gameState);
+//    }
+    
     
     
     

@@ -5,7 +5,12 @@
 package main.logic;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import static main.logic.GameEnums.GameState.GameOver;
+import static main.logic.GameEnums.GameState.Pause;
+import static main.logic.GameEnums.GameState.Play;
 import main.update.TimeUpdatable;
 
 /**
@@ -15,28 +20,35 @@ import main.update.TimeUpdatable;
 public class GameTimer{
 
     private Timer gameTimer;
-    private long timeElapsedInSeconds, timeRemainingInSeconds = 1 * 60;
+    private long timeElapsedInSeconds, timeRemainingInSeconds = 10;
     private long timerMinutes = 0;
     private long timerSeconds = 0;
+    private long pauseStartTime;
     
     
     private ArrayList<TimeUpdatable> timeUpdate;
     
     private boolean isPaused;
     private boolean isGameOver;
+    
+    private GameEnums.GameState gameState;
+
  
 
     public GameTimer() {
         timeUpdate = new ArrayList<>();
+        gameState = GameEnums.GameState.Play;
     }
 
     public void startTimer() {
         if (gameTimer == null || !gameTimer.isRunning()) {
-            if(isPaused){
-                isPaused =false;
+            if(Pause.equals(gameState)){
+                long pauseDuration = (System.currentTimeMillis() - pauseStartTime) / 1000; // Pause duration in seconds
+                timeRemainingInSeconds -= pauseDuration; // Adjust remaining time
+                gameState = Play;
             }
             else{
-                isPaused = false;
+//                gameState = Play;
                 countDown();  
                 notifyTimeUpdates();  
                 countDownTimer();  
@@ -56,45 +68,45 @@ public class GameTimer{
     }
     public void pauseTimer() {
         if (gameTimer != null && gameTimer.isRunning()) {
-            gameTimer.stop(); // Stop the timer to pause it
-            isPaused = true; // Set the pause state
+            gameTimer.stop(); // Stop the timer
+            pauseStartTime = System.currentTimeMillis(); // Record the pause time
+            gameState = Pause;
         }
     }
     
     public void restartTimer(){
-        timeRemainingInSeconds = 1 * 60;
+        timeRemainingInSeconds = 1*60;
         timerMinutes = 0;
         timerSeconds = 0;
-        isPaused = false;
-        isGameOver = false;
+        gameState = Play;
     }
 
     private void countDownTimer() {
-        if(gameTimer == null){
-            gameTimer = new Timer(0, (ae) -> {
-                notifyTimeUpdates();
+        if (gameTimer == null) {
+            gameTimer = new Timer(1000, ae -> {
                 countDown();
+                notifyTimeUpdates();
             });
-            gameTimer.setDelay(1000);
+            gameTimer.setRepeats(true); 
         }
+
+
     }
     
     private void countDown() {
         if (timeRemainingInSeconds > 0) {
-            if(timerSeconds == 20){
-                isPaused = true;
-            }
             timeRemainingInSeconds--; 
             timerMinutes = timeRemainingInSeconds / 60;  
             timerSeconds = timeRemainingInSeconds % 60; 
+            System.out.println("Timer Updated: " + getCurrentTime()); // Debug log
  
-      } else if(timeRemainingInSeconds == 0){
-          isGameOver = true;
+      } else if(timeRemainingInSeconds == 0 ){
+          gameState = GameOver;
           gameTimer.stop();
       }
         
-        System.out.println("GameOver:? " + isGameOver);
-
+        System.out.println("GameState: " + gameState);
+        System.out.println("Time Remaining: " + getCurrentTime() + ", GameState: " + gameState);
     }
     
     
@@ -135,22 +147,14 @@ public class GameTimer{
         return gameTimer;
     }
 
-    public boolean getIsPaused() {
-        return isPaused;
+    public GameEnums.GameState getGameState() {
+        return gameState;
     }
 
-    public void setIsPaused(boolean isPaused) {
-        this.isPaused = isPaused;
+    public void setGameState(GameEnums.GameState gameState) {
+        this.gameState = gameState;
     }
 
-    public boolean getIsGameOver() {
-        return isGameOver;
-    }
 
-    public void setIsGameOver(boolean isGameOver) {
-        this.isGameOver = isGameOver;
-    }
-    
-    
     
 }

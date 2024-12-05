@@ -11,6 +11,7 @@ import main.logic.AppContext;
  * @author PCC
  */
 public class Loading extends javax.swing.JFrame implements Runnable{
+    private static Loading instance;
     private Thread loading;
     private int max, current, width,filledWidth;
     private boolean isLoadingComplete;
@@ -20,21 +21,9 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     /**
      * Creates new form Loading
      */
-    public Loading(AppContext appContext) {
-        this.appContext = appContext;
-        initComponents();
-        setLocationRelativeTo(null);
-        setDefault();
-
-        startThread();
-    }
     public Loading() {
 //        this.appContext = appContext;
-        initComponents();
-        setLocationRelativeTo(null);
-        setDefault();
 
-        startThread();
     }
     
     public void setDefault(){
@@ -168,6 +157,22 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         });
     }
     
+    public static synchronized Loading getInstance(){
+        if(instance == null){
+            instance = new Loading();
+        }
+        return instance;
+    }
+    
+    public void start(){
+        initComponents();
+        setLocationRelativeTo(null);
+        setVisible(true);
+        setDefault();
+
+        startThread();
+    }
+    
     public void startThread(){
         
         if(loading == null){
@@ -179,39 +184,24 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     }
     
     public void startLoading() throws InterruptedException{
-
-        
-        
         while(loading != null){
-            
             try{
-                System.out.println("JANJAN");
-                System.out.println("current: " + current + " %");
-                System.out.println("IsLoadingComplete: " + isLoadingComplete);
-
-                if(current <= max){
+                if(max > current){
                     updateLoadingBar();
-
                 }
-                else if(current >= max){
+                else if(current == max){
                     current = max;
                     isLoadingComplete = true;
                 }
-                
+               
                 Thread.sleep(15);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
-            
-
-        }
-        
-
-        
+        } 
     }
     public void updateLoadingBar(){
         filledWidth = (int)(( current / (double)max) * 2);
-
 
         LoadingBar.setMaximum(max);
         LoadingBar.setValue(current);
@@ -219,12 +209,24 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         current++;
                 
     }
+
+    public boolean getIsLoadingComplete() {
+        return isLoadingComplete;
+    }
+
+    public void setIsLoadingComplete(boolean isLoadingComplete) {
+        this.isLoadingComplete = isLoadingComplete;
+    }
+    
+    
+    
     
     @Override
     public void run(){
         
         try{
             startLoading();
+            setDefault();
             
         }catch(InterruptedException e){
             e.printStackTrace();

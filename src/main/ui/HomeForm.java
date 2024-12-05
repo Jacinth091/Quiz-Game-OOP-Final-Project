@@ -332,8 +332,9 @@ public class HomeForm extends javax.swing.JFrame {
     }//GEN-LAST:event_leaderBoardBtnActionPerformed
 
     private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
-            new SinglePlayer(appContext).setVisible(true);
-            this.setVisible(false);
+        this.setVisible(false);    
+        new SinglePlayer(appContext).setVisible(true);
+
         // TODO add your handling code here:
     }//GEN-LAST:event_singlePlayBtnMouseClicked
 

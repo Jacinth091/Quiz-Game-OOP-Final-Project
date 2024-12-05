@@ -7,6 +7,8 @@ package main.logic;
 import backend.Database.DatabaseManager;
 import backend.Images;
 import main.PlayerData.Session;
+import main.ui.Loading;
+import main.ui.SinglePlayer;
 
 /**
  *
@@ -14,28 +16,33 @@ import main.PlayerData.Session;
  */
 public class AppContext {
     private static AppContext instance;
-    private MainThread gameThread;
+//    private MainThread gameThread;
     private DatabaseManager dbManager;
     private Session session;
+    
     private GameLogic gameLogic;
     private Images imgs;
+    private Loading loadingScreen;
     
     private GameEnums.GameMode gameMode;
     private GameEnums.GameState gameState;
     
+    
+    private SinglePlayer singlePlayer;
+    
     private AppContext(){
 
-        gameThread = MainThread.getInstance();
-        gameState = gameThread.getGameState();
-        gameThread.startThread();
-        
-        
-              // Add a shutdown hook to stop the thread safely
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (gameThread != null) {
-                gameThread.stopThread();
-            }
-        }));
+//        gameThread = MainThread.getInstance();
+//        gameState = gameThread.getGameState();
+//        gameThread.startThread();
+//        
+//        
+//              // Add a shutdown hook to stop the thread safely
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            if (gameThread != null) {
+//                gameThread.stopThread();
+//            }
+//        }));
     }
     
 
@@ -75,6 +82,13 @@ public class AppContext {
         }
         return gameLogic;
     }
+    
+    public Loading getLoadingScreen() {
+        if (loadingScreen == null) {
+            loadingScreen = Loading.getInstance();
+        }
+        return loadingScreen;
+    }
 
     public GameEnums.GameMode getGameMode() {
         return gameMode;
@@ -88,13 +102,19 @@ public class AppContext {
         return gameState;
     }
 
-    public void setGameState(GameEnums.GameState gameState) {
-        gameThread.setGameState(gameState);
+//    public void setGameState(GameEnums.GameState gameState) {
+//        gameThread.setGameState(gameState);
+//    }
+//
+//    public MainThread getGameThread() {
+//        return gameThread;
+//    }
+    
+    public SinglePlayer getSinglePlayer() {
+        return singlePlayer;
     }
 
-    public MainThread getGameThread() {
-        return gameThread;
+    public void setSinglePlayer(SinglePlayer singlePlayer) {
+        this.singlePlayer = singlePlayer;
     }
-    
-    
 }

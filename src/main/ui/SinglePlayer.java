@@ -9,8 +9,11 @@ import backend.Questions.Question;
 import main.logic.AppContext;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
@@ -19,7 +22,6 @@ import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
 import main.logic.GameLogic;
-import main.logic.Updatable;
 import main.update.TimeUpdatable;
 
 /**
@@ -27,7 +29,7 @@ import main.update.TimeUpdatable;
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, Updatable,java.awt.event.ActionListener{
+public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,java.awt.event.ActionListener{
     private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
 
     private AppContext appContext;
@@ -40,7 +42,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
     private Question next;
     
     private boolean isProcessingFlag;
-    private Timer reEnableTimer;
+    private Timer reEnableTimer, nextQuestionTimer;
     
     
     
@@ -51,30 +53,20 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
      */
     public SinglePlayer(AppContext appContext) {
         this.appContext = appContext;
+        this.appContext.setGameMode(gameMode);
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
-//        gameTimer = gameLogic.getGameTimer();
         current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
-
-
-//        displayQuestion();
-
-    
         initComponents();
         buttonEventsInit();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
         
-
-        
         displayQuestion();
-        appContext.getGameThread().addEventUpdate(() -> update());
-        gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(() -> timeUpdate()));
         
-        
-
         gameLogic.startTimer();
 
     }
@@ -87,15 +79,11 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         session.setPlayer(new Player("1", "Gwapo", 0, 0));
         current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
 
-
-    
         initComponents();
         buttonEventsInit();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        
-
         
         displayQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
@@ -122,7 +110,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         choiceE = new javax.swing.JButton();
         choiceR = new javax.swing.JButton();
         choiceW = new javax.swing.JButton();
-        goBack = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jSeparator2 = new javax.swing.JSeparator();
         ply1Name = new javax.swing.JLabel();
@@ -131,6 +118,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         plyScoreLabel = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        PauseBtn = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -178,14 +166,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceE.setFocusable(false);
         choiceE.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceEMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceEMouseExited(evt);
-            }
-        });
 
         choiceR.setBackground(new java.awt.Color(0, 102, 204));
         choiceR.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
@@ -195,14 +175,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceR.setFocusable(false);
         choiceR.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceRMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceRMouseExited(evt);
-            }
-        });
 
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
         choiceW.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
@@ -212,32 +184,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
         choiceW.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceWMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceWMouseExited(evt);
-            }
-        });
-
-        goBack.setBackground(new java.awt.Color(0, 102, 204));
-        goBack.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
-        goBack.setForeground(new java.awt.Color(255, 255, 255));
-        goBack.setText("Go back");
-        goBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        goBack.setFocusable(false);
-        goBack.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                goBackMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                goBackMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                goBackMouseExited(evt);
-            }
-        });
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 51));
 
@@ -307,16 +253,19 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Time");
 
+        PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
+        PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
+        PauseBtn.setText("Pause");
+        PauseBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PauseBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(goBack)
-                .addGap(24, 24, 24))
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(mainPanelLayout.createSequentialGroup()
@@ -325,7 +274,12 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(45, 45, 45)
+                        .addGap(21, 21, 21)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(277, 277, 277)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(43, 43, 43)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
@@ -334,22 +288,24 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
                                     .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(50, 50, 50)
                                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
-                                    .addComponent(choiceR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
-                .addContainerGap(40, Short.MAX_VALUE))
+                                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(goBack)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(25, 25, 25)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(timerLabel)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -359,7 +315,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(75, Short.MAX_VALUE))
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -378,57 +334,11 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void goBackMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseExited
-        goBack.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void PauseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PauseBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_goBackMouseExited
-
-    private void goBackMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseEntered
-        goBack.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_goBackMouseEntered
-
-    private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
-//        new HomeForm(appContext).setVisible(true);
-        this.dispose();       // TODO add your handling code here:
-
-        new PlayerStatsScreen(appContext).setVisible(true);
-
-
-////        appContext.setGameState(GameEnums.GameState.GameOver);
-//        gameLogic.stopTimer();
-
-    }//GEN-LAST:event_goBackMouseClicked
-
-    private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
-        choiceW.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseExited
-
-    private void choiceWMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseEntered
-        choiceW.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseEntered
-
-    private void choiceRMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseExited
-        choiceR.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceRMouseExited
-
-    private void choiceRMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseEntered
-        choiceR.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceRMouseEntered
-
-    private void choiceEMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseExited
-        choiceE.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceEMouseExited
-
-    private void choiceEMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseEntered
-        choiceE.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceEMouseEntered
+        actionPerformed(evt);
+        
+    }//GEN-LAST:event_PauseBtnActionPerformed
     
     
     // TODO: Guba Pa na version 
@@ -436,37 +346,31 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         Kani na function kay dili pa mao
     */
     public void processPlayerAnswer(String playerAnswer) {
+        if (isProcessingFlag) return;
 
-        if (isProcessingFlag) return; // Exit if already processing
-        if (reEnableTimer != null && reEnableTimer.isRunning()) {
-            reEnableTimer.stop();
-        }   
-        isProcessingFlag = true; // Block interactions
-        System.out.println("Processing...");
-        
+        isProcessingFlag = true; 
+
         boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
         gameLogic.checkAnswer(isCorrect);
-        changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current));
-
- 
-        gameLogic.addPlayerAnswerToList(playerAnswer, current);
-
-        reEnableTimer = new Timer(650, (ae) -> {
-            resetButtonColors();
-            isProcessingFlag = false; 
-            System.out.println("Buttons re-enabled.");
-        });
-
-        reEnableTimer.setRepeats(false); 
-        reEnableTimer.start();
         
+        SwingUtilities.invokeLater(() -> changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current)));
 
-        Timer nextQuestionTimer = new Timer(650, (ae) -> {
-            displayNextQuestion();  
-        });
-        nextQuestionTimer.setRepeats(false); // Only execute once
-        nextQuestionTimer.start();
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(700); // Delay before resetting colors
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).thenRun(() -> SwingUtilities.invokeLater(() -> {
+            resetButtonColors();
+            displayNextQuestion();
+            updatePlayerScore();
+            isProcessingFlag = false; // Re-enable interactions
+        }));
+
     }
+
     
     public void resetButtonColors(){
         choiceQ.setBackground(Color.decode("#0066CC"));
@@ -474,6 +378,14 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         choiceE.setBackground(Color.decode("#0066CC"));
         choiceR.setBackground(Color.decode("#0066CC"));
 
+    }
+    
+    public void toggleBtns(boolean value){
+        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
+        for(JButton btn : choices){
+            btn.setEnabled(value);
+       }
+        PauseBtn.setEnabled(value);
     }
     public void changeBtnColor(boolean isCorrect, String plyAnswer, String correctAnswer) {
         // Define colors
@@ -500,21 +412,25 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
         
         for(JButton btn : btns){
             btn.addActionListener((e) -> {
-                if(isProcessingFlag) return;
-                actionPerformed(e);
+                if(!isProcessingFlag){
+                    actionPerformed(e);
+                }
             });
             
             btn.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                btn.setBackground(Color.decode("#6699FF")); 
+                if(!isProcessingFlag){
+                    btn.setBackground(Color.decode("#6699FF")); 
+
+                }
                 
             }
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                if(isProcessingFlag) return;
-                btn.setBackground(Color.decode("#0066CC")); 
+                if(!isProcessingFlag) {
+                    btn.setBackground(Color.decode("#0066CC")); 
+                }
             }
             });
             
@@ -523,14 +439,13 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
     }
 
     public void displayNextQuestion(){
-        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
-        displayQuestion();
+        current = gameLogic.getQuestionFromMap();
+        SwingUtilities.invokeLater(this::displayQuestion);
     
     }
     public void displayQuestion(){
         JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
         for (String line : current.getQuestionText().split("\n")) {
-           // Add <br> for each line to create a new line in HTML format
            mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
            for(int i =0; i < choices.length; i++){
                choices[i].setText("<html>" + String.join("<br>", current.getOptions().get(i).split("\n")) + "</html>");
@@ -539,61 +454,51 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
     }
 
     public void updateTimeLabel(long timerMinutes, long timerSeconds){
-        if(null != appContext.getGameState()){
-         switch(appContext.getGameState()){
-                case Play:
-                   timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
-                   System.out.println("Score: " + gameLogic.getPlayerScore());
-                   break;
-                case Pause:
-                    timerLabel.setText("Paused");
-                    gameLogic.setIsPaused(true);
-                    break;
-                case GameOver:
-//                   plyScoreLabel.setText("0");
-                   System.out.println("Score: " + gameLogic.getPlayerScore());
-                break;
-            }
+        if (Play.equals(gameLogic.getGameState())) {
+            SwingUtilities.invokeLater(() -> 
+                timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
+            );
+        } else if (Pause.equals(gameLogic.getGameState())) {
+            // Optional: Update the label to indicate the game is paused
         }
     }
     public void updatePlayerScore(){
-        if(gameLogic.getIsPaused()){
-            plyScoreLabel.setText("Paused");
-        }
-        else{
+        if(Play.equals(gameLogic.getGameState())){
             plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
-            System.out.println("Score: " + gameLogic.getPlayerScore());
+//            System.out.println("Score: " + gameLogic.getPlayerScore());
         }
     }
     @Override
-    public void timeUpdate(){
-        if(gameLogic.getIsPaused()){
-            gameLogic.getGameTimerClass().pauseTimer();
+    public void timeUpdate() {
+        if (Play.equals(gameLogic.getGameState())) {
+            SwingUtilities.invokeLater(() -> 
+                updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
+                                gameLogic.getGameTimerClass().getTimerSeconds())
+            );
+        } else if (Pause.equals(gameLogic.getGameState())) {
+            System.out.println("Paused!");
+        } else if (GameOver.equals(gameLogic.getGameState())) {
+            toggleBtns(false);
+            appContext.getGameLogic(appContext.getGameMode()).restartGame();
+            appContext.setSinglePlayer(this);
+            SwingUtilities.invokeLater(() -> new PlayerStatsScreen(appContext).setVisible(true));
         }
-        else{
-            updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(), gameLogic.getGameTimerClass().getTimerSeconds());
-            updatePlayerScore();
-        }
-        
-
-
-
     }
     
-    @Override
+  
     public void update() {
         if(null != appContext.getGameState())
             switch (appContext.getGameState()) {
             case Play:
-                if(gameLogic.getIsGameOver()){
-                    appContext.setGameState(GameOver);
-                }
-                
+                updatePlayerScore();
+
                 break;
             case Pause:
 //                gameLogic.setIsPaused(true);
 //                JOptionPane.showMessageDialog(this, "GameOver!");
+                
                 new PlayerStatsScreen(appContext).setVisible(true);
+                
                 break;
             case GameOver:
 //                gameLogic.setIsGameOver(true);
@@ -618,19 +523,24 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
             String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
 //            System.out.println(plyAnswer);
 
-            if(Play == gameLogic.getGameState()){
+            if(Play.equals(gameLogic.getGameState())){
                 processPlayerAnswer(plyAnswer);
             }
             
            
         }
-        
-        
-//        switch(actionCmd){
-//            case "choiceQ":
-//                appContext.setGameState(GameOver);
-//            break;
-//        }
+        else if(actionCmd.equals("Pause")){
+            if(PauseBtn.isSelected()){
+                gameLogic.getGameTimerClass().setGameState(Pause);
+                gameLogic.getGameTimerClass().pauseTimer();
+            }
+            else{
+                gameLogic.getGameTimerClass().startTimer();
+                gameLogic.getGameTimerClass().setGameState(Play);
+                 
+            }
+        }
+       
 
     }
     
@@ -676,13 +586,13 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable, U
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton PauseBtn;
     private javax.swing.JLabel SocreLabel;
     private javax.swing.JLabel SocreLabel1;
     private javax.swing.JButton choiceE;
     private javax.swing.JButton choiceQ;
     private javax.swing.JButton choiceR;
     private javax.swing.JButton choiceW;
-    private javax.swing.JButton goBack;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
