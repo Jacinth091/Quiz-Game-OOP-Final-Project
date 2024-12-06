@@ -13,6 +13,7 @@ import main.PlayerData.Session;
 import java.util.Random;
 import javax.swing.Timer;
 import static main.logic.GameEnums.GameState.GameOver;
+import static main.logic.GameEnums.GameState.Play;
 import main.update.GameTimeUpdate;
 
 /**
@@ -166,8 +167,9 @@ public class GameLogic {
     }
     
     public void restartGame(){
-        getGameTimerClass().restartTimer();
+        gameTimer.restartTimer();
         playerScore = 0;
+        questionsUsed =0;
 
     }
     public void pauseGame(){
@@ -175,6 +177,15 @@ public class GameLogic {
     }
     
     
+    
+    
+    public void resetGameLogic() {
+        if (gameTimer != null) {
+            gameTimer.stopTimer(); // Stop the timer
+        }
+        restartGame();        
+        // Reset other game-related resources
+    }
     
     
     

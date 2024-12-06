@@ -210,6 +210,35 @@ public class DatabaseManager {
         return data;
     }
     
+    public boolean insertScoreLeaderboards(Connection connection, String playerId, int score){
+        boolean flag = false;
+        String query = "INSERT INTO leaderboards (player_id player_Score, ) VALUE (?,?)";
+        try(PreparedStatement prepStatement = connection.prepareStatement(query)){
+            prepStatement.setString(1,playerId); 
+//            prepStatement.setString(2,playerName);
+            prepStatement.setString(2,String.valueOf(score));
+            
+            int rowsAffected = prepStatement.executeUpdate();
+            if(rowsAffected > 0){
+                flag = true;
+            }
+            else{
+                flag = false;
+            }
+
+
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+
+        }
+        
+        return flag;
+    }
+    
+    
+    
+    
     // Other CRUD operations (example: read all users)
     public void displayAllUsers() throws SQLException {
         String query = "SELECT * FROM user";

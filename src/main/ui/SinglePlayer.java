@@ -30,6 +30,7 @@ import main.update.TimeUpdatable;
  * @author Jacinth
  */
 public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,java.awt.event.ActionListener{
+    private static SinglePlayer instance;
     private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
 
     private AppContext appContext;
@@ -352,7 +353,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
 
         boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
         gameLogic.checkAnswer(isCorrect);
-        
+        updatePlayerScore();
         SwingUtilities.invokeLater(() -> changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current)));
 
 
@@ -365,7 +366,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         }).thenRun(() -> SwingUtilities.invokeLater(() -> {
             resetButtonColors();
             displayNextQuestion();
-            updatePlayerScore();
             isProcessingFlag = false; // Re-enable interactions
         }));
 
@@ -470,48 +470,39 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
     }
     @Override
     public void timeUpdate() {
-        if (Play.equals(gameLogic.getGameState())) {
-            SwingUtilities.invokeLater(() -> 
-                updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
-                                gameLogic.getGameTimerClass().getTimerSeconds())
-            );
-        } else if (Pause.equals(gameLogic.getGameState())) {
-            System.out.println("Paused!");
-        } else if (GameOver.equals(gameLogic.getGameState())) {
-            toggleBtns(false);
-            appContext.getGameLogic(appContext.getGameMode()).restartGame();
-            appContext.setSinglePlayer(this);
-            SwingUtilities.invokeLater(() -> new PlayerStatsScreen(appContext).setVisible(true));
-        }
-    }
-    
-  
-    public void update() {
-        if(null != appContext.getGameState())
-            switch (appContext.getGameState()) {
+        if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
             case Play:
-                updatePlayerScore();
-
-                break;
+                SwingUtilities.invokeLater(() ->
+                        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
+                                gameLogic.getGameTimerClass().getTimerSeconds())
+                );  break;
             case Pause:
-//                gameLogic.setIsPaused(true);
-//                JOptionPane.showMessageDialog(this, "GameOver!");
-                
-                new PlayerStatsScreen(appContext).setVisible(true);
-                
+                System.out.println("Paused!");
                 break;
             case GameOver:
-//                gameLogic.setIsGameOver(true);
-                
-
-                gameLogic.getGameTimerClass().stopTimer();
-                plyScoreLabel.setText("0");
+                toggleBtns(false);
+//                CompletableFuture.runAsync(() ->{
+//                    try{
+//                        Thread.sleep(1000);
+//                    }catch(InterruptedException e){
+//                        e.printStackTrace();
+//                    }
+//                }).thenRun(() -> {SwingUtilities.invokeLater(() ->{
+//                    gameLogic.getGameTimerClass().stopTimer();
+//                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
+//                    new GameOver(appContext).setVisible(true);
+//                    
+//                });
+//                
+//                }); 
+////                toggleBtns(true);
                 break;
             default:
                 break;
         }
     }
     
+  
    @Override
     public void actionPerformed(ActionEvent e) {
         String actionCmd = e.getActionCommand();
@@ -521,7 +512,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
             
             String textFromBtn = src.getText();
             String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
-//            System.out.println(plyAnswer);
 
             if(Play.equals(gameLogic.getGameState())){
                 processPlayerAnswer(plyAnswer);
@@ -535,8 +525,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                 gameLogic.getGameTimerClass().pauseTimer();
             }
             else{
-                gameLogic.getGameTimerClass().startTimer();
                 gameLogic.getGameTimerClass().setGameState(Play);
+
+                gameLogic.getGameTimerClass().startTimer();
                  
             }
         }
@@ -545,7 +536,18 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
     }
     
     
-    
+    public static synchronized SinglePlayer getInstance(AppContext appContext){
+        if(instance == null){
+            instance = new SinglePlayer(appContext);
+        }
+        return instance;
+    } 
+    public static void resetInstance() {
+        if (instance != null) {
+            instance.dispose(); // Clean up the current instance
+            instance = null;
+        }
+    }
 
     
     /**
@@ -583,7 +585,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
             }
         });
     }
-
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton PauseBtn;

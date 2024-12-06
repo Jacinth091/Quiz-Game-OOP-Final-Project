@@ -7,6 +7,7 @@ package main.logic;
 import backend.Database.DatabaseManager;
 import backend.Images;
 import main.PlayerData.Session;
+import main.ui.GameOver;
 import main.ui.Loading;
 import main.ui.SinglePlayer;
 
@@ -23,6 +24,7 @@ public class AppContext {
     private GameLogic gameLogic;
     private Images imgs;
     private Loading loadingScreen;
+    private GameOver gameOver;
     
     private GameEnums.GameMode gameMode;
     private GameEnums.GameState gameState;
@@ -110,11 +112,18 @@ public class AppContext {
 //        return gameThread;
 //    }
     
-    public SinglePlayer getSinglePlayer() {
+    public SinglePlayer getSinglePlayer(AppContext appContext) {
+        if (singlePlayer == null) {
+            singlePlayer = SinglePlayer.getInstance(appContext);
+        }
         return singlePlayer;
     }
 
-    public void setSinglePlayer(SinglePlayer singlePlayer) {
-        this.singlePlayer = singlePlayer;
+    public void resetSinglePlayer() {
+        SinglePlayer.resetInstance();
+        singlePlayer = null;
     }
+    
+    
+    
 }

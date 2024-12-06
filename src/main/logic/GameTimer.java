@@ -75,7 +75,7 @@ public class GameTimer{
     }
     
     public void restartTimer(){
-        timeRemainingInSeconds = 1*60;
+        timeRemainingInSeconds = 10;
         timerMinutes = 0;
         timerSeconds = 0;
         gameState = Play;
@@ -105,7 +105,7 @@ public class GameTimer{
           gameTimer.stop();
       }
         
-        System.out.println("GameState: " + gameState);
+//        System.out.println("GameState: " + gameState);
         System.out.println("Time Remaining: " + getCurrentTime() + ", GameState: " + gameState);
     }
     
