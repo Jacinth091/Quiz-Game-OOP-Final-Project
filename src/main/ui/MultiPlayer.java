@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -47,6 +48,11 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
     private Question next;
 
     private boolean isProcessingFlag;
+    private boolean answerTaken;
+    private boolean isPlayerOneCorrect;
+    private boolean isPlayerTwoCorrect;
+
+    private String firstPlayerAnswered = "";
 
     
     private JButton[][] playerButtons;
@@ -67,7 +73,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         initComponents();
         setUpButtons();
 
-        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
@@ -129,23 +135,23 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
             for (int j = 0; j < playerButtons[i].length; j++) {
                 JButton btn = playerButtons[i][j];
                 String key = playerKeys[i][j];
-
+            final int playerIndex = i;
             ActionListener actionListener = (e) -> {
-                if (!isProcessingFlag) {
-                    // Get the button's text without HTML tags
-                    JButton source = (JButton) e.getSource();
-                    String textFromBtn = source.getText();
-                    String playerAnswer = textFromBtn.replaceAll("<.*?>", ""); // Remove HTML tags
-
-                    // Handle the player's answer
-                    if (Play.equals(gameLogic.getGameState())) {
-                        processPlayerAnswer(playerAnswer);
-                    } else {
-                        System.out.println("GameState: " + gameLogic.getGameState());
+                if(!isProcessingFlag){
+                    if(playerIndex ==0){
+                        System.out.println("Player 1 First!");
+                        firstPlayerAnswered = "playerOne";
+                        
                     }
+                    else{
+                        System.out.println("Player 2 First!");
+                        firstPlayerAnswered = "playerTwo";
+
+                    }
+                    actionPerformed(e);
                 }
             };
-
+            btn.addActionListener(actionListener);
             // Bind the action to the key
             KeyStroke keyStroke = KeyStroke.getKeyStroke(key);
             btn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "buttonAction" + key);
@@ -157,8 +163,8 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
             });
 
             // Add the action listener for mouse clicks
-            btn.addActionListener(actionListener);
-                final var playerIndex = i;
+
+//                final var playerIndex = i;
 //                final var buttonIndex = j;
 
                 btn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -177,44 +183,102 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
                     }
                 });
 
-                // Optionally, you can also handle button colors or other player-specific settings here.
             }
         }
     }
 
-    public void processPlayerAnswer(String playerAnswer) {
-        if (isProcessingFlag) return;
+    public void processPlayerAnswer(String playerAnswer, String player) {
+       if (isProcessingFlag) return;
 
+       if (firstPlayerAnswered.isEmpty()) {
+           firstPlayerAnswered = player;
+       }
+
+
+       boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+
+       if (isCorrect) {
+           System.out.println(player + " answered correctly!");
+           SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
+           finalizeRound(true, playerAnswer);  // End the round since the question was answered correctly
+           return;
+       }
+
+       // Handle incorrect answer
+       System.out.println(player + " answered incorrectly.");
+       SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false)); // Disable current player's buttons
+
+       if (player.equals("playerOne")) {
+           isPlayerOneCorrect = true;
+       } else {
+           isPlayerTwoCorrect = true;
+       }
+
+       if (firstPlayerAnswered.equals("playerOne") && !isPlayerTwoCorrect) {
+           System.out.println("Player Two gets a chance to steal!");
+       } else if (firstPlayerAnswered.equals("playerTwo") && !isPlayerOneCorrect) {
+           System.out.println("Player One gets a chance to steal!");
+       } else {
+           System.out.println("Both players answered incorrectly. Skipping question...");
+           finalizeRound(false, playerAnswer);  // End the round without awarding points
+       }
+   }
+
+    private void finalizeRound(boolean isCorrect, String playerAnswer) {
         isProcessingFlag = true; 
 
-        boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
         gameLogic.checkAnswer(isCorrect);
         gameLogic.updateQuestionUsed(isCorrect);
         updatePlayerScore();
-        SwingUtilities.invokeLater(() -> changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current)));
-
 
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(700); // Delay before resetting colors
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }).thenRun(() -> SwingUtilities.invokeLater(() -> {
-            resetButtonColors();
-           if(GameOver.equals(gameLogic.getGameState())) return;
-            displayNextQuestion();
-            isProcessingFlag = false; // Re-enable interactions
-        }));
-
+        }).thenCompose((v) -> CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
+            toggleBtns(true); 
+        }))).thenCompose((v) -> {
+            if (!isCorrect) {
+                return CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
+                    changeBtnColor(playerAnswer, gameLogic.getCorrectAnswer(current));
+                }));
+            }
+            return CompletableFuture.completedFuture(null);
+        }).thenRunAsync(() -> {
+            try {
+                Thread.sleep(600);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).thenRun(() -> {
+            SwingUtilities.invokeLater(() -> {
+                resetButtonColors();
+                isProcessingFlag = false;
+                firstPlayerAnswered = ""; 
+                isPlayerOneCorrect = false; 
+                isPlayerTwoCorrect = false;
+            });
+        }).thenRun(() -> {
+            // Display the next question
+            SwingUtilities.invokeLater(() -> {
+                if (GameOver.equals(gameLogic.getGameState())) return;
+                displayNextQuestion();
+            });
+        });
     }
+
+
+
 
     
     public void resetButtonColors(){
         
         for(int i = 0; i< playerButtons.length; i++){
-            for (int j = 0; j < playerButtons[i].length; j++) {
-                playerButtons[i][j].setBackground(playerColors[i][0]);   
+            for (JButton playerButton : playerButtons[i]) {
+                playerButton.setBackground(playerColors[i][0]);
+                playerButton.setForeground(new Color(255,255,255));
             }
         }
         
@@ -232,26 +296,48 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
        }
 
     }
-    public void changeBtnColor(boolean isCorrect, String plyAnswer, String correctAnswer) {
-        // Define colors
-        Color correctColor = new Color(70, 229, 76); // Green
-        Color incorrectColor = new Color(229, 70, 70); // Red
+    
+    public void togglePlayerBtn(int index, boolean value){
+        for(JButton btn : playerButtons[index]){
+            btn.setEnabled(value);
+        
+       }
+    }
+ 
+    
+    public void changeBtnColor(String plyAnswer, String correctAnswer) {
+                // Define colors
+        Color correctColor = new Color(70, 229, 76);  // Green
+        Color incorrectColor = new Color(229, 70, 70);  // Red
+        Color selectedColor = new Color(255, 229, 76);  // Yellow (chosen button)
+        Color blackText = new Color(0,0,0);
 
         resetButtonColors();
-        
-        for(JButton[] btns : playerButtons){
 
+        for (JButton[] btns : playerButtons) {
             for (JButton choice : btns) {
                 String choiceText = choice.getText();
-                if (choiceText.contains(correctAnswer)) {
-                    // Set the correct answer to green
-                    choice.setBackground(correctColor);
+                choiceText = choiceText.replaceAll("<.*?>", "");
+
+                if (plyAnswer.equals(correctAnswer)) {
+                    if (choiceText.equals(plyAnswer)) {
+                        choice.setBackground(correctColor);
+                        choice.setForeground(blackText);
+                    } else {
+                        choice.setBackground(incorrectColor); 
+                    }
                 } else {
-                    // Set all other (incorrect) answers to red
-                    choice.setBackground(incorrectColor);
+                    if (choiceText.equals(correctAnswer)) {
+                        choice.setBackground(correctColor); 
+                        choice.setForeground(blackText);
+
+                    } else {
+                        choice.setBackground(incorrectColor); 
+                    }
                 }
             }
         }
+
     }
 
 
@@ -261,24 +347,18 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
     
     }
     public void displayQuestion() {
- 
-        for (String line : current.getQuestionText().split("\n")) {
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
 
+        mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        for (int i =0; i < playerButtons.length; i++) {
             List<String> options = new ArrayList<>(current.getOptions());
-
-
             Collections.shuffle(options);
-
-            for (int j = 0; j < playerButtons[0].length; j++) {
-                playerButtons[0][j].setText("<html>" + String.join("<br>", options.get(j).split("\n")) + "</html>");
-            }
-
-            Collections.shuffle(options);
-
-            for (int j = 0; j < playerButtons[1].length; j++) {
-                playerButtons[1][j].setText("<html>" + String.join("<br>", options.get(j).split("\n")) + "</html>");
-            }
+            randomizeOptionsOrder(options, i);
+        }
+    }
+    
+    public void randomizeOptionsOrder(List<String> options,int index){
+        for (int j = 0; j < playerButtons[index].length; j++) {
+            playerButtons[index][j].setText("<html>" + String.join("<br>", options.get(j).split("\n")) + "</html>");
         }
     }
 
@@ -342,24 +422,33 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
   
    @Override
     public void actionPerformed(ActionEvent e) {
+        
         String actionCmd = e.getActionCommand();
-//        System.out.println(actionCmd);
-        if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
-            JButton src = (JButton) e.getSource();
-            
-            String textFromBtn = src.getText();
-            String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+        System.out.println("ActionCommad: " + actionCmd);
 
-            if(Play.equals(gameLogic.getGameState())){
-                processPlayerAnswer(plyAnswer);
-            }
-            else{
-                System.out.println("GameState: " + gameLogic.getGameState());
-            }
+        for(String[] keys : playerKeys){
+            for(String key : keys){
+                if(actionCmd.toUpperCase().contains(key)){
+                    JButton src = (JButton) e.getSource();
             
-           
+                    String textFromBtn = src.getText();
+                    String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+                    answerTaken = true;
+                    
+
+                    
+                    
+                    if(Play.equals(gameLogic.getGameState())){
+                        processPlayerAnswer(plyAnswer, firstPlayerAnswered);
+                    }
+                    else{
+                        System.out.println("GameState: " + gameLogic.getGameState());
+                    }
+                }
+            }
         }
-        else if(actionCmd.equals("Pause")){
+
+        if(actionCmd.equals("Pause")){
             if(PauseBtn.isSelected()){
                 gameLogic.getGameTimerClass().setGameState(Pause);
                 gameLogic.getGameTimerClass().pauseTimer();
@@ -570,6 +659,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         oneBtnA.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         oneBtnA.setForeground(new java.awt.Color(255, 255, 255));
         oneBtnA.setText("---");
+        oneBtnA.setActionCommand("choiceA");
         oneBtnA.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         oneBtnA.setFocusable(false);
 
@@ -577,6 +667,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         oneBtnS.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         oneBtnS.setForeground(new java.awt.Color(255, 255, 255));
         oneBtnS.setText("---");
+        oneBtnS.setActionCommand("choiceS");
         oneBtnS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         oneBtnS.setFocusable(false);
 
@@ -584,13 +675,9 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         oneBtnD.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         oneBtnD.setForeground(new java.awt.Color(255, 255, 255));
         oneBtnD.setText("---");
+        oneBtnD.setActionCommand("choiceD");
         oneBtnD.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         oneBtnD.setFocusable(false);
-        oneBtnD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                oneBtnDActionPerformed(evt);
-            }
-        });
 
         oneLabelA.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         oneLabelA.setForeground(new java.awt.Color(255, 255, 255));
@@ -600,6 +687,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         oneBtnF.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         oneBtnF.setForeground(new java.awt.Color(255, 255, 255));
         oneBtnF.setText("---");
+        oneBtnF.setActionCommand("choiceF");
         oneBtnF.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         oneBtnF.setFocusable(false);
         oneBtnF.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -763,6 +851,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         twoBtnH.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         twoBtnH.setForeground(new java.awt.Color(255, 255, 255));
         twoBtnH.setText("---");
+        twoBtnH.setActionCommand("choiceH");
         twoBtnH.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         twoBtnH.setFocusable(false);
 
@@ -770,6 +859,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         twoBtnJ.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         twoBtnJ.setForeground(new java.awt.Color(255, 255, 255));
         twoBtnJ.setText("---");
+        twoBtnJ.setActionCommand("choiceJ");
         twoBtnJ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         twoBtnJ.setFocusable(false);
 
@@ -777,6 +867,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         Kbutton.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         Kbutton.setForeground(new java.awt.Color(255, 255, 255));
         Kbutton.setText("---");
+        Kbutton.setActionCommand("choiceK");
         Kbutton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         Kbutton.setFocusable(false);
 
@@ -784,6 +875,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
         Lbutton.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         Lbutton.setForeground(new java.awt.Color(255, 255, 255));
         Lbutton.setText("---");
+        Lbutton.setActionCommand("choiceL");
         Lbutton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         Lbutton.setFocusable(false);
 
@@ -930,10 +1022,6 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
 //        new homeQUIZ().setVisible(true);
         this.setVisible(false);        // TODO add your handling code here:
     }//GEN-LAST:event_PauseBtnMouseClicked
-
-    private void oneBtnDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oneBtnDActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_oneBtnDActionPerformed
 
     /**
      * @param args the command line arguments

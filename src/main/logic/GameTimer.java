@@ -20,7 +20,7 @@ import main.update.TimeUpdatable;
 public class GameTimer{
 
     private Timer gameTimer;
-    private long timeElapsedInSeconds, timeRemainingInSeconds = 10;
+    private long timeElapsedInSeconds, timeRemainingInSeconds = 10 * 60;
     private long timerMinutes = 0;
     private long timerSeconds = 0;
     private long pauseStartTime;
@@ -98,7 +98,7 @@ public class GameTimer{
             timeRemainingInSeconds--; 
             timerMinutes = timeRemainingInSeconds / 60;  
             timerSeconds = timeRemainingInSeconds % 60; 
-            System.out.println("Timer Updated: " + getCurrentTime()); // Debug log
+//            System.out.println("Timer Updated: " + getCurrentTime()); // Debug log
  
       } else if(timeRemainingInSeconds == 0 ){
           gameState = GameOver;
