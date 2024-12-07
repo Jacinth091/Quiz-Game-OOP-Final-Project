@@ -108,13 +108,6 @@ public class AppContext {
         return gameState;
     }
 
-//    public void setGameState(GameEnums.GameState gameState) {
-//        gameThread.setGameState(gameState);
-//    }
-//
-//    public MainThread getGameThread() {
-//        return gameThread;
-//    }
     
     public SinglePlayer getSinglePlayer(AppContext appContext) {
         if (singlePlayer == null) {
@@ -128,6 +121,22 @@ public class AppContext {
             singlePlayer.dispose(); // Dispose of UI resources
             SinglePlayer.resetInstance(); // Reset the singleton instance
             singlePlayer = null; // Clear the reference in AppContext
+        }
+    }
+
+
+    public MultiPlayer getMultiPlayer(AppContext appContext) {
+        if (multiPlayer == null) {
+            multiPlayer = MultiPlayer.getInstance(appContext); // Ensure AppContext is passed
+        }
+        return multiPlayer;
+    }
+
+    public void resetMultiPlayer() {
+        if (multiPlayer != null) {
+            multiPlayer.dispose(); // Dispose of UI resources
+            MultiPlayer.resetInstance(); // Reset the singleton instance
+            multiPlayer = null; // Clear the reference in AppContext
         }
     }
     

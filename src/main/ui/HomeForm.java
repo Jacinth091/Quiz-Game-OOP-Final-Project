@@ -320,18 +320,6 @@ public class HomeForm extends javax.swing.JFrame {
 
     private void singlePlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singlePlayBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_singlePlayBtnActionPerformed
-
-    private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
-        // TODO add your handling code here:
-  
-    }//GEN-LAST:event_multiPlayBtnActionPerformed
-
-    private void leaderBoardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderBoardBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_leaderBoardBtnActionPerformed
-
-    private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
         this.dispose();// Hide the current frame
         
         appContext.resetSinglePlayer();
@@ -340,6 +328,27 @@ public class HomeForm extends javax.swing.JFrame {
      
         // Make the new SinglePlayer visible
         singlePlayer.setVisible(true);
+    }//GEN-LAST:event_singlePlayBtnActionPerformed
+
+    private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();// Hide the current frame
+        
+        appContext.resetSinglePlayer();
+        // Create a new instance of SinglePlayer and set it in the app context
+        MultiPlayer multiPlayer = appContext.getMultiPlayer(appContext);
+     
+        // Make the new SinglePlayer visible
+        multiPlayer.setVisible(true);
+  
+    }//GEN-LAST:event_multiPlayBtnActionPerformed
+
+    private void leaderBoardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderBoardBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_leaderBoardBtnActionPerformed
+
+    private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
+
 
 
         // TODO add your handling code here:
@@ -352,7 +361,7 @@ public class HomeForm extends javax.swing.JFrame {
 
     private void LogoutBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseClicked
         new SignIn(appContext).setVisible(true);
-         this.setVisible(false);   // TODO add your handling code here:
+        this.setVisible(false);   // TODO add your handling code here:
     }//GEN-LAST:event_LogoutBtnMouseClicked
 
     private void singlePlayBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseEntered

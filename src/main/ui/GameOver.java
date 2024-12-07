@@ -292,9 +292,7 @@ public class GameOver extends javax.swing.JFrame {
 //            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
             appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
 
-        }));
-        
-        transition.thenRun(() ->{
+        })).thenRun(() ->{
             new HomeForm(appContext).setVisible(true);
             appContext.getLoadingScreen().dispose();
         });
