@@ -42,11 +42,15 @@ public class Player {
     }
 
     public int getSinglePlay_Score() {
+        System.out.println("Get Single Score: " + this.singlePlay_Score);
+
         return singlePlay_Score;
+        
     }
 
     public void setSinglePlay_Score(int singlePlay_Score) {
         this.singlePlay_Score = singlePlay_Score;
+        System.out.println("Set Single Score: " + this.singlePlay_Score);
     }
 
     public int getMultiPlay_Score() {

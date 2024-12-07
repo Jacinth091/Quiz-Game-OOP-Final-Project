@@ -44,6 +44,7 @@ public class GameLogic {
     private Map<Question, String> playerAns= new HashMap<>();
 
     private int questionsUsed =0;
+    private int quesAnsweredCorrect =0;
     private Question current;
     private Question next;
     
@@ -71,9 +72,6 @@ public class GameLogic {
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
-                questionsUsed++;
-                System.out.println("Questions Used: " + questionsUsed);
-
                 break;
             }
         }
@@ -86,18 +84,19 @@ public class GameLogic {
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
-                if(GameOver.equals(getGameState())){
-                    resetQuesStatus(tempQues);
-                    questionsUsed =0;
-                }
-                questionsUsed++;
-                System.out.println("Questions Used: " + questionsUsed);
 
                 break;
             }
         }
         return tempQues;
     }
+    
+    public void updateQuestionUsed(){
+        questionsUsed++;
+        System.out.println("Questions Used: " + questionsUsed);
+    }
+    
+
     
     public int getRandomIndex(){
         return rand.nextInt(questions.size() - 1) + 1;
@@ -163,13 +162,14 @@ public class GameLogic {
     }
     
     public void resetQuesStatus(Question question){
-            question.setIsQuestionUsed(false);
+        question.setIsQuestionUsed(false);
     }
     
     public void restartGame(){
         gameTimer.restartTimer();
         playerScore = 0;
         questionsUsed =0;
+        session.getPlayer().setSinglePlay_Score(0);
 
     }
     public void pauseGame(){

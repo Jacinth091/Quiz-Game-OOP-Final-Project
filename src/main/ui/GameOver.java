@@ -17,12 +17,17 @@ import static main.logic.GameEnums.GameState.Play;
  * @author laroc
  */
 public class GameOver extends javax.swing.JFrame {
+    public static GameOver instance;
     public AppContext appContext;
     public Session session;
     public DatabaseManager dbManager;
 //    public SinglePlayer singlePlayer;
 //    public MultiPlayer multiPlayer;
-
+    private CompletableFuture<Void> transition;
+    
+    private String playerName;
+    private int playerScore;
+    private double playerAverage;
     /**
      * Creates new form GameOver
      */
@@ -59,9 +64,9 @@ public class GameOver extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         jSeparator4 = new javax.swing.JSeparator();
-        ply1Name5 = new javax.swing.JLabel();
-        plyScoreLabel7 = new javax.swing.JLabel();
-        plyScoreLabel8 = new javax.swing.JLabel();
+        plyName = new javax.swing.JLabel();
+        plyScore = new javax.swing.JLabel();
+        plyAverage = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -104,25 +109,22 @@ public class GameOver extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("ID: ");
+        jLabel4.setText("Average:");
 
-        ply1Name5.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        ply1Name5.setForeground(new java.awt.Color(255, 255, 255));
-        ply1Name5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        ply1Name5.setText(session.getPlayer().getPlayerName()
-        );
+        plyName.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyName.setForeground(new java.awt.Color(255, 255, 255));
+        plyName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyName.setText("Gwapo");
 
-        plyScoreLabel7.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        plyScoreLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        plyScoreLabel7.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyScoreLabel7.setText(String.valueOf(appContext.getGameLogic(appContext.getGameMode()).getPlayerScore()
-        ));
+        plyScore.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyScore.setForeground(new java.awt.Color(255, 255, 255));
+        plyScore.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyScore.setText("0");
 
-        plyScoreLabel8.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        plyScoreLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        plyScoreLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyScoreLabel8.setText(String.valueOf(appContext.getGameLogic(appContext.getGameMode()).getQuestionsUsed()
-        ));
+        plyAverage.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyAverage.setForeground(new java.awt.Color(255, 255, 255));
+        plyAverage.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyAverage.setText("0");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -131,35 +133,34 @@ public class GameOver extends javax.swing.JFrame {
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(jSeparator2)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(37, Short.MAX_VALUE)
+                .addContainerGap(38, Short.MAX_VALUE)
                 .addComponent(plyAgainBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
+                .addGap(18, 18, 18)
                 .addComponent(HomeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31))
+                .addGap(39, 39, 39))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator4))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(plyScoreLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(ply1Name5, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(77, 77, 77)
-                                .addComponent(jLabel4)
                                 .addGap(18, 18, 18)
-                                .addComponent(plyScoreLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 7, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jSeparator4)))
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addComponent(plyScore, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(17, 17, 17)
+                                .addComponent(jLabel4)
+                                .addGap(43, 43, 43)
+                                .addComponent(plyAverage, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(plyName, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -168,19 +169,19 @@ public class GameOver extends javax.swing.JFrame {
                 .addGap(19, 19, 19)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(ply1Name5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(plyName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(plyScoreLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(plyScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(plyScoreLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(plyAverage, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+                    .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -199,14 +200,14 @@ public class GameOver extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(40, Short.MAX_VALUE)
+                .addContainerGap(41, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(74, 74, 74))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(36, 36, 36))))
+                        .addGap(42, 42, 42))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -215,7 +216,7 @@ public class GameOver extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -242,13 +243,98 @@ public class GameOver extends javax.swing.JFrame {
     
     private void HomeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HomeBtnActionPerformed
         this.dispose();
-        appContext.resetSinglePlayer();
-        appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
-        new HomeForm(appContext).setVisible(true);
+
+        transition = CompletableFuture.runAsync(() ->{
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        });
+        transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
+            appContext.resetSinglePlayer();
+            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
+            appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
+
+        }));
+        
+        transition.thenRun(() ->{
+            new HomeForm(appContext).setVisible(true);
+            appContext.getLoadingScreen().dispose();
+        });
+        
+        
+
 
         
     }//GEN-LAST:event_HomeBtnActionPerformed
+    
+    public void fetchUpdatedScore(){
+        playerName = session.getPlayer().getPlayerName();
+        playerScore = session.getPlayer().getSinglePlay_Score();
+        playerAverage = appContext.getGameLogic(appContext.getGameMode()).getQuestionsUsed();
+        
+        
+    }
+    public void updatePlayerInfoLabels(){
+        plyName.setText(playerName);
+        plyScore.setText(String.valueOf(playerScore));
+        plyAverage.setText(String.valueOf(playerAverage));
+    }
 
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public int getPlayerScore() {
+        return playerScore;
+    }
+
+    public void setPlayerScore(int playerScore) {
+        this.playerScore = playerScore;
+    }
+
+    public double getPlayerAverage() {
+        return playerAverage;
+    }
+
+    public void setPlayerAverage(double playerAverage) {
+        this.playerAverage = playerAverage;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -284,6 +370,22 @@ public class GameOver extends javax.swing.JFrame {
             }
         });
     }
+    
+    
+    public static synchronized GameOver getInstance(AppContext appContext){
+        if(instance == null){
+            instance = new GameOver(appContext);
+        }
+        return instance;
+    } 
+    public static void resetInstance() {
+        if (instance != null) {
+            instance.dispose(); // Clean up the current instance
+            instance = null;
+        }
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton HomeBtn;
@@ -297,9 +399,9 @@ public class GameOver extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JLabel ply1Name5;
     private javax.swing.JButton plyAgainBtn;
-    private javax.swing.JLabel plyScoreLabel7;
-    private javax.swing.JLabel plyScoreLabel8;
+    private javax.swing.JLabel plyAverage;
+    private javax.swing.JLabel plyName;
+    private javax.swing.JLabel plyScore;
     // End of variables declaration//GEN-END:variables
 }

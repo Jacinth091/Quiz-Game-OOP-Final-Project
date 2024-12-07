@@ -481,20 +481,26 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                 break;
             case GameOver:
                 toggleBtns(false);
-//                CompletableFuture.runAsync(() ->{
-//                    try{
-//                        Thread.sleep(1000);
-//                    }catch(InterruptedException e){
-//                        e.printStackTrace();
-//                    }
-//                }).thenRun(() -> {SwingUtilities.invokeLater(() ->{
-//                    gameLogic.getGameTimerClass().stopTimer();
-//                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
-//                    new GameOver(appContext).setVisible(true);
-//                    
-//                });
-//                
-//                }); 
+                CompletableFuture.runAsync(() ->{
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }).thenCompose(v -> CompletableFuture.runAsync(() ->{
+                    gameLogic.getGameTimerClass().stopTimer();
+                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
+                    
+                })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
+                    
+                    GameOver gameOver = appContext.getGameOver(appContext);
+                    gameOver.fetchUpdatedScore();
+                    gameOver.updatePlayerInfoLabels();
+                    gameOver.setVisible(true);
+                    
+                    });
+                
+                }); 
 ////                toggleBtns(true);
                 break;
             default:
