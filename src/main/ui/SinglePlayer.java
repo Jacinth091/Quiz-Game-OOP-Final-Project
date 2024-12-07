@@ -58,16 +58,16 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         this.gameLogic = appContext.getGameLogic(gameMode);
-        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+//        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
         initComponents();
         buttonEventsInit();
+        
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
         
-        displayQuestion();
+        displayNextQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(() -> timeUpdate()));
-        
         gameLogic.startTimer();
 
     }
@@ -130,7 +130,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         mainQuestionLabel.setFont(new java.awt.Font("Montserrat", 0, 18)); // NOI18N
         mainQuestionLabel.setForeground(new java.awt.Color(255, 255, 255));
         mainQuestionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        mainQuestionLabel.setText(current.getQuestionText());
         mainQuestionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -153,7 +152,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         choiceQ.setBackground(new java.awt.Color(0, 102, 204));
         choiceQ.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
-        choiceQ.setText(current.getOptions().get(0));
         choiceQ.setActionCommand("choiceQ");
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
@@ -162,7 +160,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         choiceE.setBackground(new java.awt.Color(0, 102, 204));
         choiceE.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceE.setForeground(new java.awt.Color(255, 255, 255));
-        choiceE.setText(current.getOptions().get(2));
         choiceE.setActionCommand("choiceE");
         choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceE.setFocusable(false);
@@ -171,7 +168,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         choiceR.setBackground(new java.awt.Color(0, 102, 204));
         choiceR.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceR.setForeground(new java.awt.Color(255, 255, 255));
-        choiceR.setText(current.getOptions().get(3));
         choiceR.setActionCommand("choiceR");
         choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceR.setFocusable(false);
@@ -180,7 +176,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
         choiceW.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
-        choiceW.setText(current.getOptions().get(1));
         choiceW.setActionCommand("choiceW");
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
@@ -353,6 +348,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
 
         boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
         gameLogic.checkAnswer(isCorrect);
+        gameLogic.updateQuestionUsed(isCorrect);
         updatePlayerScore();
         SwingUtilities.invokeLater(() -> changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current)));
 
@@ -365,6 +361,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
             }
         }).thenRun(() -> SwingUtilities.invokeLater(() -> {
             resetButtonColors();
+            if(GameOver.equals(gameLogic.getGameState())) return;
             displayNextQuestion();
             isProcessingFlag = false; // Re-enable interactions
         }));
@@ -381,11 +378,12 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
     }
     
     public void toggleBtns(boolean value){
+        PauseBtn.setEnabled(value);
         JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
         for(JButton btn : choices){
             btn.setEnabled(value);
        }
-        PauseBtn.setEnabled(value);
+
     }
     public void changeBtnColor(boolean isCorrect, String plyAnswer, String correctAnswer) {
         // Define colors
@@ -480,7 +478,8 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                 System.out.println("Paused!");
                 break;
             case GameOver:
-                toggleBtns(false);
+                SwingUtilities.invokeLater(() ->toggleBtns(false));
+                
                 CompletableFuture.runAsync(() ->{
                     try{
                         Thread.sleep(1000);
@@ -490,6 +489,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                 }).thenCompose(v -> CompletableFuture.runAsync(() ->{
                     gameLogic.getGameTimerClass().stopTimer();
                     session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
+                    session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
                     
                 })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
                     
@@ -501,7 +501,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                     });
                 
                 }); 
-////                toggleBtns(true);
                 break;
             default:
                 break;
@@ -522,6 +521,9 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
             if(Play.equals(gameLogic.getGameState())){
                 processPlayerAnswer(plyAnswer);
             }
+            else{
+                System.out.println("GameState: " + gameLogic.getGameState());
+            }
             
            
         }
@@ -532,7 +534,6 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
             }
             else{
                 gameLogic.getGameTimerClass().setGameState(Play);
-
                 gameLogic.getGameTimerClass().startTimer();
                  
             }

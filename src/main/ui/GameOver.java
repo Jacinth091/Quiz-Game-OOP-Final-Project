@@ -8,6 +8,7 @@ import backend.Database.DatabaseManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
+import javax.swing.SwingUtilities;
 import main.PlayerData.Session;
 import main.logic.AppContext;
 import static main.logic.GameEnums.GameState.Play;
@@ -234,7 +235,38 @@ public class GameOver extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void plyAgainBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_plyAgainBtnActionPerformed
+        dispose();
         
+        transition = CompletableFuture.runAsync(() ->{
+            
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        });
+
+        transition.thenRun(() -> {
+          appContext.getLoadingScreen().setIsLoadingComplete(false);
+          appContext.getLoadingScreen().dispose();
+          appContext.getGameLogic(appContext.getGameMode()).getGameTimerClass().startTimer();
+          appContext.getSinglePlayer(appContext).displayNextQuestion();
+          SwingUtilities.invokeLater(() ->appContext.getSinglePlayer(appContext).toggleBtns(true));
+
+      });
+        transition.thenRun(() -> {
+          appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+          SwingUtilities.invokeLater(() -> {
+            appContext.getSinglePlayer(appContext).updatePlayerScore();
+            appContext.getSinglePlayer(appContext).repaint();
+            appContext.getSinglePlayer(appContext).revalidate();
+          
+          });
+      });
         
     }//GEN-LAST:event_plyAgainBtnActionPerformed
 
@@ -257,7 +289,7 @@ public class GameOver extends javax.swing.JFrame {
         });
         transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
             appContext.resetSinglePlayer();
-            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
+//            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
             appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
 
         }));
@@ -276,14 +308,15 @@ public class GameOver extends javax.swing.JFrame {
     public void fetchUpdatedScore(){
         playerName = session.getPlayer().getPlayerName();
         playerScore = session.getPlayer().getSinglePlay_Score();
-        playerAverage = appContext.getGameLogic(appContext.getGameMode()).getQuestionsUsed();
+        playerAverage = session.getPlayer().getPlayer_Average();
         
         
     }
     public void updatePlayerInfoLabels(){
         plyName.setText(playerName);
         plyScore.setText(String.valueOf(playerScore));
-        plyAverage.setText(String.valueOf(playerAverage));
+        String ave = String.format("%.2f %%", playerAverage);
+        plyAverage.setText(ave);
     }
 
     public String getPlayerName() {
