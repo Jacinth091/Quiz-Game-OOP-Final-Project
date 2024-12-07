@@ -14,6 +14,7 @@ public class Player {
     
     private int singlePlay_Score = 0;
     private int multiPlay_Score = 0;
+    private double player_Average;
     
 
     public Player( String playerId, String playerName, int singlePlay_Score, int multiPlay_Score) {
@@ -42,11 +43,15 @@ public class Player {
     }
 
     public int getSinglePlay_Score() {
+        System.out.println("Get Single Score: " + this.singlePlay_Score);
+
         return singlePlay_Score;
+        
     }
 
     public void setSinglePlay_Score(int singlePlay_Score) {
         this.singlePlay_Score = singlePlay_Score;
+        System.out.println("Set Single Score: " + this.singlePlay_Score);
     }
 
     public int getMultiPlay_Score() {
@@ -55,6 +60,14 @@ public class Player {
 
     public void setMultiPlay_Score(int multiPlay_Score) {
         this.multiPlay_Score = multiPlay_Score;
+    }
+
+    public double getPlayer_Average() {
+        return player_Average;
+    }
+
+    public void setPlayer_Average(double player_Average) {
+        this.player_Average = player_Average;
     }
     
     

@@ -280,11 +280,18 @@ public class PlayerStatsScreen extends javax.swing.JFrame {
         }).thenRun(() -> {
             appContext.getLoadingScreen().setIsLoadingComplete(false);
             appContext.getLoadingScreen().dispose();
-            appContext.getGameLogic(appContext.getGameMode()).restartGame();
-            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
-            appContext.getSinglePlayer().toggleBtns(true);
-            appContext.getGameLogic(appContext.getGameMode()).getGameTimerClass().startTimer();
 
+
+
+        }).thenCompose(v -> CompletableFuture.runAsync(() -> {
+            appContext.getSinglePlayer().toggleBtns(true);
+        
+        })).thenRun(() -> {
+            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
+            appContext.getGameLogic(appContext.getGameMode()).restartGame();
+            appContext.getSinglePlayer().updatePlayerScore();
+            appContext.getGameLogic(appContext.getGameMode()).getGameTimerClass().startTimer();
+            this.dispose();
 
         });
             // TODO add your handling code here:
@@ -306,8 +313,17 @@ public class PlayerStatsScreen extends javax.swing.JFrame {
         }).thenRun(() -> {
             appContext.getLoadingScreen().setIsLoadingComplete(false);
             appContext.getLoadingScreen().dispose();
+        }).thenCompose(v -> CompletableFuture.runAsync(() -> {
+            appContext.getSinglePlayer().toggleBtns(true);
+            
+        })).thenRun(() -> {
+            appContext.getSinglePlayer().dispose();
+            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
             appContext.getGameLogic(appContext.getGameMode()).restartGame();
+            appContext.getSinglePlayer().updatePlayerScore();
+//            appContext.getGameLogic(appContext.getGameMode()).getGameTimerClass().startTimer();
             new HomeForm(appContext).setVisible(true);
+            this.dispose();
 
         });
 

@@ -13,6 +13,7 @@ import main.PlayerData.Session;
 import java.util.Random;
 import javax.swing.Timer;
 import static main.logic.GameEnums.GameState.GameOver;
+import static main.logic.GameEnums.GameState.Play;
 import main.update.GameTimeUpdate;
 
 /**
@@ -43,12 +44,17 @@ public class GameLogic {
     private Map<Question, String> playerAns= new HashMap<>();
 
     private int questionsUsed =0;
+    private int quesAnsweredCorrect =0;
     private Question current;
     private Question next;
     
     
     private boolean isPaused;
     private boolean isGameOver;
+    
+    
+    // GameLogic 
+    private int multiplier =10;
     
     public GameLogic(AppContext appContext, GameEnums.GameMode gameMode ){
         this.session = appContext.getSession();
@@ -70,9 +76,6 @@ public class GameLogic {
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
-                questionsUsed++;
-                System.out.println("Questions Used: " + questionsUsed);
-
                 break;
             }
         }
@@ -85,18 +88,20 @@ public class GameLogic {
             if(!questions.get(index).getIsQuestionUsed()){
                 tempQues = questions.get(index);
                 tempQues.setIsQuestionUsed(true);
-                if(GameOver.equals(getGameState())){
-                    resetQuesStatus(tempQues);
-                    questionsUsed =0;
-                }
-                questionsUsed++;
-                System.out.println("Questions Used: " + questionsUsed);
-
                 break;
             }
         }
         return tempQues;
     }
+    
+    public void updateQuestionUsed(boolean isCorrect){
+        if(isCorrect) quesAnsweredCorrect++; 
+        questionsUsed++;
+        System.out.println("Questions Used: " + questionsUsed);
+        System.out.println("Correct Answer Count: " + quesAnsweredCorrect);
+    }
+    
+
     
     public int getRandomIndex(){
         return rand.nextInt(questions.size() - 1) + 1;
@@ -113,25 +118,23 @@ public class GameLogic {
         
     }
     
-    public String getCorrectAnswer(Question currentQues){
-        return currentQues.getCorrectAnswer();
-        
-    }
+
 
     private void initializeQuestionMap(){
         for(int i =0; i < qLogic.getQuesData().getQuestions().size(); i++){
             questions.put((i+1), qLogic.getQuesData().getQuestions().get(i));
         }
     }
+    
     public void displayAllQuestionsInMap(){
         for (int key : questions.keySet()) {
              String quesText = questions.get(key).getQuestionText();
              System.out.println("\n"+key + ". " + quesText + ". ");
             
-            char optionLabel = 'A'; // Start labeling options with 'A'
+            char optionLabel = 'A';
             for (String opt : questions.get(key).getOptions()) {
                 System.out.println(optionLabel + ") " + opt);
-                optionLabel++; // Increment the label for the next option
+                optionLabel++; 
             }
         }
     }
@@ -152,7 +155,7 @@ public class GameLogic {
     public void checkAnswer(boolean isCorrect){
         if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
             if(isCorrect){
-                playerScore += 10;
+                playerScore += multiplier;
             }
 
         }
@@ -161,18 +164,64 @@ public class GameLogic {
         }
     }
     
-    public void resetQuesStatus(Question question){
-            question.setIsQuestionUsed(false);
+    
+    public double computePlayerScore(int questionUsed, int correctAnswers){
+        double aveScore = 0f;
+        if (questionsUsed > 0) { // Avoid division by zero
+            double percentage = (double) correctAnswers / questionsUsed * 100;
+            aveScore = percentage;
+        } else {
+            System.out.println("No questions were used. Average cannot be calculated.");
+        }
+        return aveScore;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public void resetQuesStatus(){
+        for (int key : questions.keySet()) {
+            Question ques = questions.get(key);
+            if(ques.getIsQuestionUsed()){
+                ques.setIsQuestionUsed(false);
+            }
+        }
     }
     
     public void restartGame(){
-        getGameTimerClass().restartTimer();
+        gameTimer.restartTimer();
+        resetQuesStatus();
         playerScore = 0;
+        questionsUsed =0;
+        quesAnsweredCorrect =0;
+        gameTimer.setGameState(Play);
+        session.getPlayer().setSinglePlay_Score(0);
+        
 
     }
     public void pauseGame(){
         getGameTimerClass().pauseTimer();
     }
+    
+    
+    
+    
+    public void resetGameLogic() {
+        if (gameTimer != null) {
+            gameTimer.stopTimer(); // Stop the timer
+        }
+        restartGame();        
+        // Reset other game-related resources
+    }
+    
+    
+    
     
     
     
@@ -186,7 +235,10 @@ public class GameLogic {
         return instance;
     }
 
-
+    public String getCorrectAnswer(Question currentQues){
+        return currentQues.getCorrectAnswer();
+        
+    }
 
     public int getPlayerScore() {
         return playerScore;
@@ -195,6 +247,15 @@ public class GameLogic {
     public int[] getPlayers_Score() {
         return players_Score;
     }
+
+    public int getQuesAnsweredCorrect() {
+        return quesAnsweredCorrect;
+    }
+
+    public void setQuesAnsweredCorrect(int quesAnsweredCorrect) {
+        this.quesAnsweredCorrect = quesAnsweredCorrect;
+    }
+    
     
     
     public int getQuestionsUsed() {
@@ -202,20 +263,6 @@ public class GameLogic {
     }
 
 
-//    public Question getCurrent() {
-//        if(current == null){
-//            current = getQuestionFromMap(getRandomIndex());
-//        }
-//        return current;
-//    }
-//    
-//    public Question getNext() {
-//        if(next == null){
-//            next = getQuestionFromMap();
-//        }
-//        return next;
-//    }
-    
         // Method to start the game timer
     public void startTimer() {
         gameTimer.startTimer();

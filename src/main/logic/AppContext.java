@@ -7,7 +7,10 @@ package main.logic;
 import backend.Database.DatabaseManager;
 import backend.Images;
 import main.PlayerData.Session;
+import main.ui.GameOver;
+import main.ui.HomeForm;
 import main.ui.Loading;
+import main.ui.MultiPlayer;
 import main.ui.SinglePlayer;
 
 /**
@@ -22,13 +25,16 @@ public class AppContext {
     
     private GameLogic gameLogic;
     private Images imgs;
-    private Loading loadingScreen;
+
     
     private GameEnums.GameMode gameMode;
     private GameEnums.GameState gameState;
     
-    
+    private Loading loadingScreen;
+    private GameOver gameOver;
     private SinglePlayer singlePlayer;
+    private MultiPlayer multiPlayer;
+    private HomeForm homeForm; 
     
     private AppContext(){
 
@@ -110,11 +116,34 @@ public class AppContext {
 //        return gameThread;
 //    }
     
-    public SinglePlayer getSinglePlayer() {
+    public SinglePlayer getSinglePlayer(AppContext appContext) {
+        if (singlePlayer == null) {
+            singlePlayer = SinglePlayer.getInstance(appContext); // Ensure AppContext is passed
+        }
         return singlePlayer;
     }
 
-    public void setSinglePlayer(SinglePlayer singlePlayer) {
-        this.singlePlayer = singlePlayer;
+    public void resetSinglePlayer() {
+        if (singlePlayer != null) {
+            singlePlayer.dispose(); // Dispose of UI resources
+            SinglePlayer.resetInstance(); // Reset the singleton instance
+            singlePlayer = null; // Clear the reference in AppContext
+        }
     }
+    
+    public GameOver getGameOver(AppContext appContext) {
+        if (gameOver == null) {
+            gameOver = GameOver.getInstance(appContext);
+        }
+        return gameOver;
+    }
+
+    public void resetGameOver() {
+        if (gameOver != null) {
+            gameOver.dispose();
+            GameOver.resetInstance();
+            gameOver = null;
+        }
+    }
+    
 }

@@ -332,8 +332,15 @@ public class HomeForm extends javax.swing.JFrame {
     }//GEN-LAST:event_leaderBoardBtnActionPerformed
 
     private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
-        this.setVisible(false);    
-        new SinglePlayer(appContext).setVisible(true);
+        this.dispose();// Hide the current frame
+        
+        appContext.resetSinglePlayer();
+        // Create a new instance of SinglePlayer and set it in the app context
+        SinglePlayer singlePlayer = appContext.getSinglePlayer(appContext);
+     
+        // Make the new SinglePlayer visible
+        singlePlayer.setVisible(true);
+
 
         // TODO add your handling code here:
     }//GEN-LAST:event_singlePlayBtnMouseClicked
