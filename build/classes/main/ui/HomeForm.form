@@ -253,7 +253,7 @@
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="pencilLogo" min="-2" pref="21" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="IDnumber" min="-2" pref="85" max="-2" attributes="0"/>
+                          <Component id="IDnumber" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
