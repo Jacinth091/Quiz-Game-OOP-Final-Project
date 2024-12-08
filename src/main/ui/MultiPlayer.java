@@ -14,9 +14,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -28,204 +31,197 @@ import static main.logic.GameEnums.GameMode.MULTIPLAYER;
 import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
-import main.update.TimeUpdatable;
+import main.logic.GameStructure;
 
 /**
  *
  * @author laroc
  */
-public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,java.awt.event.ActionListener{
+public class MultiPlayer extends GameStructure {
     private static MultiPlayer instance;
     private GameEnums.GameMode gameMode = MULTIPLAYER;
 
-    private AppContext appContext;
-    private DatabaseManager dbManager;
-    private Session session;
-    private GameLogic gameLogic;
-
-    private Timer gameTimer;
-    private Question current;
-    private Question next;
-
-    private boolean isProcessingFlag;
-    private boolean answerTaken;
-    private boolean isPlayerOneCorrect;
-    private boolean isPlayerTwoCorrect;
-
-    private String firstPlayerAnswered = "";
-
-    
-    private JButton[][] playerButtons;
-    private String[][] playerKeys;
-    private Color[][] playerColors;
+//    private AppContext appContext;
+//    private DatabaseManager dbManager;
+//    private Session session;
+//    private GameLogic gameLogic;
+//
+//    private Timer gameTimer;
+//    private Question current;
+//    private Question next;
+//
+//    private boolean isProcessingFlag;
+//    private boolean answerTaken;
+//    private boolean isPlayerOneCorrect;
+//    private boolean isPlayerTwoCorrect;
+//
+//    private String firstPlayerAnswered = "";
+//
+//    
+//    private JButton[][] playerButtons;
+//    private String[][] playerKeys;
+//    private Color[][] playerColors;
     
     /**
      * Creates new form MultiPlayer
      * @param appContext
      */
     public MultiPlayer(AppContext appContext) {
-        this.appContext = appContext;
-        this.appContext.setGameMode(gameMode);
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(gameMode);
-//        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+        super(appContext);
+        this.gameMode = MULTIPLAYER;
         initComponents();
         setUpButtons();
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        
+
         displayNextQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(() -> timeUpdate()));
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
         gameLogic.startTimer();
-
-
     }
     public MultiPlayer() {
-        this.appContext = AppContext.getInstance();
-        this.appContext.setGameMode(gameMode);
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(gameMode);
-//        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+        super(AppContext.getInstance());
+        this.gameMode = MULTIPLAYER;
         initComponents();
-        setUpButtons();
-
         
+        setUpButtons();
+        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        
+
         displayNextQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(() -> timeUpdate()));
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
         gameLogic.startTimer();
-
-
     }
     
-    
-    private void setUpButtons() {
-       // Initialize the player buttons in a 2D array (rows represent players, columns represent buttons)
-       playerButtons = new JButton[][]{
-           {oneBtnA, oneBtnS, oneBtnD, oneBtnF},  // Player 1 buttons
-           {twoBtnH, twoBtnJ, Kbutton, Lbutton}   // Player 2 buttons
-       };
+    @Override
+    protected void setUpButtons() {
+        playerButtons = new JButton[][]{
+            {oneBtnA, oneBtnS, oneBtnD, oneBtnF}, // Player 1
+            {twoBtnH, twoBtnJ, Kbutton, Lbutton} // Player 2
+        };
+        playerKeys = new String[][]{
+            {"A", "S", "D", "F"}, // Player 1 keys
+            {"H", "J", "K", "L"}  // Player 2 keys
+        };
+        playerColors = new Color[][]{
+            {Color.decode("#660099"), Color.decode("#6699FF")}, // Player 1 colors
+            {Color.decode("#006666"), Color.decode("#6699FF")}  // Player 2 colors
+        };
+        playerButton();
+    }
 
-       // Initialize the key bindings for each button in a 2D array (rows represent players, columns represent keys)
-       playerKeys = new String[][]{
-           {"A", "S", "D", "F"},  // Player 1 keys
-           {"H", "J", "K", "L"}   // Player 2 keys
-       };
-
-       // Initialize colors for each player
-       playerColors = new Color[][]{
-                        // Exited                   Entered 
-           {Color.decode("#660099"), Color.decode("#6699FF")},  // Player 1 colors
-           {Color.decode("#006666"), Color.decode("#6699FF")}   // Player 2 colors
-       };
-       playerButton();
-
-   }
     private void playerButton() {
-        // Loop through the buttons for the specified player
-        for(int i = 0; i < playerButtons.length; i++){
+        for (int i = 0; i < playerButtons.length; i++) {
             for (int j = 0; j < playerButtons[i].length; j++) {
                 JButton btn = playerButtons[i][j];
                 String key = playerKeys[i][j];
-            final int playerIndex = i;
-            ActionListener actionListener = (e) -> {
-                if(!isProcessingFlag){
-                    if(playerIndex ==0){
-                        System.out.println("Player 1 First!");
-                        firstPlayerAnswered = "playerOne";
-                        
+                final int playerIndex = i;
+                
+                ActionListener actionListener = (e) -> {
+                    if (!isProcessingFlag) {
+                        firstPlayerAnswered = playerIndex == 0 ? "playerOne" : "playerTwo";
+                        actionPerformed(e);
                     }
-                    else{
-                        System.out.println("Player 2 First!");
-                        firstPlayerAnswered = "playerTwo";
+                };
 
+                btn.addActionListener(actionListener);
+
+                KeyStroke keyStroke = KeyStroke.getKeyStroke(key);
+                InputMap inputMap = btn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+                ActionMap actionMap = btn.getActionMap();
+
+                inputMap.put(keyStroke, "buttonAction" + key);
+                actionMap.put("buttonAction" + key, new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        actionListener.actionPerformed(e);
                     }
-                    actionPerformed(e);
-                }
-            };
-            btn.addActionListener(actionListener);
-            // Bind the action to the key
-            KeyStroke keyStroke = KeyStroke.getKeyStroke(key);
-            btn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "buttonAction" + key);
-            btn.getActionMap().put("buttonAction" + key, new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    actionListener.actionPerformed(e);  // Trigger the same logic for key press
-                }
-            });
-
-            // Add the action listener for mouse clicks
-
-//                final var playerIndex = i;
-//                final var buttonIndex = j;
+                });
 
                 btn.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
                         if (!isProcessingFlag) {
-                            btn.setBackground(playerColors[playerIndex][1]);  // Use player index (i) and button hover color (0)
+                            btn.setBackground(playerColors[playerIndex][1]);
                         }
                     }
 
                     @Override
                     public void mouseExited(java.awt.event.MouseEvent evt) {
                         if (!isProcessingFlag) {
-                            btn.setBackground(playerColors[playerIndex][0]);  // Use player index (i) and button default color (1)
+                            btn.setBackground(playerColors[playerIndex][0]);
                         }
                     }
                 });
-
             }
         }
     }
 
-    public void processPlayerAnswer(String playerAnswer, String player) {
-       if (isProcessingFlag) return;
+    public void togglePlayerBtn(int index, boolean value) {
+        for (JButton btn : playerButtons[index]) {
+            btn.setEnabled(value);
+        }
+    }
+    public void resetButtonColors(){
+        
+        for(int i = 0; i< playerButtons.length; i++){
+            for (JButton playerButton : playerButtons[i]) {
+                playerButton.setBackground(playerColors[i][0]);
+                playerButton.setForeground(new Color(255,255,255));
+            }
+        }
+    }
+    public void randomizeOptionsOrder(List<String> options, int index) {
+        for (int j = 0; j < playerButtons[index].length; j++) {
+            playerButtons[index][j].setText("<html>" + String.join("<br>", options.get(j).split("\n")) + "</html>");
+        }
+    }
 
-       if (firstPlayerAnswered.isEmpty()) {
-           firstPlayerAnswered = player;
-       }
+    public void displayQuestion() {
+        mainQuestionLabel.setText("<html><div style='text-align: center;'>" +
+                String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        for (int i = 0; i < playerButtons.length; i++) {
+            List<String> options = new ArrayList<>(current.getOptions());
+            Collections.shuffle(options);
+            randomizeOptionsOrder(options, i);
+        }
+    }
 
+    @Override
+    protected void processPlayerAnswer(String playerAnswer, String player) {
+        if (isProcessingFlag) return;
 
-       boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+        if (firstPlayerAnswered.isEmpty()) {
+            firstPlayerAnswered = player;
+        }
 
-       if (isCorrect) {
-           System.out.println(player + " answered correctly!");
-           SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
-           finalizeRound(true, playerAnswer);  // End the round since the question was answered correctly
-           return;
-       }
+        boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
 
-       // Handle incorrect answer
-       System.out.println(player + " answered incorrectly.");
-       SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false)); // Disable current player's buttons
+        if (isCorrect) {
+            SwingUtilities.invokeLater(() -> changeBtnColor(playerAnswer, gameLogic.getCorrectAnswer(current)));
+            finalizeRound(isCorrect, playerAnswer);
+            return;
+        }
 
-       if (player.equals("playerOne")) {
-           isPlayerOneCorrect = true;
-       } else {
-           isPlayerTwoCorrect = true;
-       }
+        SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false));
 
-       if (firstPlayerAnswered.equals("playerOne") && !isPlayerTwoCorrect) {
-           System.out.println("Player Two gets a chance to steal!");
-       } else if (firstPlayerAnswered.equals("playerTwo") && !isPlayerOneCorrect) {
-           System.out.println("Player One gets a chance to steal!");
-       } else {
-           System.out.println("Both players answered incorrectly. Skipping question...");
-           finalizeRound(false, playerAnswer);  // End the round without awarding points
-       }
-   }
+        if (player.equals("playerOne")) {
+            isPlayerOneCorrect = true;
+        } else {
+            isPlayerTwoCorrect = true;
+        }
+
+        if (!isPlayerOneCorrect && !isPlayerTwoCorrect) {
+            finalizeRound(isCorrect, playerAnswer);
+        }
+    }
 
     private void finalizeRound(boolean isCorrect, String playerAnswer) {
-        isProcessingFlag = true; 
+        isProcessingFlag = true;
 
         gameLogic.checkAnswer(isCorrect);
         gameLogic.updateQuestionUsed(isCorrect);
@@ -238,7 +234,7 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
                 Thread.currentThread().interrupt();
             }
         }).thenCompose((v) -> CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
-            toggleBtns(true); 
+            toggleBtns(true);
         }))).thenCompose((v) -> {
             if (!isCorrect) {
                 return CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
@@ -246,233 +242,101 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
                 }));
             }
             return CompletableFuture.completedFuture(null);
-        }).thenRunAsync(() -> {
-            try {
-                Thread.sleep(600);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).thenRun(() -> {
-            SwingUtilities.invokeLater(() -> {
-                resetButtonColors();
-                isProcessingFlag = false;
-                firstPlayerAnswered = ""; 
-                isPlayerOneCorrect = false; 
-                isPlayerTwoCorrect = false;
-            });
-        }).thenRun(() -> {
-            // Display the next question
-            SwingUtilities.invokeLater(() -> {
-                if (GameOver.equals(gameLogic.getGameState())) return;
+        }).thenRun(() -> SwingUtilities.invokeLater(() -> {
+            resetButtonColors();
+            isProcessingFlag = false;
+            firstPlayerAnswered = "";
+            isPlayerOneCorrect = false;
+            isPlayerTwoCorrect = false;
+            if (!GameOver.equals(gameLogic.getGameState())) {
                 displayNextQuestion();
-            });
-        });
-    }
-
-
-
-
-    
-    public void resetButtonColors(){
-        
-        for(int i = 0; i< playerButtons.length; i++){
-            for (JButton playerButton : playerButtons[i]) {
-                playerButton.setBackground(playerColors[i][0]);
-                playerButton.setForeground(new Color(255,255,255));
             }
-        }
-        
-        
-        
-
+        }));
     }
-    
-    public void toggleBtns(boolean value){
+
+    @Override
+    protected void toggleBtns(boolean value) {
         PauseBtn.setEnabled(value);
-        for(JButton[] btns : playerButtons){
-            for(JButton btn : btns){
+        for (JButton[] btns : playerButtons) {
+            for (JButton btn : btns) {
                 btn.setEnabled(value);
             }
-       }
-
+        }
     }
-    
-    public void togglePlayerBtn(int index, boolean value){
-        for(JButton btn : playerButtons[index]){
-            btn.setEnabled(value);
-        
-       }
-    }
- 
-    
-    public void changeBtnColor(String plyAnswer, String correctAnswer) {
-                // Define colors
-        Color correctColor = new Color(70, 229, 76);  // Green
-        Color incorrectColor = new Color(229, 70, 70);  // Red
-        Color selectedColor = new Color(255, 229, 76);  // Yellow (chosen button)
-        Color blackText = new Color(0,0,0);
 
+    @Override
+    protected void changeBtnColor(String plyAnswer, String correctAnswer) {
         resetButtonColors();
-
         for (JButton[] btns : playerButtons) {
             for (JButton choice : btns) {
-                String choiceText = choice.getText();
-                choiceText = choiceText.replaceAll("<.*?>", "");
-
-                if (plyAnswer.equals(correctAnswer)) {
-                    if (choiceText.equals(plyAnswer)) {
-                        choice.setBackground(correctColor);
-                        choice.setForeground(blackText);
-                    } else {
-                        choice.setBackground(incorrectColor); 
-                    }
-                } else {
-                    if (choiceText.equals(correctAnswer)) {
-                        choice.setBackground(correctColor); 
-                        choice.setForeground(blackText);
-
-                    } else {
-                        choice.setBackground(incorrectColor); 
-                    }
-                }
+                String choiceText = choice.getText().replaceAll("<.*?>", "");
+                choice.setBackground(choiceText.equals(correctAnswer) ? Color.GREEN : Color.RED);
             }
         }
-
     }
 
-
-    public void displayNextQuestion(){
+    @Override
+    protected void displayNextQuestion() {
         current = gameLogic.getQuestionFromMap();
         SwingUtilities.invokeLater(this::displayQuestion);
-    
-    }
-    public void displayQuestion() {
-
-        mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
-        for (int i =0; i < playerButtons.length; i++) {
-            List<String> options = new ArrayList<>(current.getOptions());
-            Collections.shuffle(options);
-            randomizeOptionsOrder(options, i);
-        }
-    }
-    
-    public void randomizeOptionsOrder(List<String> options,int index){
-        for (int j = 0; j < playerButtons[index].length; j++) {
-            playerButtons[index][j].setText("<html>" + String.join("<br>", options.get(j).split("\n")) + "</html>");
-        }
     }
 
-
-    public void updateTimeLabel(long timerMinutes, long timerSeconds){
-        if (Play.equals(gameLogic.getGameState())) {
-            SwingUtilities.invokeLater(() -> 
-                timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
-            );
-        } else if (Pause.equals(gameLogic.getGameState())) {
-            // Optional: Update the label to indicate the game is paused
-        }
-    }
-    public void updatePlayerScore(){
-        if(Play.equals(gameLogic.getGameState())){
-//            plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
-//            System.out.println("Score: " + gameLogic.getPlayerScore());
-        }
+    @Override
+    protected void updatePlayerScore() {
+        // Update the score display logic
     }
     @Override
+    protected void updateScoreLabel(JLabel scoreLabel) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    @Override
+    protected GameEnums.GameMode getGameMode() {
+        return gameMode;
+    }
+
+    @Override
+    protected void updateTimeLabel(JLabel timerLabel, long timerMinutes, long timerSeconds) {
+        SwingUtilities.invokeLater(() ->
+                timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
+        );
+    }
+
+    @Override
+    protected void updateScoreLabel(JLabel plyOneScoreLabel, JLabel plyTwoScoreLabel) {
+        // Update player score labels logic
+    }
+
+    @Override
     public void timeUpdate() {
-        if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
-            case Play:
-                SwingUtilities.invokeLater(() ->
-                        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
-                                gameLogic.getGameTimerClass().getTimerSeconds())
-                );  break;
-            case Pause:
-                System.out.println("Paused!");
-                break;
-            case GameOver:
-                SwingUtilities.invokeLater(() ->toggleBtns(false));
-                
-                CompletableFuture.runAsync(() ->{
-                    try{
-                        Thread.sleep(1000);
-                    }catch(InterruptedException e){
-                        e.printStackTrace();
-                    }
-                }).thenCompose(v -> CompletableFuture.runAsync(() ->{
-                    gameLogic.getGameTimerClass().stopTimer();
-                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
-                    session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
-                    
-                })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
-                    
-                    GameOver gameOver = appContext.getGameOver(appContext);
-                    gameOver.fetchUpdatedScore();
-                    gameOver.updatePlayerInfoLabels();
-                    gameOver.setVisible(true);
-                    
-                    });
-                
-                }); 
-                break;
-            default:
-                break;
+        if (Play.equals(gameLogic.getGameState())) {
+            updateTimeLabel(timerLabel, gameLogic.getGameTimerClass().getTimerMinutes(),
+                    gameLogic.getGameTimerClass().getTimerSeconds());
         }
     }
-    
-  
-   @Override
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
         String actionCmd = e.getActionCommand();
-        System.out.println("ActionCommad: " + actionCmd);
-
-        for(String[] keys : playerKeys){
-            for(String key : keys){
-                if(actionCmd.toUpperCase().contains(key)){
+        for (String[] keys : playerKeys) {
+            for (String key : keys) {
+                if (actionCmd.contains(key)) {
+                    System.out.println("ActionCMd: " + actionCmd);
                     JButton src = (JButton) e.getSource();
-            
-                    String textFromBtn = src.getText();
-                    String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
-                    answerTaken = true;
-                    
-
-                    
-                    
-                    if(Play.equals(gameLogic.getGameState())){
+                    String plyAnswer = src.getText().replaceAll("<.*?>", "");
+                    if (Play.equals(gameLogic.getGameState())) {
                         processPlayerAnswer(plyAnswer, firstPlayerAnswered);
-                    }
-                    else{
-                        System.out.println("GameState: " + gameLogic.getGameState());
                     }
                 }
             }
         }
-
-        if(actionCmd.equals("Pause")){
-            if(PauseBtn.isSelected()){
+        if (actionCmd.equals("Pause")) {
+            if (PauseBtn.isSelected()) {
                 gameLogic.getGameTimerClass().setGameState(Pause);
                 gameLogic.getGameTimerClass().pauseTimer();
-            }
-            else{
+            } else {
                 gameLogic.getGameTimerClass().setGameState(Play);
                 gameLogic.getGameTimerClass().startTimer();
-                 
             }
-        }
-       
-
-    }
-    
-    public static synchronized MultiPlayer getInstance(AppContext appContext){
-        if(instance == null){
-            instance = new MultiPlayer(appContext);
-        }
-        return instance;
-    } 
-    public static void resetInstance() {
-        if (instance != null) {
-            instance.dispose(); // Clean up the current instance
-            instance = null;
         }
     }
     
@@ -1103,5 +967,10 @@ public class MultiPlayer extends javax.swing.JFrame implements TimeUpdatable ,ja
     private javax.swing.JLabel twoLabelK;
     private javax.swing.JLabel twoLabelL;
     // End of variables declaration//GEN-END:variables
+
+
+
+
+
 
 }

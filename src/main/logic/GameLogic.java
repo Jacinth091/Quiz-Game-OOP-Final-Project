@@ -24,7 +24,6 @@ import main.update.GameTimeUpdate;
 public class GameLogic {
     private static GameLogic instance;
     private AppContext appContext;
-//    private GameTimeUpdate gameTimeUp;
     private GameEnums.GameMode gameMode;
 
 
