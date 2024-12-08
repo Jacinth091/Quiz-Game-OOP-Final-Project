@@ -29,6 +29,7 @@ public class AppContext {
     
     private GameEnums.GameMode gameMode;
     private GameEnums.GameState gameState;
+    private GameStructure game;
     
     private Loading loadingScreen;
     private GameOver gameOver;
@@ -153,6 +154,14 @@ public class AppContext {
             GameOver.resetInstance();
             gameOver = null;
         }
+    }
+
+    public GameStructure getGame() {
+        return game;
+    }
+
+    public void setGame(GameStructure game) {
+        this.game = game;
     }
     
 }

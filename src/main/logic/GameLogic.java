@@ -142,7 +142,9 @@ public class GameLogic {
         if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
             if(current.getCorrectAnswer().equals(plyAnswer)){
                 playerScore += 10;
+                System.out.println("PlayerScore GAMELOGIC: " + playerScore);
             }
+            
 
         }
         else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
@@ -155,12 +157,19 @@ public class GameLogic {
         if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
             if(isCorrect){
                 playerScore += multiplier;
+
+            }
+            else{
+                System.out.println("Incorrect Answer!");
             }
 
         }
         else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
-            
+
         }
+        System.out.println("PlayerScore GAMELOGIC: " + playerScore);
+        System.out.println("GIATAYYYYYYYY");
+        System.out.println("GameMode: " + gameMode);
     }
     
     
@@ -305,6 +314,14 @@ public class GameLogic {
 //    public void setGameState(GameEnums.GameState gameState) {
 //        appContext.setGameState(gameState);
 //    }
+
+    public GameEnums.GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(GameEnums.GameMode gameMode) {
+        this.gameMode = gameMode;
+    }
     
     
     

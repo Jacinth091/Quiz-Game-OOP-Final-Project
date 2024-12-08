@@ -20,7 +20,8 @@ import main.update.TimeUpdatable;
  *
  * @author PCC
  */
-public abstract class GameStructure extends javax.swing.JFrame implements TimeUpdatable ,java.awt.event.ActionListener{
+public abstract class GameStructure extends javax.swing.JFrame implements TimeUpdatable, Playable ,Askable,java.awt.event.ActionListener{
+    
     protected AppContext appContext;
     protected DatabaseManager dbManager;
     protected Session session;
@@ -37,37 +38,50 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
 
     protected String firstPlayerAnswered = "";
 
+    protected JButton[] playerButton;
+    protected String[] playerKey;
+    protected final Color SINGLE_DEFAULT_COLOR = Color.decode("#0066CC");
+    protected final Color SINGLE_HOVER_COLOR = Color.decode("#6699FF");
+    
     
     protected JButton[][] playerButtons;
     protected String[][] playerKeys;
     protected Color[][] playerColors;
 
-    public GameStructure(AppContext appContext) {
+    public GameStructure(AppContext appContext, GameEnums.GameMode gameMode) {
         this.appContext = appContext;
         if (appContext == null) {
             throw new IllegalArgumentException("AppContext cannot be null");
         }
         this.dbManager = appContext.getDbManager();
-        this.appContext.setGameMode(getGameMode());
+        this.appContext.setGameMode(gameMode);
         this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(appContext.getGameMode());
+        this.gameLogic = appContext.getGameLogic(gameMode);
         if (this.gameLogic == null) {
+            throw new IllegalStateException("GameLogic must be initialized");
+        }
+        else if(gameLogic.getGameMode() == null){
             throw new IllegalStateException("GameLogic must be initialized");
         }
 //        initComponents();
 //        setUpButtons();
     }
-    protected abstract void setUpButtons();
-    protected abstract void processPlayerAnswer(String playerAnswer, String player);
-    protected abstract void displayNextQuestion();
-    protected abstract void updatePlayerScore();
-    protected abstract void toggleBtns(boolean value);
-    protected abstract void changeBtnColor(String plyAnswer, String correctAnswer);
-    protected abstract void updateTimeLabel(JLabel timeLabel,long timerMinutes, long timerSeconds);
-    protected abstract void updateScoreLabel(JLabel scoreLabel);    
-    protected abstract void updateScoreLabel(JLabel plyOneScoreLabel, JLabel plyTwoScoreLabel);
+    protected abstract void setUpButtons();    
+    protected abstract void playerButton();
+    protected abstract void resetButtonColor();
 
-    protected abstract GameEnums.GameMode getGameMode();
+    protected abstract void processPlayerAnswer(String playerAnswer, String player);    
+    protected abstract void processPlayerAnswer(String playerAnswer);
+
+    protected abstract void displayNextQuestion();
+//    protected abstract void updatePlayerScore();
+    public abstract void toggleBtns(boolean value);
+    protected abstract void changeBtnColor(String plyAnswer, String correctAnswer);
+    protected abstract void updateTimeLabel(long timerMinutes, long timerSeconds);
+    public abstract void updateScoreLabel();    
+//    protected abstract void updateScoreLabel(JLabel plyOneScoreLabel, JLabel plyTwoScoreLabel);
+
+    public abstract GameEnums.GameMode getGameMode();
 
     protected void resetButtonColors(JButton[][] playerButtons, Color[][] playerColors) {
         for (int i = 0; i < playerButtons.length; i++) {

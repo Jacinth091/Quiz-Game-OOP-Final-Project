@@ -32,14 +32,15 @@ import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
 import main.logic.GameStructure;
+import main.logic.Playable;
 
 /**
  *
  * @author laroc
  */
-public class MultiPlayer extends GameStructure {
+public class MultiPlayer extends GameStructure  {
     private static MultiPlayer instance;
-    private GameEnums.GameMode gameMode = MULTIPLAYER;
+    private GameEnums.GameMode gameMode;
 
 //    private AppContext appContext;
 //    private DatabaseManager dbManager;
@@ -67,21 +68,20 @@ public class MultiPlayer extends GameStructure {
      * @param appContext
      */
     public MultiPlayer(AppContext appContext) {
-        super(appContext);
-        this.gameMode = MULTIPLAYER;
+        super(appContext, GameEnums.GameMode.MULTIPLAYER);
+        this.gameMode = GameEnums.GameMode.MULTIPLAYER;
         initComponents();
+        
         setUpButtons();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
 
-        displayNextQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
-        gameLogic.startTimer();
+
     }
     public MultiPlayer() {
-        super(AppContext.getInstance());
+        super(AppContext.getInstance(), GameEnums.GameMode.MULTIPLAYER);
         this.gameMode = MULTIPLAYER;
         initComponents();
         
@@ -92,9 +92,7 @@ public class MultiPlayer extends GameStructure {
         setResizable(false);
         setVisible(true);
 
-        displayNextQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
-        gameLogic.startTimer();
+        startGame();
     }
     
     @Override
@@ -113,50 +111,61 @@ public class MultiPlayer extends GameStructure {
         };
         playerButton();
     }
-
-    private void playerButton() {
-        for (int i = 0; i < playerButtons.length; i++) {
+    
+    @Override
+    protected void playerButton() {
+         for(int i = 0; i < playerButtons.length; i++){
             for (int j = 0; j < playerButtons[i].length; j++) {
                 JButton btn = playerButtons[i][j];
                 String key = playerKeys[i][j];
-                final int playerIndex = i;
-                
-                ActionListener actionListener = (e) -> {
-                    if (!isProcessingFlag) {
-                        firstPlayerAnswered = playerIndex == 0 ? "playerOne" : "playerTwo";
-                        actionPerformed(e);
+            final int playerIndex = i;
+            ActionListener actionListener = (e) -> {
+                if(!isProcessingFlag){
+                    if(playerIndex ==0){
+                        System.out.println("Player 1 First!");
+                        firstPlayerAnswered = "playerOne";
+                        
                     }
-                };
+                    else{
+                        System.out.println("Player 2 First!");
+                        firstPlayerAnswered = "playerTwo";
 
-                btn.addActionListener(actionListener);
-
-                KeyStroke keyStroke = KeyStroke.getKeyStroke(key);
-                InputMap inputMap = btn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-                ActionMap actionMap = btn.getActionMap();
-
-                inputMap.put(keyStroke, "buttonAction" + key);
-                actionMap.put("buttonAction" + key, new AbstractAction() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        actionListener.actionPerformed(e);
                     }
-                });
+                    actionPerformed(e);
+                }
+            };
+            btn.addActionListener(actionListener);
+            // Bind the action to the key
+            KeyStroke keyStroke = KeyStroke.getKeyStroke(key);
+            btn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "buttonAction" + key);
+            btn.getActionMap().put("buttonAction" + key, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionListener.actionPerformed(e);  // Trigger the same logic for key press
+                }
+            });
+
+            // Add the action listener for mouse clicks
+
+//                final var playerIndex = i;
+//                final var buttonIndex = j;
 
                 btn.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
                         if (!isProcessingFlag) {
-                            btn.setBackground(playerColors[playerIndex][1]);
+                            btn.setBackground(playerColors[playerIndex][1]);  // Use player index (i) and button hover color (0)
                         }
                     }
 
                     @Override
                     public void mouseExited(java.awt.event.MouseEvent evt) {
                         if (!isProcessingFlag) {
-                            btn.setBackground(playerColors[playerIndex][0]);
+                            btn.setBackground(playerColors[playerIndex][0]);  // Use player index (i) and button default color (1)
                         }
                     }
                 });
+
             }
         }
     }
@@ -166,12 +175,14 @@ public class MultiPlayer extends GameStructure {
             btn.setEnabled(value);
         }
     }
-    public void resetButtonColors(){
+    
+    @Override
+    protected void resetButtonColor(){
         
         for(int i = 0; i< playerButtons.length; i++){
-            for (JButton playerButton : playerButtons[i]) {
-                playerButton.setBackground(playerColors[i][0]);
-                playerButton.setForeground(new Color(255,255,255));
+            for (JButton btn: playerButtons[i]) {
+                btn.setBackground(playerColors[i][0]);
+                btn.setForeground(new Color(255,255,255));
             }
         }
     }
@@ -193,39 +204,48 @@ public class MultiPlayer extends GameStructure {
 
     @Override
     protected void processPlayerAnswer(String playerAnswer, String player) {
-        if (isProcessingFlag) return;
+       if (isProcessingFlag) return;
 
-        if (firstPlayerAnswered.isEmpty()) {
-            firstPlayerAnswered = player;
-        }
+       if (firstPlayerAnswered.isEmpty()) {
+           firstPlayerAnswered = player;
+       }
 
-        boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
 
-        if (isCorrect) {
-            SwingUtilities.invokeLater(() -> changeBtnColor(playerAnswer, gameLogic.getCorrectAnswer(current)));
-            finalizeRound(isCorrect, playerAnswer);
-            return;
-        }
+       boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
 
-        SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false));
+       if (isCorrect) {
+           System.out.println(player + " answered correctly!");
+           SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
+           finalizeRound(true, playerAnswer);  // End the round since the question was answered correctly
+           return;
+       }
 
-        if (player.equals("playerOne")) {
-            isPlayerOneCorrect = true;
-        } else {
-            isPlayerTwoCorrect = true;
-        }
+       // Handle incorrect answer
+       System.out.println(player + " answered incorrectly.");
+       SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false)); // Disable current player's buttons
 
-        if (!isPlayerOneCorrect && !isPlayerTwoCorrect) {
-            finalizeRound(isCorrect, playerAnswer);
-        }
-    }
+       if (player.equals("playerOne")) {
+           isPlayerOneCorrect = true;
+       } else {
+           isPlayerTwoCorrect = true;
+       }
+
+       if (firstPlayerAnswered.equals("playerOne") && !isPlayerTwoCorrect) {
+           System.out.println("Player Two gets a chance to steal!");
+       } else if (firstPlayerAnswered.equals("playerTwo") && !isPlayerOneCorrect) {
+           System.out.println("Player One gets a chance to steal!");
+       } else {
+           System.out.println("Both players answered incorrectly. Skipping question...");
+           finalizeRound(false, playerAnswer);  // End the round without awarding points
+       }
+   }
 
     private void finalizeRound(boolean isCorrect, String playerAnswer) {
-        isProcessingFlag = true;
+        isProcessingFlag = true; 
 
         gameLogic.checkAnswer(isCorrect);
         gameLogic.updateQuestionUsed(isCorrect);
-        updatePlayerScore();
+//        updatePlayerScore();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -234,7 +254,7 @@ public class MultiPlayer extends GameStructure {
                 Thread.currentThread().interrupt();
             }
         }).thenCompose((v) -> CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
-            toggleBtns(true);
+            toggleBtns(true); 
         }))).thenCompose((v) -> {
             if (!isCorrect) {
                 return CompletableFuture.runAsync(() -> SwingUtilities.invokeLater(() -> {
@@ -242,20 +262,32 @@ public class MultiPlayer extends GameStructure {
                 }));
             }
             return CompletableFuture.completedFuture(null);
-        }).thenRun(() -> SwingUtilities.invokeLater(() -> {
-            resetButtonColors();
-            isProcessingFlag = false;
-            firstPlayerAnswered = "";
-            isPlayerOneCorrect = false;
-            isPlayerTwoCorrect = false;
-            if (!GameOver.equals(gameLogic.getGameState())) {
-                displayNextQuestion();
+        }).thenRunAsync(() -> {
+            try {
+                Thread.sleep(600);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        }));
+        }).thenRun(() -> {
+            SwingUtilities.invokeLater(() -> {
+                resetButtonColor();
+                isProcessingFlag = false;
+                firstPlayerAnswered = ""; 
+                isPlayerOneCorrect = false; 
+                isPlayerTwoCorrect = false;
+            });
+        }).thenRun(() -> {
+            // Display the next question
+            SwingUtilities.invokeLater(() -> {
+                if (GameOver.equals(gameLogic.getGameState())) return;
+                displayNextQuestion();
+            });
+        });
     }
 
+
     @Override
-    protected void toggleBtns(boolean value) {
+    public void toggleBtns(boolean value) {
         PauseBtn.setEnabled(value);
         for (JButton[] btns : playerButtons) {
             for (JButton btn : btns) {
@@ -265,15 +297,41 @@ public class MultiPlayer extends GameStructure {
     }
 
     @Override
-    protected void changeBtnColor(String plyAnswer, String correctAnswer) {
-        resetButtonColors();
+     protected void changeBtnColor(String plyAnswer, String correctAnswer) {
+                // Define colors
+        Color correctColor = new Color(70, 229, 76);  // Green
+        Color incorrectColor = new Color(229, 70, 70);  // Red
+        Color selectedColor = new Color(255, 229, 76);  // Yellow (chosen button)
+        Color blackText = new Color(0,0,0);
+
+        resetButtonColor();
+
         for (JButton[] btns : playerButtons) {
             for (JButton choice : btns) {
-                String choiceText = choice.getText().replaceAll("<.*?>", "");
-                choice.setBackground(choiceText.equals(correctAnswer) ? Color.GREEN : Color.RED);
+                String choiceText = choice.getText();
+                choiceText = choiceText.replaceAll("<.*?>", "");
+
+                if (plyAnswer.equals(correctAnswer)) {
+                    if (choiceText.equals(plyAnswer)) {
+                        choice.setBackground(correctColor);
+                        choice.setForeground(blackText);
+                    } else {
+                        choice.setBackground(incorrectColor); 
+                    }
+                } else {
+                    if (choiceText.equals(correctAnswer)) {
+                        choice.setBackground(correctColor); 
+                        choice.setForeground(blackText);
+
+                    } else {
+                        choice.setBackground(incorrectColor); 
+                    }
+                }
             }
         }
+
     }
+
 
     @Override
     protected void displayNextQuestion() {
@@ -281,64 +339,164 @@ public class MultiPlayer extends GameStructure {
         SwingUtilities.invokeLater(this::displayQuestion);
     }
 
+
     @Override
-    protected void updatePlayerScore() {
-        // Update the score display logic
+    public void updateScoreLabel() {
+//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     @Override
-    protected void updateScoreLabel(JLabel scoreLabel) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    @Override
-    protected GameEnums.GameMode getGameMode() {
+    public GameEnums.GameMode getGameMode() {
         return gameMode;
     }
 
     @Override
-    protected void updateTimeLabel(JLabel timerLabel, long timerMinutes, long timerSeconds) {
+    protected void updateTimeLabel(long timerMinutes, long timerSeconds) {
         SwingUtilities.invokeLater(() ->
                 timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
         );
     }
 
-    @Override
-    protected void updateScoreLabel(JLabel plyOneScoreLabel, JLabel plyTwoScoreLabel) {
-        // Update player score labels logic
-    }
 
     @Override
     public void timeUpdate() {
-        if (Play.equals(gameLogic.getGameState())) {
-            updateTimeLabel(timerLabel, gameLogic.getGameTimerClass().getTimerMinutes(),
-                    gameLogic.getGameTimerClass().getTimerSeconds());
+       if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
+            case Play:
+                SwingUtilities.invokeLater(() ->
+                        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
+                                gameLogic.getGameTimerClass().getTimerSeconds())
+                );  break;
+            case Pause:
+ 
+                break;
+            case GameOver:
+                SwingUtilities.invokeLater(() ->toggleBtns(false));
+                
+                CompletableFuture.runAsync(() ->{
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }).thenCompose(v -> CompletableFuture.runAsync(() ->{
+                    gameLogic.getGameTimerClass().stopTimer();
+//                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
+//                    session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
+//                    
+                })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
+                    
+                    GameOver gameOver = appContext.getGameOver(appContext);
+                    gameOver.fetchUpdatedScore();
+                    gameOver.updatePlayerInfoLabels();
+                    gameOver.setVisible(true);
+                    
+                    });
+                
+                }); 
+                break;
+            default:
+                break;
         }
+    }
+    
+    
+    
+    @Override
+    public void startGame() {
+        displayNextQuestion();
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
+        gameLogic.startTimer();    
+    }
+    
+    @Override
+    public void restartGame() {
+        displayNextQuestion();
+        SwingUtilities.invokeLater(() ->toggleBtns(true));
+        gameLogic.startTimer();
+    }
+
+    @Override
+    public void pauseGame() {
+        if(PauseBtn.isSelected()){
+            gameLogic.getGameTimerClass().setGameState(Pause);
+            pauseBtnDelay(false);
+            gameLogic.getGameTimerClass().pauseTimer();
+        }
+        else{
+            gameLogic.getGameTimerClass().setGameState(Play);
+            pauseBtnDelay(true);
+            gameLogic.getGameTimerClass().startTimer();
+
+        }    
+    }
+    
+    public void pauseBtnDelay(boolean value){
+        CompletableFuture.runAsync(() ->{
+            try{
+                Thread.sleep(500);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        
+        
+        }).thenRun(() ->SwingUtilities.invokeLater(() ->{
+            for(int i =0; i < playerButtons.length; i++){
+                togglePlayerBtn(i, value);
+            }
+        }));
+        
+    }
+
+    @Override
+    public void stopGame() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        
         String actionCmd = e.getActionCommand();
-        for (String[] keys : playerKeys) {
-            for (String key : keys) {
-                if (actionCmd.contains(key)) {
-                    System.out.println("ActionCMd: " + actionCmd);
+        System.out.println("ActionCommad: " + actionCmd);
+        
+        if(actionCmd.equals("Pause")){
+            pauseGame();
+        }
+        
+        for(String[] keys : playerKeys){
+            for(String key : keys){
+                if(actionCmd.toUpperCase().contains(key) && !actionCmd.equals("Pause")){
                     JButton src = (JButton) e.getSource();
-                    String plyAnswer = src.getText().replaceAll("<.*?>", "");
-                    if (Play.equals(gameLogic.getGameState())) {
+                    String textFromBtn = src.getText();
+                    String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+                    answerTaken = true;
+                    if(Play.equals(gameLogic.getGameState())){
                         processPlayerAnswer(plyAnswer, firstPlayerAnswered);
+                    }
+                    else{
+                        System.out.println("GameState: " + gameLogic.getGameState());
                     }
                 }
             }
         }
-        if (actionCmd.equals("Pause")) {
-            if (PauseBtn.isSelected()) {
-                gameLogic.getGameTimerClass().setGameState(Pause);
-                gameLogic.getGameTimerClass().pauseTimer();
-            } else {
-                gameLogic.getGameTimerClass().setGameState(Play);
-                gameLogic.getGameTimerClass().startTimer();
-            }
+
+
+       
+
+    
+    }
+    
+    public static synchronized MultiPlayer getInstance(AppContext appContext){
+        if(instance == null){
+            instance = new MultiPlayer(appContext);
+        }
+        return instance;
+    } 
+    public static void resetInstance() {
+        if (instance != null) {
+            instance.dispose(); // Clean up the current instance
+            instance = null;
         }
     }
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -352,7 +510,6 @@ public class MultiPlayer extends GameStructure {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         mainQuestionLabel = new javax.swing.JLabel();
-        PauseBtn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -389,6 +546,7 @@ public class MultiPlayer extends GameStructure {
         twoLabelJ = new javax.swing.JLabel();
         twoLabelK = new javax.swing.JLabel();
         twoLabelL = new javax.swing.JLabel();
+        PauseBtn = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -420,24 +578,6 @@ public class MultiPlayer extends GameStructure {
                 .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15))
         );
-
-        PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
-        PauseBtn.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
-        PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
-        PauseBtn.setText("Go back");
-        PauseBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        PauseBtn.setFocusable(false);
-        PauseBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                PauseBtnMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PauseBtnMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                PauseBtnMouseExited(evt);
-            }
-        });
 
         jLabel1.setFont(new java.awt.Font("Montserrat", 0, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -817,6 +957,15 @@ public class MultiPlayer extends GameStructure {
                 .addGap(154, 154, 154))
         );
 
+        PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
+        PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
+        PauseBtn.setText("Pause");
+        PauseBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PauseBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -826,17 +975,21 @@ public class MultiPlayer extends GameStructure {
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(193, 193, 193)
-                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(141, 141, 141)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(141, 141, 141)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addGap(196, 196, 196)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -848,8 +1001,8 @@ public class MultiPlayer extends GameStructure {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(95, 95, 95)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(100, 100, 100)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(timerLabel))
@@ -872,20 +1025,11 @@ public class MultiPlayer extends GameStructure {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void PauseBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PauseBtnMouseExited
-        PauseBtn.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void PauseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PauseBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_PauseBtnMouseExited
+        actionPerformed(evt);
 
-    private void PauseBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PauseBtnMouseEntered
-        PauseBtn.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_PauseBtnMouseEntered
-
-    private void PauseBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PauseBtnMouseClicked
-//        new homeQUIZ().setVisible(true);
-        this.setVisible(false);        // TODO add your handling code here:
-    }//GEN-LAST:event_PauseBtnMouseClicked
+    }//GEN-LAST:event_PauseBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -928,7 +1072,7 @@ public class MultiPlayer extends GameStructure {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Kbutton;
     private javax.swing.JButton Lbutton;
-    private javax.swing.JButton PauseBtn;
+    private javax.swing.JToggleButton PauseBtn;
     private javax.swing.JLabel SocreLabel;
     private javax.swing.JLabel SocreLabel1;
     private javax.swing.JLabel SocreLabel2;
@@ -967,6 +1111,23 @@ public class MultiPlayer extends GameStructure {
     private javax.swing.JLabel twoLabelK;
     private javax.swing.JLabel twoLabelL;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected void processPlayerAnswer(String playerAnswer) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void askQuestion() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean checkAnswer(String answer) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+ 
 
 
 

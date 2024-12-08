@@ -7,9 +7,12 @@ package main.ui;
 
 import java.awt.Color;
 import backend.Database.DatabaseManager;
+import java.util.concurrent.CompletableFuture;
+import javax.swing.SwingUtilities;
 import main.PlayerData.Session;
 import main.logic.AppContext;
 import main.logic.GameEnums;
+import main.ui.SinglePlayer;
 
 /**
  *
@@ -20,6 +23,7 @@ public class HomeForm extends javax.swing.JFrame {
     private DatabaseManager dbManager;
     private Session session;
     private GameEnums.GameState gameState;
+    private CompletableFuture transition;
     /**
      * Creates new form HomeForm
      * @param appContext
@@ -323,23 +327,78 @@ public class HomeForm extends javax.swing.JFrame {
         this.dispose();// Hide the current frame
         
         appContext.resetSinglePlayer();
-        // Create a new instance of SinglePlayer and set it in the app context
-        SinglePlayer singlePlayer = appContext.getSinglePlayer(appContext);
-     
-        // Make the new SinglePlayer visible
-        singlePlayer.setVisible(true);
+        appContext.setGame(appContext.getSinglePlayer(appContext));
+
+        //TODO: TO BE MODIFIED!!
+        transition = CompletableFuture.runAsync(() ->{
+            
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        }).thenRunAsync(() -> {
+          SwingUtilities.invokeLater(() -> {
+
+            appContext.getGame().startGame();
+          
+          });
+      });
+        transition.thenRun(() -> {
+          appContext.getLoadingScreen().setIsLoadingComplete(false);
+          appContext.getLoadingScreen().dispose();
+            appContext.getGame().setVisible(true);
+
+      });
+        
     }//GEN-LAST:event_singlePlayBtnActionPerformed
 
     private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();// Hide the current frame
+//        
+//        appContext.resetSinglePlayer();
+//        // Create a new instance of SinglePlayer and set it in the app context
+//        MultiPlayer multiPlayer = appContext.getMultiPlayer(appContext);
+//     
+//        // Make the new SinglePlayer visible
+//        multiPlayer.setVisible(true);
+
+        appContext.resetMultiPlayer();
+        appContext.setGame(appContext.getMultiPlayer(appContext));
+
+        //TODO: TO BE MODIFIED!!
+        transition = CompletableFuture.runAsync(() ->{
+            
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        }).thenRunAsync(() -> {
+          SwingUtilities.invokeLater(() -> {
+
+            appContext.getGame().startGame();
+          
+          });
+      });
+        transition.thenRun(() -> {
+          appContext.getLoadingScreen().setIsLoadingComplete(false);
+          appContext.getLoadingScreen().dispose();
+            appContext.getGame().setVisible(true);
+
+      });
         
-        appContext.resetSinglePlayer();
-        // Create a new instance of SinglePlayer and set it in the app context
-        MultiPlayer multiPlayer = appContext.getMultiPlayer(appContext);
-     
-        // Make the new SinglePlayer visible
-        multiPlayer.setVisible(true);
+                   
+
   
     }//GEN-LAST:event_multiPlayBtnActionPerformed
 
@@ -361,6 +420,8 @@ public class HomeForm extends javax.swing.JFrame {
 
     private void LogoutBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseClicked
         new SignIn(appContext).setVisible(true);
+        appContext.resetMultiPlayer();
+        appContext.resetSinglePlayer();
         this.setVisible(false);   // TODO add your handling code here:
     }//GEN-LAST:event_LogoutBtnMouseClicked
 

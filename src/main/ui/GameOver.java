@@ -11,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.SwingUtilities;
 import main.PlayerData.Session;
 import main.logic.AppContext;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
 import static main.logic.GameEnums.GameState.Play;
 
 /**
@@ -253,20 +255,11 @@ public class GameOver extends javax.swing.JFrame {
         transition.thenRun(() -> {
           appContext.getLoadingScreen().setIsLoadingComplete(false);
           appContext.getLoadingScreen().dispose();
-          appContext.getGameLogic(appContext.getGameMode()).getGameTimerClass().startTimer();
-          appContext.getSinglePlayer(appContext).displayNextQuestion();
-          SwingUtilities.invokeLater(() ->appContext.getSinglePlayer(appContext).toggleBtns(true));
+          appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+          appContext.getGame().restartGame();
 
       });
-        transition.thenRun(() -> {
-          appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
-          SwingUtilities.invokeLater(() -> {
-            appContext.getSinglePlayer(appContext).updatePlayerScore();
-            appContext.getSinglePlayer(appContext).repaint();
-            appContext.getSinglePlayer(appContext).revalidate();
-          
-          });
-      });
+
         
     }//GEN-LAST:event_plyAgainBtnActionPerformed
 
@@ -288,9 +281,15 @@ public class GameOver extends javax.swing.JFrame {
             
         });
         transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
-            appContext.resetSinglePlayer();
-//            appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
-            appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
+            if(MULTIPLAYER.equals(appContext.getGame().getGameMode())){
+                appContext.resetMultiPlayer();
+            }
+            else if(SINGLE_PLAYER.equals(appContext.getGame().getGameMode())){
+                appContext.resetSinglePlayer();
+            }
+
+
+        appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
 
         })).thenRun(() ->{
             new HomeForm(appContext).setVisible(true);

@@ -12,16 +12,21 @@ import java.awt.event.ActionEvent;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
 import main.logic.GameEnums;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
 import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
 import main.logic.GameLogic;
+import main.logic.GameStructure;
 import main.update.TimeUpdatable;
 
 /**
@@ -29,21 +34,21 @@ import main.update.TimeUpdatable;
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,java.awt.event.ActionListener{
+public class SinglePlayer extends GameStructure{
     private static SinglePlayer instance;
-    private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
+    private GameEnums.GameMode gameMode;
 
-    private AppContext appContext;
-    private DatabaseManager dbManager;
-    private Session session;
-    private GameLogic gameLogic;
-
-    private Timer gameTimer;
-    private Question current;
-    private Question next;
-    
-    private boolean isProcessingFlag;
-    private Timer reEnableTimer, nextQuestionTimer;
+//    private AppContext appContext;
+//    private DatabaseManager dbManager;
+//    private Session session;
+//    private GameLogic gameLogic;
+//
+//    private Timer gameTimer;
+//    private Question current;
+//    private Question next;
+//    
+//    private boolean isProcessingFlag;
+//    private Timer reEnableTimer, nextQuestionTimer;
     
     
     
@@ -53,46 +58,31 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
      * @param appContext
      */
     public SinglePlayer(AppContext appContext) {
-        this.appContext = appContext;
-        this.appContext.setGameMode(gameMode);
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(gameMode);
-//        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
+        super(appContext, SINGLE_PLAYER);
+        this.gameMode = SINGLE_PLAYER;
+
         initComponents();
-        buttonEventsInit();
         
+        setUpButtons();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        
-        displayNextQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(() -> timeUpdate()));
-        gameLogic.startTimer();
 
     }
 
     public SinglePlayer() {
-        this.appContext = AppContext.getInstance();
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(gameMode);
-        session.setPlayer(new Player("1", "Gwapo", 0, 0));
-        current = gameLogic.getQuestionFromMap(gameLogic.getRandomIndex());
-
+        super(AppContext.getInstance(),SINGLE_PLAYER);
+        this.gameMode = SINGLE_PLAYER;
+        this.session.setPlayer(new Player("1", "Gwapo", 0, 0));
         initComponents();
-        buttonEventsInit();
+        setUpButtons();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        
-        displayQuestion();
-        gameLogic.getGameTimerClass().addEventUpdate(() -> timeUpdate());
-        
-        
-        gameLogic.startTimer();
 
-
+        startGame();
     }
 
     /**
@@ -346,16 +336,64 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
     /*
         Kani na function kay dili pa mao
     */
-    public void processPlayerAnswer(String playerAnswer) {
+
+    public void displayQuestion(){
+        mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        for(int i =0; i < playerButton.length; i++){
+           playerButton[i].setText("<html>" + String.join("<br>", current.getOptions().get(i).split("\n")) + "</html>");
+        }
+    }
+
+    @Override
+    protected void setUpButtons() {
+        playerButton = new JButton[]{
+            choiceQ, choiceW, choiceE, choiceR
+        };
+        playerButton();
+    }
+
+    @Override
+    protected void playerButton(){
+        for(JButton btn : playerButton){
+            btn.addActionListener((e) -> {
+                if(!isProcessingFlag){
+                    actionPerformed(e);
+                }
+            });
+
+            btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(!isProcessingFlag){
+                    btn.setBackground(Color.decode("#6699FF")); 
+
+                }
+
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(!isProcessingFlag) {
+                    btn.setBackground(Color.decode("#0066CC")); 
+                }
+            }
+            });
+
+        }
+    }
+
+
+    @Override
+    protected void processPlayerAnswer(String playerAnswer) {
         if (isProcessingFlag) return;
 
         isProcessingFlag = true; 
 
         boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+        System.out.println("IsCorrect? " + isCorrect);
         gameLogic.checkAnswer(isCorrect);
         gameLogic.updateQuestionUsed(isCorrect);
-        updatePlayerScore();
-        SwingUtilities.invokeLater(() -> changeBtnColor(isCorrect, playerAnswer, gameLogic.getCorrectAnswer(current)));
+        updateScoreLabel();
+        SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
 
 
         CompletableFuture.runAsync(() -> {
@@ -365,7 +403,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
                 Thread.currentThread().interrupt();
             }
         }).thenRun(() -> SwingUtilities.invokeLater(() -> {
-            resetButtonColors();
+            resetButtonColor();
             if(GameOver.equals(gameLogic.getGameState())) return;
             displayNextQuestion();
             isProcessingFlag = false; // Re-enable interactions
@@ -373,104 +411,97 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
 
     }
 
-    
-    public void resetButtonColors(){
-        choiceQ.setBackground(Color.decode("#0066CC"));
-        choiceW.setBackground(Color.decode("#0066CC"));
-        choiceE.setBackground(Color.decode("#0066CC"));
-        choiceR.setBackground(Color.decode("#0066CC"));
-
-    }
-    
-    public void toggleBtns(boolean value){
-        PauseBtn.setEnabled(value);
-        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
-        for(JButton btn : choices){
-            btn.setEnabled(value);
-       }
-
-    }
-    public void changeBtnColor(boolean isCorrect, String plyAnswer, String correctAnswer) {
-        // Define colors
+    @Override
+    protected void changeBtnColor(String plyAnswer, String correctAnswer) {
         Color correctColor = new Color(70, 229, 76); // Green
         Color incorrectColor = new Color(229, 70, 70); // Red
 
-        resetButtonColors();
+        resetButtonColor();
 
-        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
-        for (JButton choice : choices) {
+        for (JButton choice : playerButton) {
             String choiceText = choice.getText();
             if (choiceText.contains(correctAnswer)) {
-                // Set the correct answer to green
                 choice.setBackground(correctColor);
             } else {
-                // Set all other (incorrect) answers to red
                 choice.setBackground(incorrectColor);
             }
-        }
-
-    }
-    public void buttonEventsInit(){
-        JButton[] btns = {choiceQ, choiceW, choiceE, choiceR};
-        
-        for(JButton btn : btns){
-            btn.addActionListener((e) -> {
-                if(!isProcessingFlag){
-                    actionPerformed(e);
-                }
-            });
-            
-            btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if(!isProcessingFlag){
-                    btn.setBackground(Color.decode("#6699FF")); 
-
-                }
-                
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if(!isProcessingFlag) {
-                    btn.setBackground(Color.decode("#0066CC")); 
-                }
-            }
-            });
-            
-        }
-                        
+        }    
     }
 
-    public void displayNextQuestion(){
-        current = gameLogic.getQuestionFromMap();
-        SwingUtilities.invokeLater(this::displayQuestion);
-    
-    }
-    public void displayQuestion(){
-        JButton[] choices = {choiceQ, choiceW, choiceE, choiceR};
-        for (String line : current.getQuestionText().split("\n")) {
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
-           for(int i =0; i < choices.length; i++){
-               choices[i].setText("<html>" + String.join("<br>", current.getOptions().get(i).split("\n")) + "</html>");
-           }
-        }
-    }
-
-    public void updateTimeLabel(long timerMinutes, long timerSeconds){
+    @Override
+    protected void updateTimeLabel(long timerMinutes, long timerSeconds) {
         if (Play.equals(gameLogic.getGameState())) {
             SwingUtilities.invokeLater(() -> 
                 timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
             );
-        } else if (Pause.equals(gameLogic.getGameState())) {
-            // Optional: Update the label to indicate the game is paused
         }
     }
-    public void updatePlayerScore(){
+
+    @Override
+    public void updateScoreLabel() {
         if(Play.equals(gameLogic.getGameState())){
+            System.out.println("Player Score: " + gameLogic.getPlayerScore());
             plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
-//            System.out.println("Score: " + gameLogic.getPlayerScore());
+        }    
+    }
+
+    @Override
+    protected void resetButtonColor(){
+        for (JButton btn: playerButton) {
+            btn.setBackground(SINGLE_DEFAULT_COLOR);
+            btn.setForeground(new Color(255,255,255));
         }
     }
+
+    @Override
+    public void toggleBtns(boolean value){
+        PauseBtn.setEnabled(value);
+        for(JButton btn : playerButton){
+            btn.setEnabled(value);
+       }
+    }
+
+
+    @Override
+    public GameEnums.GameMode getGameMode() {
+        return gameMode;
+    }
+
+    @Override
+    public void startGame() {
+        displayNextQuestion();
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
+        gameLogic.startTimer();
+    }
+    
+    @Override
+    public void restartGame() {
+        gameLogic.startTimer();
+        displayNextQuestion();
+        SwingUtilities.invokeLater(() ->toggleBtns(true));
+
+        updateScoreLabel();
+        repaint();
+        revalidate();
+
+    }
+
+    @Override
+    public void pauseGame() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void stopGame() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected void displayNextQuestion() {
+        current = gameLogic.getQuestionFromMap();
+        SwingUtilities.invokeLater(this::displayQuestion);    
+    }
+
     @Override
     public void timeUpdate() {
         if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
@@ -546,7 +577,7 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
        
 
     }
-    
+
     
     public static synchronized SinglePlayer getInstance(AppContext appContext){
         if(instance == null){
@@ -618,6 +649,25 @@ public class SinglePlayer extends javax.swing.JFrame implements TimeUpdatable ,j
     private javax.swing.JLabel plyScoreLabel;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected void processPlayerAnswer(String playerAnswer, String player) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void askQuestion() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean checkAnswer(String answer) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    
+
+ 
 
  
 
