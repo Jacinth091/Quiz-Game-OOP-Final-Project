@@ -7,13 +7,16 @@ package main.logic;
 import backend.Database.DatabaseManager;
 import backend.Questions.Question;
 import java.awt.Color;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Session;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
+import main.ui.PauseFrame;
 import main.update.TimeUpdatable;
 
 /**
@@ -26,10 +29,14 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
     protected DatabaseManager dbManager;
     protected Session session;
     protected GameLogic gameLogic;
-
+    protected PauseFrame pauseScreen;
+    
     protected Timer gameTimer;
     protected Question current;
     protected Question next;
+    
+    protected ImageIcon pauseBtn;
+    protected ImageIcon playBtn;
 
     protected boolean isProcessingFlag;
     protected boolean answerTaken;
@@ -63,8 +70,9 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
         else if(gameLogic.getGameMode() == null){
             throw new IllegalStateException("GameLogic must be initialized");
         }
-//        initComponents();
-//        setUpButtons();
+        this.pauseBtn =initializeIconImgs("pause.png");
+        this.playBtn =initializeIconImgs("play.png");
+
     }
     protected abstract void setUpButtons();    
     protected abstract void playerButton();
@@ -80,9 +88,28 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
     protected abstract void updateTimeLabel(long timerMinutes, long timerSeconds);
     public abstract void updateScoreLabel();    
 //    protected abstract void updateScoreLabel(JLabel plyOneScoreLabel, JLabel plyTwoScoreLabel);
-
+    public abstract JToggleButton getPauseBtn();
     public abstract GameEnums.GameMode getGameMode();
+    
+    private ImageIcon initializeIconImgs(String imagePath) {
+       // Find the image by name using your helper method
+       ImageIcon temp = appContext.getImageHelper().findImageByName(imagePath);
 
+       ImageIcon myImage = null;
+       if (temp != null) {
+           // Resize the image and assign it to myImage
+           myImage = appContext.getImageHelper().resizeImageIcon(temp, 20, 20);
+           return myImage;  // Return the resized image
+       } else {
+           // Handle the case when the image is not found
+           System.out.println("Image not found!");
+           myImage = null;
+       }
+       return myImage;  // Return null if image not found
+   }
+
+    
+    
     protected void resetButtonColors(JButton[][] playerButtons, Color[][] playerColors) {
         for (int i = 0; i < playerButtons.length; i++) {
             for (JButton playerButton : playerButtons[i]) {

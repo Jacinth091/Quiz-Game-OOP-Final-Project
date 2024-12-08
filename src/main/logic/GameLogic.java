@@ -13,6 +13,7 @@ import main.PlayerData.Session;
 import java.util.Random;
 import javax.swing.Timer;
 import main.PlayerData.MultiManager;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
 import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Play;
 import main.update.GameTimeUpdate;
@@ -37,8 +38,10 @@ public class GameLogic {
     
     // Player 
     private int playerScore = 0;
-    private int[] players_Score = new int[2];
-    
+    private int[] multPlayerScore = new int[2];
+    private int[] multAnsweredCorrect = new int[2];
+
+    private String[] players;    
     
     // Questions
     private final Map<Integer, Question> questions = new HashMap<>();
@@ -60,6 +63,7 @@ public class GameLogic {
     public GameLogic(AppContext appContext, GameEnums.GameMode gameMode ){
         this.session = appContext.getSession();
         this.gameMode = gameMode;
+        this.players = new String[]{"playerOne", "playerTwo"};
         qLogic = new QuestionLogic();
         rand = new Random();
         
@@ -96,11 +100,33 @@ public class GameLogic {
     }
     
     public void updateQuestionUsed(boolean isCorrect){
-        if(isCorrect) quesAnsweredCorrect++; 
+        if(isCorrect) quesAnsweredCorrect++;
         questionsUsed++;
         System.out.println("Questions Used: " + questionsUsed);
         System.out.println("Correct Answer Count: " + quesAnsweredCorrect);
     }
+    
+    public void updateQuestionUsed(boolean isCorrect, String player){
+      if( gameMode == GameEnums.GameMode.MULTIPLAYER){
+            if(isCorrect){
+                if(player.equals(players[0])){
+                    multAnsweredCorrect[0]++;
+                }
+                else if(player.equals(players[1])){
+                     multAnsweredCorrect[1]++;
+                }
+                questionsUsed++;
+            }
+            else{
+                System.out.println("Player: " + player + "is Incorrect!");
+            }
+            System.out.println("Questions Used: " + questionsUsed);
+            System.out.println("Player One Correct Answer Count: " + multAnsweredCorrect[0]);
+            System.out.println("Player One Correct Answer Count: " + multAnsweredCorrect[1]);
+        }
+    }
+    
+    
     
 
     
@@ -140,17 +166,19 @@ public class GameLogic {
         }
     }
     
-    public void checkAnswers(String plyAnswer){
-        if( gameMode == GameEnums.GameMode.SINGLE_PLAYER){
-            if(current.getCorrectAnswer().equals(plyAnswer)){
-                playerScore += 10;
-                System.out.println("PlayerScore GAMELOGIC: " + playerScore);
+    public void checkAnswer(String player, boolean isCorrect){
+        if( gameMode == GameEnums.GameMode.MULTIPLAYER){
+            if(isCorrect){
+                if(player.equals(players[0])){
+                    multPlayerScore[0] += multiplier;  
+                }
+                else if(player.equals(players[1])){
+                    multPlayerScore[1] += multiplier;
+                }
             }
-            
-
-        }
-        else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
-            
+            else{
+                System.out.println("Player: " + player + "is Incorrect!");
+            }
         }
 
     }
@@ -166,12 +194,7 @@ public class GameLogic {
             }
 
         }
-        else if(gameMode == GameEnums.GameMode.MULTIPLAYER){
-
-        }
-        System.out.println("PlayerScore GAMELOGIC: " + playerScore);
-        System.out.println("GIATAYYYYYYYY");
-        System.out.println("GameMode: " + gameMode);
+     
     }
     
     
@@ -211,6 +234,13 @@ public class GameLogic {
         questionsUsed =0;
         quesAnsweredCorrect =0;
         gameTimer.setGameState(Play);
+        if(MULTIPLAYER.equals(gameMode)){
+            multPlayerScore[0] =0;
+            multPlayerScore[1] =0;
+            multAnsweredCorrect[0] =0;
+            multAnsweredCorrect[1] =0;
+
+        }
         session.getPlayer().setSinglePlay_Score(0);
         
 
@@ -254,8 +284,8 @@ public class GameLogic {
         return playerScore;
     }
 
-    public int[] getPlayers_Score() {
-        return players_Score;
+    public int[] getMultPlayerScore() {
+        return multPlayerScore;
     }
 
     public int getQuesAnsweredCorrect() {
@@ -331,6 +361,14 @@ public class GameLogic {
 
     public void setMultiManager(MultiManager multiManager) {
         this.multiManager = multiManager;
+    }
+
+    public int[] getMultAnsweredCorrect() {
+        return multAnsweredCorrect;
+    }
+
+    public void setMultAnsweredCorrect(int[] multAnsweredCorrect) {
+        this.multAnsweredCorrect = multAnsweredCorrect;
     }
     
     

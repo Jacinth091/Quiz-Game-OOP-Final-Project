@@ -20,10 +20,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import main.PlayerData.MultiManager;
 import main.PlayerData.Session;
+import main.PlayerData.Single;
 import main.logic.AppContext;
 import main.logic.GameEnums;
 import main.logic.GameLogic;
@@ -41,27 +44,6 @@ import main.logic.Playable;
 public class MultiPlayer extends GameStructure  {
     private static MultiPlayer instance;
     private GameEnums.GameMode gameMode;
-
-//    private AppContext appContext;
-//    private DatabaseManager dbManager;
-//    private Session session;
-//    private GameLogic gameLogic;
-//
-//    private Timer gameTimer;
-//    private Question current;
-//    private Question next;
-//
-//    private boolean isProcessingFlag;
-//    private boolean answerTaken;
-//    private boolean isPlayerOneCorrect;
-//    private boolean isPlayerTwoCorrect;
-//
-//    private String firstPlayerAnswered = "";
-//
-//    
-//    private JButton[][] playerButtons;
-//    private String[][] playerKeys;
-//    private Color[][] playerColors;
     
     /**
      * Creates new form MultiPlayer
@@ -83,6 +65,8 @@ public class MultiPlayer extends GameStructure  {
     public MultiPlayer() {
         super(AppContext.getInstance(), GameEnums.GameMode.MULTIPLAYER);
         this.gameMode = MULTIPLAYER;
+        appContext.setMultiManager(new MultiManager(new Single("PlayerOne", "JacinthtGwapoPRoMAx", 0), new Single("PlayerTwo", "Si Idol Kung Maganda", 0)));
+        gameLogic.setMultiManager(appContext.getMultiManager());
         initComponents();
         
         setUpButtons();
@@ -216,7 +200,7 @@ public class MultiPlayer extends GameStructure  {
        if (isCorrect) {
            System.out.println(player + " answered correctly!");
            SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
-           finalizeRound(true, playerAnswer);  // End the round since the question was answered correctly
+           finalizeRound(true, playerAnswer, player);  // End the round since the question was answered correctly
            return;
        }
        System.out.println(player + " answered incorrectly.");
@@ -228,18 +212,23 @@ public class MultiPlayer extends GameStructure  {
            isPlayerTwoCorrect = true;
        }
 
-        if(!isPlayerOneCorrect && !isPlayerTwoCorrect){
+       if (firstPlayerAnswered.equals("playerOne") && !isPlayerTwoCorrect) {
+           System.out.println("Player Two gets a chance to steal!");
+       } else if (firstPlayerAnswered.equals("playerTwo") && !isPlayerOneCorrect) {
+           System.out.println("Player One gets a chance to steal!");
+       } else {
            System.out.println("Both players answered incorrectly. Skipping question...");
-           finalizeRound(false, playerAnswer);  // End the round without awarding points
+           finalizeRound(isCorrect, playerAnswer, player);  // End the round without awarding points
        }
+
    }
 
-    private void finalizeRound(boolean isCorrect, String playerAnswer) {
+    private void finalizeRound(boolean isCorrect, String playerAnswer, String player) {
         isProcessingFlag = true; 
 
-        gameLogic.checkAnswer(isCorrect);
-        gameLogic.updateQuestionUsed(isCorrect);
-//        updatePlayerScore();
+        gameLogic.checkAnswer( player, isCorrect);
+        gameLogic.updateQuestionUsed(isCorrect, player);
+        updateScoreLabel();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -336,7 +325,14 @@ public class MultiPlayer extends GameStructure  {
 
     @Override
     public void updateScoreLabel() {
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if(Play.equals(gameLogic.getGameState())){
+            System.out.println("Player Score: " + gameLogic.getPlayerScore());
+            plyOneScoreLabel.setText(String.valueOf(gameLogic.getMultPlayerScore()[0]));
+            plyTwoScoreLabel.setText(String.valueOf(gameLogic.getMultPlayerScore()[1]));
+        } 
+        
+        
+        
     }
     @Override
     public GameEnums.GameMode getGameMode() {
@@ -360,7 +356,7 @@ public class MultiPlayer extends GameStructure  {
                                 gameLogic.getGameTimerClass().getTimerSeconds())
                 );  break;
             case Pause:
- 
+                    pauseGame();
                 break;
             case GameOver:
                 SwingUtilities.invokeLater(() ->toggleBtns(false));
@@ -373,15 +369,17 @@ public class MultiPlayer extends GameStructure  {
                     }
                 }).thenCompose(v -> CompletableFuture.runAsync(() ->{
                     gameLogic.getGameTimerClass().stopTimer();
-//                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
-//                    session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
-//                    
+                    appContext.getGameLogic(appContext.getGameMode()).getMultiManager().getPlayerOne().setSinglePlay_Score(gameLogic.getMultPlayerScore()[0]);
+                    appContext.getGameLogic(appContext.getGameMode()).getMultiManager().getPlayerTwo().setSinglePlay_Score(gameLogic.getMultPlayerScore()[1]);
+                    appContext.getGameLogic(appContext.getGameMode()).getMultiManager().getPlayerOne().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getMultAnsweredCorrect()[0]));
+                    appContext.getGameLogic(appContext.getGameMode()).getMultiManager().getPlayerTwo().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getMultAnsweredCorrect()[1]));
+
                 })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
                     
-                    GameOver gameOver = appContext.getGameOver(appContext);
-                    gameOver.fetchUpdatedScore();
-                    gameOver.updatePlayerInfoLabels();
-                    gameOver.setVisible(true);
+                    GameOverMulti gameOverMulti = appContext.getGameOverMulti(appContext);
+                    gameOverMulti.fetchUpdatedScore();
+                    gameOverMulti.updatePlayerInfoLabels();
+                    gameOverMulti.setVisible(true);
                     
                     });
                 
@@ -398,47 +396,67 @@ public class MultiPlayer extends GameStructure  {
     public void startGame() {
         displayNextQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
         gameLogic.startTimer();    
     }
     
     @Override
     public void restartGame() {
+        gameLogic.startTimer();
         displayNextQuestion();
         SwingUtilities.invokeLater(() ->toggleBtns(true));
-        gameLogic.startTimer();
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
+        updateScoreLabel();
+        repaint();
+        revalidate();
+
     }
 
     @Override
     public void pauseGame() {
-        if(PauseBtn.isSelected()){
-            gameLogic.getGameTimerClass().setGameState(Pause);
-            pauseBtnDelay(false);
-            gameLogic.getGameTimerClass().pauseTimer();
-        }
-        else{
-            gameLogic.getGameTimerClass().setGameState(Play);
-            pauseBtnDelay(true);
-            gameLogic.getGameTimerClass().startTimer();
+        if (PauseBtn.isSelected()) {
+          // Set icon to play button
+          PauseBtn.setIcon(playBtn);
+          pauseBtnDelay(false);
+          
+          gameLogic.getGameTimerClass().setGameState(Pause);
+          gameLogic.getGameTimerClass().pauseTimer();
+      } else {
 
-        }    
+          PauseBtn.setIcon(pauseBtn);
+          pauseBtnDelay(true);
+
+          gameLogic.getGameTimerClass().setGameState(Play);
+          gameLogic.getGameTimerClass().startTimer();
+      }
+          PauseBtn.revalidate();
+          PauseBtn.repaint();
+
+     
     }
     
-    public void pauseBtnDelay(boolean value){
-        CompletableFuture.runAsync(() ->{
-            try{
-                Thread.sleep(500);
-            }catch(InterruptedException e){
-                e.printStackTrace();
-            }
-        
-        
-        }).thenRun(() ->SwingUtilities.invokeLater(() ->{
-            for(int i =0; i < playerButtons.length; i++){
+    public void pauseBtnDelay(boolean value) {
+       CompletableFuture.runAsync(() -> {
+           try {
+               Thread.sleep(500); 
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+       }).thenCompose(v -> CompletableFuture.runAsync(() -> {
+           appContext.resetPauseFrame();
+           SwingUtilities.invokeLater(() -> {
+             pauseScreen = appContext.getPauseScreen(appContext);
+             pauseScreen.setLocationRelativeTo(this);
+             pauseScreen.setVisible(true);
+           });
+       })).thenRun(() -> SwingUtilities.invokeLater(() -> {
+           for(int i =0; i < playerButtons.length; i++){
                 togglePlayerBtn(i, value);
             }
-        }));
-        
-    }
+       }));
+   }
 
     @Override
     public void stopGame() {
@@ -593,7 +611,7 @@ public class MultiPlayer extends GameStructure  {
         plyOneName.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         plyOneName.setForeground(new java.awt.Color(255, 255, 255));
         plyOneName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyOneName.setText("gawpo");
+        plyOneName.setText(gameLogic.getMultiManager().getPlayerOne().getPlayerName());
 
         SocreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         SocreLabel.setForeground(new java.awt.Color(255, 255, 255));
@@ -606,7 +624,7 @@ public class MultiPlayer extends GameStructure  {
         plyOneScoreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         plyOneScoreLabel.setForeground(new java.awt.Color(255, 255, 255));
         plyOneScoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyOneScoreLabel.setText("1 melyon");
+        plyOneScoreLabel.setText(String.valueOf(gameLogic.getMultPlayerScore()[0]));
 
         SocreLabel2.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         SocreLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -782,7 +800,7 @@ public class MultiPlayer extends GameStructure  {
         plyTwoName.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         plyTwoName.setForeground(new java.awt.Color(255, 255, 255));
         plyTwoName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyTwoName.setText("gwapo2");
+        plyTwoName.setText(gameLogic.getMultiManager().getPlayerTwo().getPlayerName());
 
         SocreLabel3.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         SocreLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -795,7 +813,7 @@ public class MultiPlayer extends GameStructure  {
         plyTwoScoreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         plyTwoScoreLabel.setForeground(new java.awt.Color(255, 255, 255));
         plyTwoScoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyTwoScoreLabel.setText("1melyon pud");
+        plyTwoScoreLabel.setText(String.valueOf(gameLogic.getMultPlayerScore()[1]));
 
         SocreLabel5.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         SocreLabel5.setForeground(new java.awt.Color(255, 255, 255));
@@ -953,7 +971,7 @@ public class MultiPlayer extends GameStructure  {
 
         PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
         PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
-        PauseBtn.setText("Pause");
+        PauseBtn.setActionCommand("Pause");
         PauseBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PauseBtnActionPerformed(evt);
@@ -982,7 +1000,7 @@ public class MultiPlayer extends GameStructure  {
                         .addGap(18, 18, 18))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(196, 196, 196)
-                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -995,8 +1013,8 @@ public class MultiPlayer extends GameStructure  {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(100, 100, 100)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(103, 103, 103)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(timerLabel))
@@ -1119,6 +1137,11 @@ public class MultiPlayer extends GameStructure  {
     @Override
     public boolean checkAnswer(String answer) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public JToggleButton getPauseBtn() {
+        return PauseBtn;
     }
 
  

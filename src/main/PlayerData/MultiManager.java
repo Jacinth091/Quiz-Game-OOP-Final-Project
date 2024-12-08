@@ -13,7 +13,7 @@ public class MultiManager{
     private Player playerTwo;
     
     
-    public MultiManager(Single playerOne, Single playerTwo) {
+    public MultiManager(Player playerOne, Player playerTwo) {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
     }

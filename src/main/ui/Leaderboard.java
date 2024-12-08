@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package main.ui;
-
+ 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,19 +15,21 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import backend.Database.Database;
+
 
 /**
  *
  * @author laroc
  */
 public class Leaderboard extends javax.swing.JFrame {
-
+ 
     /**
      * 
      */
     public Leaderboard() {
         initComponents();
-        execute();
+//        execute();
         setVisible(true);
     }
 
@@ -211,6 +213,8 @@ public class Leaderboard extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -222,80 +226,107 @@ public class Leaderboard extends javax.swing.JFrame {
         });
         
     }
-     public void execute() {
-    try (Connection conn = Main.DatabaseConnection.getConnection()) {
+   public void updateScoreInLeaderboard(String player_Name, int newScore) {
+    String selectSQL = "SELECT highScore FROM player WHERE player_Name = ?";
+    String updateSQL = "UPDATE player SET highScore = ? WHERE player_Name = ?";
+
+    try (Connection conn = Database.getInstance().getConnection()) {
         if (conn != null) {
-            String sql = "SELECT Name, Score FROM scores ORDER BY score DESC";
+            // Step 1: Check the current high score in the database
+            PreparedStatement selectStatement = conn.prepareStatement(selectSQL);
+            selectStatement.setString(1, player_Name);
+            ResultSet resultSet = selectStatement.executeQuery();
+
+            // Step 2: If the player exists, compare the new score with the current high score
+            if (resultSet.next()) {
+                int currentHighScore = resultSet.getInt("highScore");
+                if (newScore > currentHighScore) {
+                    // Step 3: If the new score is higher, update the database
+                    PreparedStatement updateStatement = conn.prepareStatement(updateSQL);
+                    updateStatement.setInt(1, newScore);
+                    updateStatement.setString(2, player_Name);
+                    int rowsUpdated = updateStatement.executeUpdate();
+                    if (rowsUpdated > 0) {
+                        System.out.println("Successfully updated the high score for " + player_Name);
+                    } else {
+                        System.out.println("No matching player found to update the score.");
+                    }
+                } else {
+                    System.out.println("New score is not higher than the current high score. No update performed.");
+                }
+            } else {
+                System.out.println("Player not found in the database.");
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+    public void execute() {
+    try (Connection conn = Database.getInstance().getConnection()) {
+        if (conn != null) {
+            String sql = "SELECT player_Name, highScore FROM player ORDER BY highScore DESC";
             PreparedStatement statement = conn.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
 
             // Clear the panel before adding new components
             insidePanel.removeAll();
+            insidePanel.setLayout(new BoxLayout(insidePanel, BoxLayout.Y_AXIS)); // Set layout outside the loop
 
-            // Add each record to the panel
-            int ranking = 1;
+            int ranking = 1; // Initialize ranking
             while (resultSet.next()) {
-                String Name = resultSet.getString("Name");
-                int Score = resultSet.getInt("Score");
+                // Get data from ResultSet
+                String playerName = resultSet.getString("player_Name");
+                int highScore = resultSet.getInt("highScore");
 
-                // Create a new child panel for each record
+                // Create child panel
                 JPanel childPanel = new JPanel();
-                insidePanel.setLayout(new BoxLayout(insidePanel, BoxLayout.Y_AXIS)); // Stacks components vertically
-
                 childPanel.setLayout(null);
                 childPanel.setPreferredSize(new Dimension(420, 50));
                 childPanel.setBackground(new Color(0, 102, 204));
                 childPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
-                
-                // Create a panel for each region (optional, for better control)
+
+                // Create sub-panels for better organization
                 JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                leftPanel.setOpaque(false); // Make it blend with the background
+                leftPanel.setOpaque(false);
                 JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                 centerPanel.setOpaque(false);
                 JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 rightPanel.setOpaque(false);
-                
-                leftPanel.setBounds(40, 35, 70, 50); // x = 10, y = 20, width = 100, height = 80
-                centerPanel.setBounds(200, 35, 150, 50); // x = 120, y = 20, width = 150, height = 80
-                rightPanel.setBounds(450, 35, 85, 50);
 
-                // Create labels for ranking, Name, and Score
-                JLabel rankLabel = new JLabel("Rank: " + ranking);
-                JLabel nameLabel = new JLabel("" + Name);
-                JLabel scoreLabel = new JLabel("" + Score);    
-                   
-                rankLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 18));
-                nameLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 18));
-                scoreLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 18));
+                leftPanel.setBounds(40, 10, 70, 30);
+                centerPanel.setBounds(200, 10, 150, 30);
+                rightPanel.setBounds(450, 10, 85, 30);
+
+                // Create labels for rank, name, and score
+                JLabel rankLabel = new JLabel(" " + ranking);
+                JLabel nameLabel = new JLabel("" + playerName);
+                JLabel scoreLabel = new JLabel("" + highScore);
+
+                rankLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 16));
+                nameLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 16));
+                scoreLabel.setFont(new Font("Segoe UI Black", Font.PLAIN, 16));
                 rankLabel.setForeground(Color.WHITE);
                 nameLabel.setForeground(Color.WHITE);
                 scoreLabel.setForeground(Color.WHITE);
 
-               // Add labels to their respective panels
+                // Add labels to sub-panels
                 leftPanel.add(rankLabel);
                 centerPanel.add(nameLabel);
                 rightPanel.add(scoreLabel);
 
-                // Add panels to the child panel
+                // Add sub-panels to the child panel
                 childPanel.add(leftPanel);
                 childPanel.add(centerPanel);
                 childPanel.add(rightPanel);
-//                
-//                rankLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 100));
-//                nameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-//                scoreLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-                
 
-
-                // Add the child panel to the insidePanel
+                // Add child panel to the insidePanel
                 insidePanel.add(childPanel);
-//                panelLeaderboard.add(childPanel);
 
-                // Increment the ranking
-                ranking++;
+                ranking++; // Increment ranking
             }
 
-            // Refresh the parent panel
+            // Refresh the UI
             insidePanel.revalidate();
             insidePanel.repaint();
         }
@@ -303,6 +334,7 @@ public class Leaderboard extends javax.swing.JFrame {
         e.printStackTrace();
     }
 }
+     
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -9,9 +9,11 @@ import backend.Images;
 import main.PlayerData.MultiManager;
 import main.PlayerData.Session;
 import main.ui.GameOver;
+import main.ui.GameOverMulti;
 import main.ui.HomeForm;
 import main.ui.Loading;
 import main.ui.MultiPlayer;
+import main.ui.PauseFrame;
 import main.ui.SinglePlayer;
 
 /**
@@ -23,6 +25,7 @@ public class AppContext {
 //    private MainThread gameThread;
     private DatabaseManager dbManager;
     private Session session;
+    private MultiManager multiManager;
     
     private GameLogic gameLogic;
     private Images imgs;
@@ -34,6 +37,8 @@ public class AppContext {
     
     private Loading loadingScreen;
     private GameOver gameOver;
+    private GameOverMulti gameOverMulti;
+    private PauseFrame pauseScreen;
     private SinglePlayer singlePlayer;
     private MultiPlayer multiPlayer;
 //    private HomeForm homeForm; 
@@ -156,6 +161,37 @@ public class AppContext {
             gameOver = null;
         }
     }
+    
+    public GameOverMulti getGameOverMulti(AppContext appContext) {
+        if (gameOverMulti == null) {
+            gameOverMulti = GameOverMulti.getInstance(appContext);
+        }
+        return gameOverMulti;
+    }
+
+    public void resetGameOverMulti() {
+        if (gameOverMulti != null) {
+            gameOverMulti.dispose();
+            GameOverMulti.resetInstance();
+            gameOverMulti = null;
+        }
+    }
+    
+    public PauseFrame getPauseScreen(AppContext appContext) {
+        if (pauseScreen == null) {
+            pauseScreen = PauseFrame.getInstance(appContext);
+        }
+        return pauseScreen;
+    }
+
+    public void resetPauseFrame() {
+        if (pauseScreen != null) {
+            pauseScreen.dispose();
+            PauseFrame.resetInstance();
+            pauseScreen = null;
+        }
+    }
+
 
     public GameStructure getGame() {
         return game;
@@ -163,6 +199,14 @@ public class AppContext {
 
     public void setGame(GameStructure game) {
         this.game = game;
+    }
+
+    public MultiManager getMultiManager() {
+        return multiManager;
+    }
+
+    public void setMultiManager(MultiManager multiManager) {
+        this.multiManager = multiManager;
     }
     
 }

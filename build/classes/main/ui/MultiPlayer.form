@@ -65,7 +65,7 @@
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="196" max="-2" attributes="0"/>
-                          <Component id="PauseBtn" min="-2" pref="41" max="-2" attributes="0"/>
+                          <Component id="PauseBtn" min="-2" pref="40" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -82,8 +82,8 @@
                       <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
                       <Component id="jPanel7" min="-2" pref="519" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="PauseBtn" min="-2" pref="43" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
+                          <Component id="PauseBtn" min="-2" pref="40" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="103" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel1" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
                               <Component id="timerLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -281,7 +281,9 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="gawpo"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="gameLogic.getMultiManager().getPlayerOne().getPlayerName()" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="SocreLabel">
@@ -315,7 +317,9 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="1 melyon"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="String.valueOf(gameLogic.getMultPlayerScore()[0])" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="SocreLabel2">
@@ -641,7 +645,9 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="gwapo2"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="gameLogic.getMultiManager().getPlayerTwo().getPlayerName()" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="SocreLabel3">
@@ -675,7 +681,9 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="1melyon pud"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="String.valueOf(gameLogic.getMultPlayerScore()[1])" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="SocreLabel5">
@@ -883,7 +891,7 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Pause"/>
+            <Property name="actionCommand" type="java.lang.String" value="Pause"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PauseBtnActionPerformed"/>

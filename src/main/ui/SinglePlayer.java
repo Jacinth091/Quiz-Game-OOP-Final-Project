@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Player;
@@ -242,7 +243,7 @@ public class SinglePlayer extends GameStructure{
 
         PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
         PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
-        PauseBtn.setText("Pause");
+        PauseBtn.setActionCommand("Pause");
         PauseBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PauseBtnActionPerformed(evt);
@@ -280,9 +281,9 @@ public class SinglePlayer extends GameStructure{
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addGap(251, 251, 251)
+                                .addGap(253, 253, 253)
                                 .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -350,6 +351,11 @@ public class SinglePlayer extends GameStructure{
         playerButton = new JButton[]{
             choiceQ, choiceW, choiceE, choiceR
         };
+        
+//        if (playBtn == null || pauseBtn == null) {
+//            System.out.println("Icons are not loaded properly.");
+//        }
+        PauseBtn.setIcon(pauseBtn);
         playerButton();
     }
 
@@ -472,6 +478,8 @@ public class SinglePlayer extends GameStructure{
     public void startGame() {
         displayNextQuestion();
         gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
         gameLogic.startTimer();
     }
     
@@ -480,7 +488,8 @@ public class SinglePlayer extends GameStructure{
         gameLogic.startTimer();
         displayNextQuestion();
         SwingUtilities.invokeLater(() ->toggleBtns(true));
-
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
         updateScoreLabel();
         repaint();
         revalidate();
@@ -489,8 +498,48 @@ public class SinglePlayer extends GameStructure{
 
     @Override
     public void pauseGame() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (PauseBtn.isSelected()) {
+          // Set icon to play button
+          PauseBtn.setIcon(playBtn);
+          pauseBtnDelay(false);
+          
+          gameLogic.getGameTimerClass().setGameState(Pause);
+          gameLogic.getGameTimerClass().pauseTimer();
+      } else {
+
+          PauseBtn.setIcon(pauseBtn);
+          pauseBtnDelay(true);
+
+          gameLogic.getGameTimerClass().setGameState(Play);
+          gameLogic.getGameTimerClass().startTimer();
+      }
+          PauseBtn.revalidate();
+          PauseBtn.repaint();
+
     }
+    
+    public void pauseBtnDelay(boolean value) {
+       CompletableFuture.runAsync(() -> {
+           try {
+               // Wait for the delay before showing the pause screen
+               Thread.sleep(500);  // 500ms delay
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+       }).thenCompose(v -> CompletableFuture.runAsync(() -> {
+           // Reset and show the pause screen after the delay
+           appContext.resetPauseFrame();
+           // Ensure the pause screen is made visible in the event dispatch thread
+           SwingUtilities.invokeLater(() -> {
+             pauseScreen = appContext.getPauseScreen(appContext);
+             pauseScreen.setLocationRelativeTo(this);
+             pauseScreen.setVisible(true);
+           });
+       })).thenRun(() -> SwingUtilities.invokeLater(() -> {
+           // Update the button state or do other UI updates after the delay
+           toggleBtns(value);
+       }));
+   }
 
     @Override
     public void stopGame() {
@@ -513,6 +562,7 @@ public class SinglePlayer extends GameStructure{
                 );  break;
             case Pause:
                 System.out.println("Paused!");
+                pauseGame();
                 break;
             case GameOver:
                 SwingUtilities.invokeLater(() ->toggleBtns(false));
@@ -565,15 +615,7 @@ public class SinglePlayer extends GameStructure{
            
         }
         else if(actionCmd.equals("Pause")){
-            if(PauseBtn.isSelected()){
-                gameLogic.getGameTimerClass().setGameState(Pause);
-                gameLogic.getGameTimerClass().pauseTimer();
-            }
-            else{
-                gameLogic.getGameTimerClass().setGameState(Play);
-                gameLogic.getGameTimerClass().startTimer();
-                 
-            }
+            pauseGame();
         }
        
 
@@ -628,6 +670,11 @@ public class SinglePlayer extends GameStructure{
                 new SinglePlayer().setVisible(true);
             }
         });
+    }
+    
+    @Override
+    public JToggleButton getPauseBtn() {
+        return PauseBtn;
     }
     
     

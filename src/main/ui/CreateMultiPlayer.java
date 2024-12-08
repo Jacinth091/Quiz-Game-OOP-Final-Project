@@ -4,16 +4,28 @@
  */
 package main.ui;
 
+import java.util.concurrent.CompletableFuture;
+import javax.swing.SwingUtilities;
+import main.PlayerData.MultiManager;
+import main.PlayerData.Player;
+import main.PlayerData.Single;
+import main.logic.AppContext;
+import main.logic.GameEnums;
+
 /**
  *
  * @author PCC
  */
 public class CreateMultiPlayer extends javax.swing.JFrame {
-
+    private MultiManager multiManager;
+    private AppContext appContext;
+    private CompletableFuture transition;
     /**
      * Creates new form CreateMultiPlayer
      */
-    public CreateMultiPlayer() {
+    public CreateMultiPlayer(AppContext appContext) {
+        this.appContext = appContext;
+        this.multiManager= new MultiManager();
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
@@ -184,8 +196,87 @@ public class CreateMultiPlayer extends javax.swing.JFrame {
 
     private void createPlayerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPlayerBtnActionPerformed
         System.out.println("Player has been Created!");
+        createPlayers();
     }//GEN-LAST:event_createPlayerBtnActionPerformed
+   
+    private void createPlayers() {
+        boolean plyOne = false;
+        boolean plyTwo = false;
+        String playerOneName = playerOneField.getText().trim();
+        String playerTwoName = playerTwoField.getText().trim();
 
+            // Validate the input for both player names
+            if (playerOneName.isEmpty() || playerTwoName.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Please provide both players' names.");
+                return;
+            } else if (playerOneName.length() < 8 || playerTwoName.length() < 8) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Player names must have at least 8 characters!");
+                return;
+            }
+            else{
+                plyOne = true;
+                plyTwo = true;
+            }
+
+            try {
+                Player playerOne = new Single("Player 01", playerOneName, 0);
+                Player playerTwo = new Single("Player 02", playerTwoName, 0);
+
+                if (!plyOne || !plyTwo) {
+                   javax.swing.JOptionPane.showMessageDialog(this, "One or both player names failed to create.");
+               } else {
+                   System.out.println("Player One and Player Two successfully added!");
+                   multiManager = new MultiManager(playerOne, playerTwo);
+                   
+                   startMultiPlayerGame();
+                   
+                   
+                   
+                   
+                   this.dispose(); // Close the current form
+               }
+            } catch (Exception e) {
+                e.printStackTrace();
+                javax.swing.JOptionPane.showMessageDialog(this, "Error while creating players.");
+            }
+    }
+
+    public void startMultiPlayerGame(){
+        appContext.resetMultiPlayer();
+        appContext.setMultiManager(multiManager);
+        appContext.getGameLogic(GameEnums.GameMode.MULTIPLAYER).setMultiManager(multiManager);
+        appContext.setGame(appContext.getMultiPlayer(appContext));
+
+        //TODO: TO BE MODIFIED!!
+        transition = CompletableFuture.runAsync(() ->{
+            
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        });
+        transition.thenRun(() -> {
+          appContext.getLoadingScreen().setIsLoadingComplete(false);
+          appContext.getLoadingScreen().dispose();
+
+            appContext.getGame().startGame();
+            appContext.getGame().setVisible(true);
+
+      });
+        
+        
+        
+    }
+    
+    
+    
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -216,7 +307,7 @@ public class CreateMultiPlayer extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CreateMultiPlayer().setVisible(true);
+//                new CreateMultiPlayer().setVisible(true);
             }
         });
     }
