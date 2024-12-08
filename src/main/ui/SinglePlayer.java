@@ -60,7 +60,7 @@ public class SinglePlayer extends GameStructure{
      * @param appContext
      */
     public SinglePlayer(AppContext appContext) {
-        super(appContext, SINGLE_PLAYER);
+        super(appContext, appContext.getGameMode());
         this.gameMode = SINGLE_PLAYER;
 
         initComponents();
@@ -427,7 +427,8 @@ public class SinglePlayer extends GameStructure{
 
         for (JButton choice : playerButton) {
             String choiceText = choice.getText();
-            if (choiceText.contains(correctAnswer)) {
+            choiceText = choiceText.replaceAll("<.*?>", "");
+            if (choiceText.equals(correctAnswer)) {
                 choice.setBackground(correctColor);
             } else {
                 choice.setBackground(incorrectColor);

@@ -12,6 +12,8 @@ import javax.swing.SwingUtilities;
 import main.PlayerData.Session;
 import main.logic.AppContext;
 import main.logic.GameEnums;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
 import main.ui.SinglePlayer;
 
 /**
@@ -240,7 +242,7 @@ public class HomeForm extends javax.swing.JFrame {
                         .addComponent(nameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(pencilLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(IDnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(IDnumber)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -325,9 +327,12 @@ public class HomeForm extends javax.swing.JFrame {
     private void singlePlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singlePlayBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();// Hide the current frame
-        
+//        System.out.println("GameMode:" + appContext.getGameMode());
         appContext.resetSinglePlayer();
+        appContext.setGameMode(SINGLE_PLAYER);        
+        appContext.getGameLogic(appContext.getGameMode()).setGameMode(SINGLE_PLAYER);
         appContext.setGame(appContext.getSinglePlayer(appContext));
+        
 
         //TODO: TO BE MODIFIED!!
         transition = CompletableFuture.runAsync(() ->{
@@ -360,7 +365,12 @@ public class HomeForm extends javax.swing.JFrame {
     private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();// Hide the current frame
-        new CreateMultiPlayer(appContext).setVisible(true);
+        appContext.resetCreateMultiPlayer();
+        appContext.setGameMode(null);
+        CreateMultiPlayer create = appContext.getCreateMulti(appContext);
+        appContext.setGameMode(MULTIPLAYER);
+        appContext.getGameLogic(appContext.getGameMode()).setGameMode(MULTIPLAYER);
+        create.setVisible(true);
 
     }//GEN-LAST:event_multiPlayBtnActionPerformed
 
