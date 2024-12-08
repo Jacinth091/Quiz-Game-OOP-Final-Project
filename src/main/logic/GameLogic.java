@@ -12,6 +12,7 @@ import java.util.Map;
 import main.PlayerData.Session;
 import java.util.Random;
 import javax.swing.Timer;
+import main.PlayerData.MultiManager;
 import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Play;
 import main.update.GameTimeUpdate;
@@ -29,6 +30,7 @@ public class GameLogic {
 
     
     private Session session;
+    private MultiManager multiManager;
     private QuestionLogic qLogic;
     private GameTimer gameTimer;
     private Random rand;
@@ -40,7 +42,7 @@ public class GameLogic {
     
     // Questions
     private final Map<Integer, Question> questions = new HashMap<>();
-    private Map<Question, String> playerAns= new HashMap<>();
+    private Map<Question, String> playerAns = new HashMap<>();
 
     private int questionsUsed =0;
     private int quesAnsweredCorrect =0;
@@ -321,6 +323,14 @@ public class GameLogic {
 
     public void setGameMode(GameEnums.GameMode gameMode) {
         this.gameMode = gameMode;
+    }
+
+    public MultiManager getMultiManager() {
+        return multiManager;
+    }
+
+    public void setMultiManager(MultiManager multiManager) {
+        this.multiManager = multiManager;
     }
     
     

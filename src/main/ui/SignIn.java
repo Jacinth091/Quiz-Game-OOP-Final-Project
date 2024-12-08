@@ -338,7 +338,7 @@ public class SignIn extends javax.swing.JFrame {
                 this.dispose();
             }
             else if(isLoggedIn && hasPlayerAccount){
-                session.setPlayer(getPlayerDetails(connection, userId));
+                session.setPlayer(dbManager.getPlayerDetails(connection, userId));
                 new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
                 this.dispose(); // Close the login form
             }
@@ -349,20 +349,7 @@ public class SignIn extends javax.swing.JFrame {
 
     }
     
-    private Player getPlayerDetails(Connection connection, String user_Id)throws SQLException{
-        Player player = null;
-        
-        try{
-            String[] data = dbManager.getPlayerAccount(connection, user_Id);
-            
-            player = new Player(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-            
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
 
-        return player;
-    }
 
 
     public static void main(String args[]) {

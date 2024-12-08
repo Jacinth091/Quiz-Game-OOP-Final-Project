@@ -10,10 +10,10 @@ package main.PlayerData;
  *
  * @author PCC
  */
-public class Session {
+public class Session extends Player{
     private static Session instance;
     private String userId, userName;
-    private Player player;
+    private Player singlePlayer;
 
     public Session() {
     }
@@ -29,11 +29,11 @@ public class Session {
     
 
     public Player getPlayer() {
-        return player;
+        return singlePlayer;
     }
     
-    public void setPlayer(Player player){
-        this.player = player;
+    public void setPlayer(Single player){
+        this.singlePlayer = player;
     }
 
     

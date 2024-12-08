@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
+import main.PlayerData.Single;
 import main.logic.GameEnums;
 import static main.logic.GameEnums.GameMode.MULTIPLAYER;
 import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
@@ -74,7 +75,7 @@ public class SinglePlayer extends GameStructure{
     public SinglePlayer() {
         super(AppContext.getInstance(),SINGLE_PLAYER);
         this.gameMode = SINGLE_PLAYER;
-        this.session.setPlayer(new Player("1", "Gwapo", 0, 0));
+        this.session.setPlayer(new Single("1", "Gwapo",  0));
         initComponents();
         setUpButtons();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

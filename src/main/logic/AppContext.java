@@ -6,6 +6,7 @@ package main.logic;
 
 import backend.Database.DatabaseManager;
 import backend.Images;
+import main.PlayerData.MultiManager;
 import main.PlayerData.Session;
 import main.ui.GameOver;
 import main.ui.HomeForm;
@@ -35,7 +36,7 @@ public class AppContext {
     private GameOver gameOver;
     private SinglePlayer singlePlayer;
     private MultiPlayer multiPlayer;
-    private HomeForm homeForm; 
+//    private HomeForm homeForm; 
     
     private AppContext(){
 

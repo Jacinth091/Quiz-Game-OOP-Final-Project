@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import main.PlayerData.Single;
 
 /**
  *
@@ -159,12 +160,11 @@ public class DatabaseManager {
     
     public boolean createPlayerAccount(Connection connection, String playerName, String userId){
         boolean flag = false;
-        String query = "INSERT INTO player (player_Name, user_Id, singlePlay_HighScore, multiPlay_HighScore) VALUES (?,?,?,?) ";
+        String query = "INSERT INTO player (player_Name, user_Id, highScore) VALUES (?,?,?) ";
         try(PreparedStatement prepStatement = connection.prepareStatement(query)){
             prepStatement.setString(1, playerName);
             prepStatement.setString(2, userId);
             prepStatement.setString(3, "0");
-            prepStatement.setString(4, "0");
 
             int rowsAffected = prepStatement.executeUpdate();
             if(rowsAffected > 0){
@@ -194,11 +194,10 @@ public class DatabaseManager {
             if(resultSet.next()){
                 String playerID = resultSet.getString("player_Id");
                 String playerName = resultSet.getString("player_Name");
-                String singleHighScore = resultSet.getString("singlePlay_HighScore");
-                String multiHighScore = resultSet.getString("multiPlay_HighScore");
+                String singleHighScore = resultSet.getString("highScore");
 
                 data = new String[] {
-                    playerID, playerName, singleHighScore, multiHighScore
+                    playerID, playerName, singleHighScore
                 };
             }
 
@@ -208,6 +207,21 @@ public class DatabaseManager {
         }
         
         return data;
+    }
+    
+    public Single getPlayerDetails(Connection connection, String user_Id)throws SQLException{
+        Single player = null;
+        
+        try{
+            String[] data = getPlayerAccount(connection, user_Id);
+            
+            player = new Single(data[0], data[1], Integer.parseInt(data[2]));
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+
+        return player;
     }
     
     public boolean insertScoreLeaderboards(Connection connection, String playerId, int score){

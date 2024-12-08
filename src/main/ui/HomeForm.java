@@ -360,6 +360,19 @@ public class HomeForm extends javax.swing.JFrame {
     private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();// Hide the current frame
+        
+        new CreateMultiPlayer().setVisible(true);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 //        
 //        appContext.resetSinglePlayer();
 //        // Create a new instance of SinglePlayer and set it in the app context
@@ -367,8 +380,8 @@ public class HomeForm extends javax.swing.JFrame {
 //     
 //        // Make the new SinglePlayer visible
 //        multiPlayer.setVisible(true);
-
-        appContext.resetMultiPlayer();
+/*
+appContext.resetMultiPlayer();
         appContext.setGame(appContext.getMultiPlayer(appContext));
 
         //TODO: TO BE MODIFIED!!
@@ -396,6 +409,8 @@ public class HomeForm extends javax.swing.JFrame {
             appContext.getGame().setVisible(true);
 
       });
+*/
+        
         
                    
 

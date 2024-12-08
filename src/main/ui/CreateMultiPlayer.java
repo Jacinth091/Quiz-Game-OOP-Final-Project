@@ -4,41 +4,19 @@
  */
 package main.ui;
 
-import backend.Database.DatabaseManager;
-
-import main.logic.AppContext;
-import main.PlayerData.Session;
-
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import main.PlayerData.Player;
-import main.PlayerData.Single;
-
 /**
  *
  * @author PCC
  */
-public class CreatePlayer extends javax.swing.JFrame {
-    private AppContext appContext;
-    private DatabaseManager dbManager;
-    private Session session;
-    private String playerName;
+public class CreateMultiPlayer extends javax.swing.JFrame {
+
     /**
-     * Creates new form CreatePlayer
+     * Creates new form CreateMultiPlayer
      */
-    public CreatePlayer(AppContext appContext) {
-        this.appContext = appContext;
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
+    public CreateMultiPlayer() {
         initComponents();
         setLocationRelativeTo(null);
-    }
-    public CreatePlayer( ) {
-
-        initComponents();
-        setLocationRelativeTo(null);
-
+        setResizable(false);
     }
 
     /**
@@ -52,41 +30,40 @@ public class CreatePlayer extends javax.swing.JFrame {
 
         mainPanel = new javax.swing.JPanel();
         panelContainer = new javax.swing.JPanel();
-        UserField = new javax.swing.JTextField();
+        playerOneField = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         createPlayerBtn = new javax.swing.JButton();
+        playerTwoField = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(600, 700));
+        setPreferredSize(new java.awt.Dimension(600, 700));
 
         mainPanel.setBackground(new java.awt.Color(0, 0, 51));
 
         panelContainer.setBackground(new java.awt.Color(173, 216, 230));
 
-        UserField.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        UserField.setActionCommand("user");
-        UserField.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
-        UserField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                UserFieldActionPerformed(evt);
-            }
-        });
+        playerOneField.setFont(new java.awt.Font("Montserrat", 0, 14)); // NOI18N
+        playerOneField.setActionCommand("playerOne");
+        playerOneField.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
 
         jLabel7.setFont(new java.awt.Font("Montserrat", 1, 24)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(0, 0, 128));
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("Create player");
+        jLabel7.setText("Enter Player Name");
 
         jLabel5.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 128));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel5.setText("Player Name:");
+        jLabel5.setText("Player ONE:");
 
         createPlayerBtn.setBackground(new java.awt.Color(0, 51, 102));
-        createPlayerBtn.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        createPlayerBtn.setFont(new java.awt.Font("Montserrat", 1, 18)); // NOI18N
         createPlayerBtn.setForeground(new java.awt.Color(255, 255, 255));
-        createPlayerBtn.setText("Create Player");
+        createPlayerBtn.setText("Create and Start");
         createPlayerBtn.setActionCommand("Create");
         createPlayerBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         createPlayerBtn.setBorderPainted(false);
@@ -106,63 +83,81 @@ public class CreatePlayer extends javax.swing.JFrame {
             }
         });
 
+        playerTwoField.setFont(new java.awt.Font("Montserrat", 0, 14)); // NOI18N
+        playerTwoField.setActionCommand("playerTwo");
+        playerTwoField.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
+
+        jLabel6.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel6.setText("Player TWO:");
+
         javax.swing.GroupLayout panelContainerLayout = new javax.swing.GroupLayout(panelContainer);
         panelContainer.setLayout(panelContainerLayout);
         panelContainerLayout.setHorizontalGroup(
             panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContainerLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
                 .addGroup(panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(createPlayerBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelContainerLayout.createSequentialGroup()
-                        .addGap(99, 99, 99)
-                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelContainerLayout.createSequentialGroup()
-                        .addGap(30, 30, 30)
                         .addGroup(panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(playerTwoField, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(UserField, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(createPlayerBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(playerOneField, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(30, 30, 30))
+            .addGroup(panelContainerLayout.createSequentialGroup()
+                .addGap(87, 87, 87)
+                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelContainerLayout.setVerticalGroup(
             panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContainerLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(jLabel7)
-                .addGap(18, 18, 18)
+                .addGap(33, 33, 33)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(UserField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(playerOneField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(playerTwoField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
                 .addComponent(createPlayerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addGap(31, 31, 31))
         );
 
         jLabel4.setFont(new java.awt.Font("Montserrat", 1, 48)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("Quiz Game");
+        jLabel4.setText("2 Player");
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(88, 88, 88))
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                        .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(88, 88, 88))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(73, 73, 73))))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(83, 83, 83)
+                .addGap(40, 40, 40)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addGap(26, 26, 26)
                 .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(219, Short.MAX_VALUE))
+                .addContainerGap(147, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -179,10 +174,6 @@ public class CreatePlayer extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void UserFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UserFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_UserFieldActionPerformed
-
     private void createPlayerBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createPlayerBtnMouseEntered
         createPlayerBtn.setBackground(java.awt.Color.decode("#000080"));        // TODO add your handling code here:
     }//GEN-LAST:event_createPlayerBtnMouseEntered
@@ -193,48 +184,8 @@ public class CreatePlayer extends javax.swing.JFrame {
 
     private void createPlayerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPlayerBtnActionPerformed
         System.out.println("Player has been Created!");
-        
-        createPlayerAccount();
-
-
     }//GEN-LAST:event_createPlayerBtnActionPerformed
 
-    private void createPlayerAccount(){
-              
-        String userId;
-        playerName = UserField.getText().trim();
-        
-        if (playerName.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Please provide player's name.");
-            return;
-        }else if( playerName.length() < 8 ){
-            javax.swing.JOptionPane.showMessageDialog(null, "Minimum atleast 8 characters for your playerName!");
-            return;
-        }
-        
-        try(Connection connection = dbManager.getDb().getConnection() ){
-            userId = session.getUserId();
-            boolean createAccSuccess = dbManager.createPlayerAccount(connection, playerName , userId );
-            if(!createAccSuccess){
-                javax.swing.JOptionPane.showMessageDialog(this, "Player Name Failed to Create");
-
-            }
-            else{
-                javax.swing.JOptionPane.showMessageDialog(this, "Player Name was successfuuly Added!");
-                System.out.println("Account Created");
-                session.setPlayer(dbManager.getPlayerDetails(connection, userId));
-                new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
-                this.dispose(); // Close the login form
-
-            }
-            
-            
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-    }
-    
     /**
      * @param args the command line arguments
      */
@@ -252,31 +203,33 @@ public class CreatePlayer extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CreatePlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CreateMultiPlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CreatePlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CreateMultiPlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CreatePlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CreateMultiPlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(CreatePlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CreateMultiPlayer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new CreatePlayer().setVisible(true);
+                new CreateMultiPlayer().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField UserField;
     private javax.swing.JButton createPlayerBtn;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel panelContainer;
+    private javax.swing.JTextField playerOneField;
+    private javax.swing.JTextField playerTwoField;
     // End of variables declaration//GEN-END:variables
 }

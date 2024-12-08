@@ -219,8 +219,6 @@ public class MultiPlayer extends GameStructure  {
            finalizeRound(true, playerAnswer);  // End the round since the question was answered correctly
            return;
        }
-
-       // Handle incorrect answer
        System.out.println(player + " answered incorrectly.");
        SwingUtilities.invokeLater(() -> togglePlayerBtn(player.equals("playerOne") ? 0 : 1, false)); // Disable current player's buttons
 
@@ -230,11 +228,7 @@ public class MultiPlayer extends GameStructure  {
            isPlayerTwoCorrect = true;
        }
 
-       if (firstPlayerAnswered.equals("playerOne") && !isPlayerTwoCorrect) {
-           System.out.println("Player Two gets a chance to steal!");
-       } else if (firstPlayerAnswered.equals("playerTwo") && !isPlayerOneCorrect) {
-           System.out.println("Player One gets a chance to steal!");
-       } else {
+        if(!isPlayerOneCorrect && !isPlayerTwoCorrect){
            System.out.println("Both players answered incorrectly. Skipping question...");
            finalizeRound(false, playerAnswer);  // End the round without awarding points
        }
