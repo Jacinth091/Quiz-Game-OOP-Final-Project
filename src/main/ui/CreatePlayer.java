@@ -240,7 +240,7 @@ public class CreatePlayer extends javax.swing.JFrame {
         try{
             String[] data = dbManager.getPlayerAccount(connection, user_Id);
             
-            player = new Player(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+            player = new Player(data[0], data[1], Integer.parseInt(data[2]));
             
         }catch(SQLException e){
             e.printStackTrace();
