@@ -56,20 +56,18 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
     protected Color[][] playerColors;
 
     public GameStructure(AppContext appContext, GameEnums.GameMode gameMode) {
-        System.out.println("GameMode:" + appContext.getGameMode());
         this.appContext = appContext;
         if (appContext == null) {
             throw new IllegalArgumentException("AppContext cannot be null");
         }
-        System.out.println("GameMode: " + appContext.getGameMode());
         this.dbManager = appContext.getDbManager();
-        this.appContext.setGameMode(appContext.getGameMode());
+        this.appContext.setGameMode(gameMode);
         this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(appContext.getGameMode());
+        this.gameLogic = appContext.getGameLogic(gameMode);
         if (this.gameLogic == null) {
             throw new IllegalStateException("GameLogic must be initialized");
         }
-        else if(gameLogic == null){
+        else if(gameLogic.getGameMode() == null){
             throw new IllegalStateException("GameLogic must be initialized");
         }
         this.pauseBtn =initializeIconImgs("pause.png");

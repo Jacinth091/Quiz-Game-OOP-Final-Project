@@ -11,14 +11,12 @@ import main.PlayerData.Player;
 import main.PlayerData.Single;
 import main.logic.AppContext;
 import main.logic.GameEnums;
-import static main.logic.GameEnums.GameMode.MULTIPLAYER;
 
 /**
  *
  * @author PCC
  */
 public class CreateMultiPlayer extends javax.swing.JFrame {
-    private static CreateMultiPlayer instance;
     private MultiManager multiManager;
     private AppContext appContext;
     private CompletableFuture transition;
@@ -244,15 +242,9 @@ public class CreateMultiPlayer extends javax.swing.JFrame {
     }
 
     public void startMultiPlayerGame(){
-        System.out.println("GameMode:" + appContext.getGameMode());
-
         appContext.resetMultiPlayer();
-
-        System.out.println("GameMode:" + appContext.getGameMode());
-
         appContext.setMultiManager(multiManager);
-        appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset logic here
-        appContext.getGameLogic(appContext.getGameMode()).setMultiManager(multiManager);
+        appContext.getGameLogic(GameEnums.GameMode.MULTIPLAYER).setMultiManager(multiManager);
         appContext.setGame(appContext.getMultiPlayer(appContext));
 
         //TODO: TO BE MODIFIED!!
@@ -283,18 +275,7 @@ public class CreateMultiPlayer extends javax.swing.JFrame {
     
     
     
-    public static synchronized CreateMultiPlayer getInstance(AppContext appContext){
-        if(instance == null){
-            instance = new CreateMultiPlayer(appContext);
-        }
-        return instance;
-    } 
-    public static void resetInstance() {
-        if (instance != null) {
-            instance.dispose(); // Clean up the current instance
-            instance = null;
-        }
-    }
+    
     
     /**
      * @param args the command line arguments

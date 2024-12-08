@@ -360,11 +360,10 @@ public class GameOverMulti extends javax.swing.JFrame {
         });
 
         transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
-            if (MULTIPLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
-                appContext.setGameMode(null);
+            if (MULTIPLAYER.equals(appContext.getGame().getGameMode())) {
                 appContext.resetMultiPlayer();
-
+            } else if (SINGLE_PLAYER.equals(appContext.getGame().getGameMode())) {
+                appContext.resetSinglePlayer();
             }
 
             appContext.getGameLogic(appContext.getGameMode()).resetGameLogic(); // Reset game logic here

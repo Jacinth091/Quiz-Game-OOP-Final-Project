@@ -274,10 +274,11 @@ public class GameOver extends javax.swing.JFrame {
             
         });
         transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
-            if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
+            if(MULTIPLAYER.equals(appContext.getGame().getGameMode())){
+                appContext.resetMultiPlayer();
+            }
+            else if(SINGLE_PLAYER.equals(appContext.getGame().getGameMode())){
                 appContext.resetSinglePlayer();
-                appContext.setGameMode(null);
             }
 
 

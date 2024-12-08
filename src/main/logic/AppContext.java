@@ -8,7 +8,6 @@ import backend.Database.DatabaseManager;
 import backend.Images;
 import main.PlayerData.MultiManager;
 import main.PlayerData.Session;
-import main.ui.CreateMultiPlayer;
 import main.ui.GameOver;
 import main.ui.GameOverMulti;
 import main.ui.HomeForm;
@@ -36,7 +35,6 @@ public class AppContext {
     private GameEnums.GameState gameState;
     private GameStructure game;
     
-    private CreateMultiPlayer createMulti;
     private Loading loadingScreen;
     private GameOver gameOver;
     private GameOverMulti gameOverMulti;
@@ -47,6 +45,17 @@ public class AppContext {
     
     private AppContext(){
 
+//        gameThread = MainThread.getInstance();
+//        gameState = gameThread.getGameState();
+//        gameThread.startThread();
+//        
+//        
+//              // Add a shutdown hook to stop the thread safely
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            if (gameThread != null) {
+//                gameThread.stopThread();
+//            }
+//        }));
     }
     
 
@@ -80,7 +89,12 @@ public class AppContext {
     }
     
     
-
+    public GameLogic getGameLogic(GameEnums.GameMode gameMode) {
+        if (gameLogic == null) {
+            gameLogic = GameLogic.getInstance(this, gameMode);
+        }
+        return gameLogic;
+    }
     
     public Loading getLoadingScreen() {
         if (loadingScreen == null) {
@@ -148,22 +162,6 @@ public class AppContext {
         }
     }
     
-    public GameLogic getGameLogic(GameEnums.GameMode gameMode) {
-        if (gameLogic == null) {
-            gameLogic = GameLogic.getInstance(this, gameMode);
-        }
-        return gameLogic;
-    }
-
-    public void resetGameLogic() {
-        if (gameLogic != null) {
-            gameLogic.dispose();
-            GameLogic.resetInstance();
-            gameLogic = null;
-        }
-    }
-    
-    
     public GameOverMulti getGameOverMulti(AppContext appContext) {
         if (gameOverMulti == null) {
             gameOverMulti = GameOverMulti.getInstance(appContext);
@@ -178,20 +176,7 @@ public class AppContext {
             gameOverMulti = null;
         }
     }
-    public CreateMultiPlayer getCreateMulti(AppContext appContext) {
-        if (createMulti == null) {
-            createMulti = CreateMultiPlayer.getInstance(appContext);
-        }
-        return createMulti;
-    }
-
-    public void resetCreateMultiPlayer() {
-        if (createMulti != null) {
-            createMulti.dispose();
-            CreateMultiPlayer.resetInstance();
-            createMulti = null;
-        }
-    }
+    
     public PauseFrame getPauseScreen(AppContext appContext) {
         if (pauseScreen == null) {
             pauseScreen = PauseFrame.getInstance(appContext);

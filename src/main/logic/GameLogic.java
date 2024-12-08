@@ -180,8 +180,6 @@ public class GameLogic {
                 System.out.println("Player: " + player + "is Incorrect!");
             }
         }
-        System.out.println("GIATAAAYYY" );
-        System.out.println("Game Mode: " + gameMode);
 
     }
     
@@ -261,38 +259,7 @@ public class GameLogic {
         restartGame();        
         // Reset other game-related resources
     }
-    public void dispose() {
-        gameMode = null;
-//        appContext.setGameMode(null);
-        if (gameTimer != null) {
-            gameTimer.stopTimer(); 
-            gameTimer = null;
-        }
-
-        if (questions != null) {
-            questions.clear();
-        }
-
-        if (playerAns != null) {
-            playerAns.clear();
-        }
-
-        playerScore = 0;
-        questionsUsed = 0;
-        quesAnsweredCorrect = 0;
-
-        if (MULTIPLAYER.equals(gameMode)) {
-            multPlayerScore[0] = 0;
-            multPlayerScore[1] = 0;
-            multAnsweredCorrect[0] = 0;
-            multAnsweredCorrect[1] = 0;
-        }
-
-        session = null;
-        multiManager = null;
-        players = null;
-
-    }
+    
     
     
     
@@ -306,12 +273,6 @@ public class GameLogic {
             instance = new GameLogic(appContext, gameMode);
         }
         return instance;
-    } 
-    public static void resetInstance() {
-        if (instance != null) {
-            instance.dispose(); 
-            instance = null;
-        }
     }
 
     public String getCorrectAnswer(Question currentQues){

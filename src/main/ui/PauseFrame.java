@@ -160,10 +160,14 @@ public class PauseFrame extends javax.swing.JFrame {
        });
 
        transition.thenRun(() -> {
+           appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+       }).thenRun(() -> {
+           // Ensure the loading screen completes and is disposed
            SwingUtilities.invokeLater(() -> {
                appContext.getLoadingScreen().setIsLoadingComplete(false);
                appContext.getLoadingScreen().dispose();
-               appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+
+               // Restart the game
                appContext.getGame().restartGame();
            });
        });
@@ -208,53 +212,34 @@ public class PauseFrame extends javax.swing.JFrame {
     private void homeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeBtnActionPerformed
         this.dispose(); // Close the current frame
 
-//        transition = CompletableFuture.runAsync(() -> {
-//            // Start the loading screen
-//            appContext.getLoadingScreen().start();
-//
-//            // Wait until the loading is complete
-//            while (!appContext.getLoadingScreen().getIsLoadingComplete()) {
-//                try {
-//                    Thread.sleep(20); // Polling interval
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
-//            if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
-//                appContext.resetGameLogic();
-//                appContext.resetSinglePlayer();
-//                appContext.setGameMode(null);
-//            }else if (MULTIPLAYER.equals(appContext.getGameMode())) {
-//                appContext.resetGameLogic();
-//                appContext.resetMultiPlayer();
-//                appContext.setGameMode(null);
-//            }
-//
-//            appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
-////            appContext.setGameMode(null);
-//        })).thenRun(() -> {
-//            // Show the home screen after reset
-//            new HomeForm(appContext).setVisible(true);
-//            appContext.getLoadingScreen().dispose();
-//        });
-            
-            if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
-                appContext.resetSinglePlayer();
-                appContext.setGameMode(null);
-            }else if (MULTIPLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
+        transition = CompletableFuture.runAsync(() -> {
+            // Start the loading screen
+            appContext.getLoadingScreen().start();
+
+            // Wait until the loading is complete
+            while (!appContext.getLoadingScreen().getIsLoadingComplete()) {
+                try {
+                    Thread.sleep(20); // Polling interval
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
+            // Reset game logic based on the game mode
+            if (MULTIPLAYER.equals(appContext.getGameMode())) {
                 appContext.resetMultiPlayer();
-                appContext.setGameMode(null);
+            } else if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
+                appContext.resetSinglePlayer();
             }
 
-
             appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+        })).thenRun(() -> {
+            // Show the home screen after reset
             new HomeForm(appContext).setVisible(true);
             appContext.getLoadingScreen().dispose();
+        });
 
     }//GEN-LAST:event_homeBtnActionPerformed
     

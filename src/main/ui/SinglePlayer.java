@@ -60,7 +60,7 @@ public class SinglePlayer extends GameStructure{
      * @param appContext
      */
     public SinglePlayer(AppContext appContext) {
-        super(appContext, appContext.getGameMode());
+        super(appContext, SINGLE_PLAYER);
         this.gameMode = SINGLE_PLAYER;
 
         initComponents();
@@ -427,8 +427,7 @@ public class SinglePlayer extends GameStructure{
 
         for (JButton choice : playerButton) {
             String choiceText = choice.getText();
-            choiceText = choiceText.replaceAll("<.*?>", "");
-            if (choiceText.equals(correctAnswer)) {
+            if (choiceText.contains(correctAnswer)) {
                 choice.setBackground(correctColor);
             } else {
                 choice.setBackground(incorrectColor);
@@ -580,7 +579,7 @@ public class SinglePlayer extends GameStructure{
                     session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
                     
                 })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
-                    
+                    System.out.println("BOGOOO");
                     GameOver gameOver = appContext.getGameOver(appContext);
                     gameOver.fetchUpdatedScore();
                     gameOver.updatePlayerInfoLabels();

@@ -50,8 +50,8 @@ public class MultiPlayer extends GameStructure  {
      * @param appContext
      */
     public MultiPlayer(AppContext appContext) {
-        super(appContext, appContext.getGameMode());
-        this.gameMode = MULTIPLAYER;
+        super(appContext, GameEnums.GameMode.MULTIPLAYER);
+        this.gameMode = GameEnums.GameMode.MULTIPLAYER;
         initComponents();
         
         setUpButtons();
@@ -63,7 +63,7 @@ public class MultiPlayer extends GameStructure  {
 
     }
     public MultiPlayer() {
-        super(AppContext.getInstance(), MULTIPLAYER);
+        super(AppContext.getInstance(), GameEnums.GameMode.MULTIPLAYER);
         this.gameMode = MULTIPLAYER;
         appContext.setMultiManager(new MultiManager(new Single("PlayerOne", "JacinthtGwapoPRoMAx", 0), new Single("PlayerTwo", "Si Idol Kung Maganda", 0)));
         gameLogic.setMultiManager(appContext.getMultiManager());
@@ -452,7 +452,9 @@ public class MultiPlayer extends GameStructure  {
              pauseScreen.setVisible(true);
            });
        })).thenRun(() -> SwingUtilities.invokeLater(() -> {
-            toggleBtns(value);
+           for(int i =0; i < playerButtons.length; i++){
+                togglePlayerBtn(i, value);
+            }
        }));
    }
 
