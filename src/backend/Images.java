@@ -162,6 +162,24 @@ public class Images {
         return null; // Return null if the image is not found
     }
     
+    public ImageIcon initializeIconImgs(String imagePath) {
+       // Find the image by name using your helper method
+       ImageIcon temp = findImageByName(imagePath);
+
+       ImageIcon myImage = null;
+       if (temp != null) {
+           // Resize the image and assign it to myImage
+           myImage = resizeImageIcon(temp, 20, 20);
+           return myImage;  // Return the resized image
+       } else {
+           // Handle the case when the image is not found
+           System.out.println("Image not found!");
+           myImage = null;
+       }
+       return myImage;  // Return null if image not found
+   }
+    
+    
     public ImageIcon resizeImageIcon(ImageIcon icon, int width, int height) {
         Image image = icon.getImage(); // Get the image from the ImageIcon
         Image resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH); // Resize the image

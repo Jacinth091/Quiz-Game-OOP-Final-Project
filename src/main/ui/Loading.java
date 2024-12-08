@@ -22,8 +22,8 @@ public class Loading extends javax.swing.JFrame implements Runnable{
      * Creates new form Loading
      */
     public Loading() {
-//        this.appContext = appContext;
-
+        setUndecorated(true);
+ 
     }
     
     public void setDefault(){
@@ -41,7 +41,6 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         LoadingBar = new javax.swing.JProgressBar();
         LoadingLabel = new javax.swing.JLabel();
@@ -50,10 +49,8 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         setName("LoadingFrame"); // NOI18N
         setResizable(false);
 
-
-        mainPanel.setBackground(new java.awt.Color(0, 0, 51));
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         LoadingBar.setBackground(new java.awt.Color(236, 236, 236));
         LoadingBar.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
@@ -61,7 +58,8 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         LoadingBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         LoadingBar.setStringPainted(true);
 
-        LoadingLabel.setFont(new java.awt.Font("Montserrat", 1, 36)); // NOI18N
+        LoadingLabel.setFont(new java.awt.Font("Segoe UI Black", 3, 36)); // NOI18N
+        LoadingLabel.setForeground(new java.awt.Color(255, 255, 255));
         LoadingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         LoadingLabel.setText("Loading..");
         LoadingLabel.setToolTipText("");
@@ -90,32 +88,15 @@ public class Loading extends javax.swing.JFrame implements Runnable{
                 .addGap(33, 33, 33))
         );
 
-        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
-        mainPanel.setLayout(mainPanelLayout);
-        mainPanelLayout.setHorizontalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
-        );
-        mainPanelLayout.setVerticalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(76, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -242,6 +223,5 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     private javax.swing.JProgressBar LoadingBar;
     private javax.swing.JLabel LoadingLabel;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel mainPanel;
     // End of variables declaration//GEN-END:variables
 }

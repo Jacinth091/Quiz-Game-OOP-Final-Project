@@ -555,7 +555,10 @@ public class SinglePlayer extends GameStructure{
 
     @Override
     public void timeUpdate() {
-        if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
+        System.out.println("GameState: " + appContext.getGameLogic(SINGLE_PLAYER).getGameState());
+        if(!SINGLE_PLAYER.equals(appContext.getGameLogic(SINGLE_PLAYER).getGameMode())) return;
+        if (null != gameLogic.getGameState()) 
+            switch (gameLogic.getGameState()) {
             case Play:
                 SwingUtilities.invokeLater(() ->
                         updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
@@ -593,6 +596,7 @@ public class SinglePlayer extends GameStructure{
             default:
                 break;
         }
+
     }
     
   

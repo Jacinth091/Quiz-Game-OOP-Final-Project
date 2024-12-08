@@ -223,7 +223,7 @@ public class CreatePlayer extends javax.swing.JFrame {
                 javax.swing.JOptionPane.showMessageDialog(this, "Player Name was successfuuly Added!");
                 System.out.println("Account Created");
                 session.setPlayer(dbManager.getPlayerDetails(connection, userId));
-                new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
+                new HomeForm(appContext).setVisible(true); // Open the HomeForm1 on successful login
                 this.dispose(); // Close the login form
 
             }

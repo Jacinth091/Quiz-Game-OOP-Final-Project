@@ -31,6 +31,7 @@ import main.logic.AppContext;
 import main.logic.GameEnums;
 import main.logic.GameLogic;
 import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
 import static main.logic.GameEnums.GameState.GameOver;
 import static main.logic.GameEnums.GameState.Pause;
 import static main.logic.GameEnums.GameState.Play;
@@ -349,6 +350,7 @@ public class MultiPlayer extends GameStructure  {
 
     @Override
     public void timeUpdate() {
+        if(!MULTIPLAYER.equals(appContext.getGameLogic(MULTIPLAYER).getGameMode())) return;
        if (null != gameLogic.getGameState()) switch (gameLogic.getGameState()) {
             case Play:
                 SwingUtilities.invokeLater(() ->

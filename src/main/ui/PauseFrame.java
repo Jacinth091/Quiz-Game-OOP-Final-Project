@@ -4,6 +4,7 @@
  */
 package main.ui;
 
+import java.awt.Color;
 import java.util.concurrent.CompletableFuture;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -56,12 +57,14 @@ public class PauseFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 51));
+        jPanel1.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI Black", 3, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("GAME PAUSED");
 
+        restartBtn.setBackground(new java.awt.Color(255, 255, 255));
         restartBtn.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
         restartBtn.setForeground(new java.awt.Color(0, 0, 51));
         restartBtn.setText("Restart");
@@ -72,6 +75,12 @@ public class PauseFrame extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 restartBtnMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                restartBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                restartBtnMouseExited(evt);
+            }
         });
         restartBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -79,11 +88,20 @@ public class PauseFrame extends javax.swing.JFrame {
             }
         });
 
+        homeBtn.setBackground(new java.awt.Color(255, 255, 255));
         homeBtn.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
         homeBtn.setForeground(new java.awt.Color(0, 0, 51));
         homeBtn.setText("Home");
         homeBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         homeBtn.setFocusable(false);
+        homeBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeBtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeBtnMouseExited(evt);
+            }
+        });
         homeBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 homeBtnActionPerformed(evt);
@@ -92,6 +110,7 @@ public class PauseFrame extends javax.swing.JFrame {
 
         PlayBtn.setBackground(new java.awt.Color(0, 102, 204));
         PlayBtn.setActionCommand("Play");
+        PlayBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         PlayBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PlayBtnActionPerformed(evt);
@@ -103,7 +122,7 @@ public class PauseFrame extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 50, Short.MAX_VALUE)
+                .addGap(0, 46, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -125,7 +144,7 @@ public class PauseFrame extends javax.swing.JFrame {
                     .addComponent(homeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(restartBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(PlayBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -160,10 +179,14 @@ public class PauseFrame extends javax.swing.JFrame {
        });
 
        transition.thenRun(() -> {
+           appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+       }).thenRun(() -> {
+           // Ensure the loading screen completes and is disposed
            SwingUtilities.invokeLater(() -> {
                appContext.getLoadingScreen().setIsLoadingComplete(false);
                appContext.getLoadingScreen().dispose();
-               appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+
+               // Restart the game
                appContext.getGame().restartGame();
            });
        });
@@ -208,56 +231,57 @@ public class PauseFrame extends javax.swing.JFrame {
     private void homeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeBtnActionPerformed
         this.dispose(); // Close the current frame
 
-//        transition = CompletableFuture.runAsync(() -> {
-//            // Start the loading screen
-//            appContext.getLoadingScreen().start();
-//
-//            // Wait until the loading is complete
-//            while (!appContext.getLoadingScreen().getIsLoadingComplete()) {
-//                try {
-//                    Thread.sleep(20); // Polling interval
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
-//            if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
-//                appContext.resetGameLogic();
-//                appContext.resetSinglePlayer();
-//                appContext.setGameMode(null);
-//            }else if (MULTIPLAYER.equals(appContext.getGameMode())) {
-//                appContext.resetGameLogic();
-//                appContext.resetMultiPlayer();
-//                appContext.setGameMode(null);
-//            }
-//
-//            appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
-////            appContext.setGameMode(null);
-//        })).thenRun(() -> {
-//            // Show the home screen after reset
-//            new HomeForm(appContext).setVisible(true);
-//            appContext.getLoadingScreen().dispose();
-//        });
-            
-            if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
-                appContext.resetSinglePlayer();
-                appContext.setGameMode(null);
-            }else if (MULTIPLAYER.equals(appContext.getGameMode())) {
-                appContext.resetGameLogic();
+        transition = CompletableFuture.runAsync(() -> {
+            // Start the loading screen
+            appContext.getLoadingScreen().start();
+
+            // Wait until the loading is complete
+            while (!appContext.getLoadingScreen().getIsLoadingComplete()) {
+                try {
+                    Thread.sleep(20); // Polling interval
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        transition.thenCompose(v -> CompletableFuture.runAsync(() -> {
+            // Reset game logic based on the game mode
+            if (MULTIPLAYER.equals(appContext.getGameMode())) {
                 appContext.resetMultiPlayer();
-                appContext.setGameMode(null);
+            } else if (SINGLE_PLAYER.equals(appContext.getGameMode())) {
+                appContext.resetSinglePlayer();
             }
 
-
             appContext.getGameLogic(appContext.getGameMode()).resetGameLogic();
+        })).thenRun(() -> {
+            // Show the home screen after reset
             new HomeForm(appContext).setVisible(true);
             appContext.getLoadingScreen().dispose();
+        });
 
     }//GEN-LAST:event_homeBtnActionPerformed
-    
+
+    private void restartBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restartBtnMouseEntered
+        restartBtn.setBackground(Color.decode("#999999"));        // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_restartBtnMouseEntered
+
+    private void restartBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restartBtnMouseExited
+         restartBtn.setBackground(Color.decode("#FFFFFF"));        // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_restartBtnMouseExited
+
+    private void homeBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeBtnMouseEntered
+        homeBtn.setBackground(Color.decode("#999999"));        // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_homeBtnMouseEntered
+
+    private void homeBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homeBtnMouseExited
+        homeBtn.setBackground(Color.decode("#FFFFFF"));        // TODO add your handling code here:
+        // TODO add your handling code here:
+    }//GEN-LAST:event_homeBtnMouseExited
+     
     
     
     private ImageIcon initializeIconImgs(String imagePath) {
