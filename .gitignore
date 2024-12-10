@@ -11,6 +11,10 @@ out/
 .settings
 .springBeans
 .sts4-cache
+*.exe
+.sql
+.jar
+/src/Files Needed
 manifest.mf
 .xml
 
