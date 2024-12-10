@@ -9,6 +9,8 @@ package main.logic;
  * @author PCC
  */
 public interface Askable {
-    void askQuestion();
-    boolean checkAnswer(String answer);
+    void displayNextQuestion();
+    void processPlayerAnswer(String playerAnswer, String player);
+    void processPlayerAnswer(String playerAnswer);
+
 }

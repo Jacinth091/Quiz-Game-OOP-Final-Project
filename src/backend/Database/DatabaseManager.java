@@ -224,6 +224,37 @@ public class DatabaseManager {
         return player;
     }
     
+    public void updatePlayerName(String playerId, String newPlayerName) {
+        String updatePlayerSQL = "UPDATE player SET player_Name = ? WHERE player_Id = ?";
+        String updateLeaderboardSQL = "UPDATE leaderboard SET playerName = ? WHERE player_Id = ?";
+
+        try (Connection conn = Database.getInstance().getConnection()) {
+            if (conn != null) {
+                // Update the player name in the player table
+                PreparedStatement updatePlayerStatement = conn.prepareStatement(updatePlayerSQL);
+                updatePlayerStatement.setString(1, newPlayerName);
+                updatePlayerStatement.setInt(2, Integer.parseInt(playerId));
+                int rowsUpdated = updatePlayerStatement.executeUpdate();
+
+                if (rowsUpdated > 0) {
+                    System.out.println("Player name updated successfully.");
+
+                    // Synchronize the leaderboard table
+                    PreparedStatement updateLeaderboardStatement = conn.prepareStatement(updateLeaderboardSQL);
+                    updateLeaderboardStatement.setString(1, newPlayerName);
+                    updateLeaderboardStatement.setInt(2, Integer.parseInt(playerId));
+                    updateLeaderboardStatement.executeUpdate();
+
+                    System.out.println("Leaderboard updated with new player name.");
+                } else {
+                    System.out.println("No matching player found. Update failed.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean insertScoreLeaderboards(Connection connection, String playerId, int score){
         boolean flag = false;
         String query = "INSERT INTO leaderboards (player_id player_Score, ) VALUE (?,?)";
@@ -250,7 +281,71 @@ public class DatabaseManager {
         return flag;
     }
     
-    
+    public void updateScoreInLeaderboard(String playerId, int newScore) {
+     String selectPlayerSQL = "SELECT highScore FROM player WHERE player_Id = ?";
+     String updatePlayerSQL = "UPDATE player SET highScore = ? WHERE player_Id = ?";
+     String selectLeaderboardSQL = "SELECT score FROM leaderboard WHERE player_Id = ?";
+     String updateLeaderboardSQL = "UPDATE leaderboard SET score = ? WHERE player_Id = ?";
+     String insertToLeaderboardSQL = "INSERT INTO leaderboard (player_Id, playerName, score) " +
+                                      "SELECT player_Id, player_Name, ? FROM player WHERE player_Id = ?";
+
+     try (Connection conn = Database.getInstance().getConnection()) {
+         if (conn != null) {
+             // Step 1: Check the current high score in the player table
+             PreparedStatement selectPlayerStatement = conn.prepareStatement(selectPlayerSQL);
+             selectPlayerStatement.setInt(1, Integer.parseInt(playerId));
+             ResultSet playerResultSet = selectPlayerStatement.executeQuery();
+
+             if (playerResultSet.next()) {
+                 int currentHighScore = playerResultSet.getInt("highScore");
+
+                 if (newScore > currentHighScore) {
+                     // Step 2: Update the player's high score in the player table
+                     PreparedStatement updatePlayerStatement = conn.prepareStatement(updatePlayerSQL);
+                     updatePlayerStatement.setInt(1, newScore);
+                     updatePlayerStatement.setInt(2, Integer.parseInt(playerId));
+                     int rowsUpdated = updatePlayerStatement.executeUpdate();
+
+                     if (rowsUpdated > 0) {
+                         System.out.println("Successfully updated the high score for player ID: " + playerId);
+
+                         // Step 3: Check if the player exists in the leaderboard
+                         PreparedStatement selectLeaderboardStatement = conn.prepareStatement(selectLeaderboardSQL);
+                         selectLeaderboardStatement.setInt(1, Integer.parseInt(playerId));
+                         ResultSet leaderboardResultSet = selectLeaderboardStatement.executeQuery();
+
+                         if (leaderboardResultSet.next()) {
+                             // Step 4a: Update the score in the leaderboard
+                             PreparedStatement updateLeaderboardStatement = conn.prepareStatement(updateLeaderboardSQL);
+                             updateLeaderboardStatement.setInt(1, newScore);
+                             updateLeaderboardStatement.setInt(2, Integer.parseInt(playerId));
+                             updateLeaderboardStatement.executeUpdate();
+                             System.out.println("Leaderboard updated for player ID: " + playerId);
+                         } else {
+                             // Step 4b: Insert a new record into the leaderboard
+                             PreparedStatement insertLeaderboardStatement = conn.prepareStatement(insertToLeaderboardSQL);
+                             insertLeaderboardStatement.setInt(1, newScore);
+                             insertLeaderboardStatement.setInt(2, Integer.parseInt(playerId));
+                             insertLeaderboardStatement.executeUpdate();
+                             System.out.println("New leaderboard entry created for player ID: " + playerId);
+                         }
+                     } else {
+                         System.out.println("Failed to update the player's high score.");
+                     }
+                 } else {
+                     System.out.println("New score is not higher than the current high score. No update performed.");
+                 }
+             } else {
+                 System.out.println("Player not found in the player table.");
+             }
+         }
+     } catch (Exception e) {
+         e.printStackTrace();
+     }
+ }
+
+
+
     
     
     // Other CRUD operations (example: read all users)

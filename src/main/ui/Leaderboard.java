@@ -245,46 +245,12 @@ public class Leaderboard extends javax.swing.JFrame {
         });
         
     }
-   public void updateScoreInLeaderboard(String player_Name, int newScore) {
-    String selectSQL = "SELECT highScore FROM player WHERE player_Name = ?";
-    String updateSQL = "UPDATE player SET highScore = ? WHERE player_Name = ?";
 
-    try (Connection conn = Database.getInstance().getConnection()) {
-        if (conn != null) {
-            // Step 1: Check the current high score in the database
-            PreparedStatement selectStatement = conn.prepareStatement(selectSQL);
-            selectStatement.setString(1, player_Name);
-            ResultSet resultSet = selectStatement.executeQuery();
 
-            // Step 2: If the player exists, compare the new score with the current high score
-            if (resultSet.next()) {
-                int currentHighScore = resultSet.getInt("highScore");
-                if (newScore > currentHighScore) {
-                    // Step 3: If the new score is higher, update the database
-                    PreparedStatement updateStatement = conn.prepareStatement(updateSQL);
-                    updateStatement.setInt(1, newScore);
-                    updateStatement.setString(2, player_Name);
-                    int rowsUpdated = updateStatement.executeUpdate();
-                    if (rowsUpdated > 0) {
-                        System.out.println("Successfully updated the high score for " + player_Name);
-                    } else {
-                        System.out.println("No matching player found to update the score.");
-                    }
-                } else {
-                    System.out.println("New score is not higher than the current high score. No update performed.");
-                }
-            } else {
-                System.out.println("Player not found in the database.");
-            }
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
     public void execute() {
     try (Connection conn = Database.getInstance().getConnection()) {
         if (conn != null) {
-            String sql = "SELECT player_Name, highScore FROM player ORDER BY highScore DESC";
+            String sql = "SELECT playerName, score FROM leaderboard ORDER BY score DESC";
             PreparedStatement statement = conn.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
 
@@ -295,8 +261,8 @@ public class Leaderboard extends javax.swing.JFrame {
             int ranking = 1; // Initialize ranking
             while (resultSet.next()) {
                 // Get data from ResultSet
-                String playerName = resultSet.getString("player_Name");
-                int highScore = resultSet.getInt("highScore");
+                String playerName = resultSet.getString("playerName");
+                int highScore = resultSet.getInt("score");
 
                 // Create child panel
                 JPanel childPanel = new JPanel();

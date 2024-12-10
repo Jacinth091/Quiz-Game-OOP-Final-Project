@@ -80,10 +80,10 @@ public abstract class GameStructure extends javax.swing.JFrame implements TimeUp
     protected abstract void playerButton();
     protected abstract void resetButtonColor();
 
-    protected abstract void processPlayerAnswer(String playerAnswer, String player);    
-    protected abstract void processPlayerAnswer(String playerAnswer);
+//    protected abstract void processPlayerAnswer(String playerAnswer, String player);    
+//    protected abstract void processPlayerAnswer(String playerAnswer);
 
-    protected abstract void displayNextQuestion();
+//    protected abstract void displayNextQuestion();
 //    protected abstract void updatePlayerScore();
     public abstract void toggleBtns(boolean value);
     protected abstract void changeBtnColor(String plyAnswer, String correctAnswer);

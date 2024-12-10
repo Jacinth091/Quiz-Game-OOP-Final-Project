@@ -368,7 +368,7 @@ public class GameOverMulti extends javax.swing.JFrame {
 
     private void HomeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HomeBtnActionPerformed
         dispose();
-
+        appContext.resetMultiPlayer();
         transition = CompletableFuture.runAsync(() -> {
             appContext.getLoadingScreen().start();
             while (!appContext.getLoadingScreen().getIsLoadingComplete()) {

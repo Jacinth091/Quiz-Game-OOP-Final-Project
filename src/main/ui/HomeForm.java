@@ -29,6 +29,7 @@ public class HomeForm extends javax.swing.JFrame {
     private GameEnums.GameState gameState;
     private CompletableFuture transition;
     
+    private String newName;
     
     protected ImageIcon profileIcon;
     protected ImageIcon editPen;
@@ -44,6 +45,8 @@ public class HomeForm extends javax.swing.JFrame {
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         System.out.println("User ID: "+ session.getUserId());
+        System.out.println("Player ID: " + session.getPlayer().getPlayerId());
+
         System.out.println("Player Name: " + session.getPlayer().getPlayerName().toUpperCase());
         
         this.profileIcon = appContext.getImageHelper().resizeImageIcon(appContext.getImageHelper().findImageByName("user.png"), 45, 45) ;
@@ -84,7 +87,7 @@ public class HomeForm extends javax.swing.JFrame {
         LogoutBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        nameTextfield = new javax.swing.JTextField();
+        nameTextField = new javax.swing.JTextField();
         accountPicture = new javax.swing.JLabel();
         pencilLogo = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -215,21 +218,21 @@ public class HomeForm extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(229, 225, 218));
         jLabel1.setText("Name:");
 
-        nameTextfield.setBackground(new java.awt.Color(0, 0, 51));
-        nameTextfield.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        nameTextfield.setForeground(new java.awt.Color(229, 225, 218));
-        nameTextfield.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        nameTextfield.setText(session.getPlayer().getPlayerName());
-        nameTextfield.setBorder(null);
-        nameTextfield.setFocusable(false);
-        nameTextfield.addFocusListener(new java.awt.event.FocusAdapter() {
+        nameTextField.setBackground(new java.awt.Color(0, 0, 51));
+        nameTextField.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        nameTextField.setForeground(new java.awt.Color(229, 225, 218));
+        nameTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        nameTextField.setText(session.getPlayer().getPlayerName());
+        nameTextField.setBorder(null);
+        nameTextField.setFocusable(false);
+        nameTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 HomeForm.this.focusLost(evt);
             }
         });
-        nameTextfield.addActionListener(new java.awt.event.ActionListener() {
+        nameTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameTextfieldActionPerformed(evt);
+                nameTextFieldActionPerformed(evt);
             }
         });
 
@@ -256,7 +259,7 @@ public class HomeForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
-                .addComponent(nameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pencilLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -266,7 +269,7 @@ public class HomeForm extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(accountPicture, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jLabel1)
-                .addComponent(nameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(pencilLogo))
         );
 
@@ -418,7 +421,7 @@ public class HomeForm extends javax.swing.JFrame {
     }//GEN-LAST:event_multiPlayBtnActionPerformed
  
     private void leaderBoardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderBoardBtnActionPerformed
-        new Leaderboard(appContext);
+        new Leaderboard(appContext).execute();
         this.setVisible(false);          // TODO add your handling code here:
     }//GEN-LAST:event_leaderBoardBtnActionPerformed
 
@@ -481,19 +484,42 @@ public class HomeForm extends javax.swing.JFrame {
     }//GEN-LAST:event_LogoutBtnMouseExited
 
     private void pencilLogoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pencilLogoMouseClicked
-            
-//             nameTextfield.requestFocus();
-             nameTextfield.requestFocusInWindow();
-             nameTextfield.setFocusable(true);  
+        nameTextField.requestFocusInWindow(); // Focus on the text field
+        nameTextField.setFocusable(true);
+        
+
+
+        // Assuming you have the player ID and the text field for input
+//        String newPlayerName = nameTextfield.getText(); // Get the entered name
+//        String playerId = session.getPlayerId();
+
 
     }//GEN-LAST:event_pencilLogoMouseClicked
 
-    private void nameTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTextfieldActionPerformed
-        nameTextfield.setFocusable(false);        // TODO add your handling code here:
-    }//GEN-LAST:event_nameTextfieldActionPerformed
+    private void nameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTextFieldActionPerformed
+        newName = nameTextField.getText();
+        nameTextField.setFocusable(false); 
+        if (newName != null && !newName.trim().isEmpty()) {
+            dbManager.updatePlayerName(session.getPlayer().getPlayerId(), newName);
+            session.getPlayer().setPlayerName(newName);
+        } else {
+            System.out.println("Player name cannot be empty.");
+        }
+        
+        
+        
+        nameTextField.setFocusable(false);        // TODO add your handling code here:
+        
+        
+        
+        
+        
+    }//GEN-LAST:event_nameTextFieldActionPerformed
 
     private void focusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_focusLost
-        nameTextfield.setFocusable(false);      // TODO add your handling code here:
+            session.getPlayer().setPlayerName(newName);
+            nameTextField.setFocusable(false);
+// TODO add your handling code here:
     }//GEN-LAST:event_focusLost
 
     private void leaderBoardBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseClicked
@@ -558,7 +584,7 @@ public class HomeForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton leaderBoardBtn;
     private javax.swing.JButton multiPlayBtn;
-    private javax.swing.JTextField nameTextfield;
+    private javax.swing.JTextField nameTextField;
     private javax.swing.JLabel pencilLogo;
     private javax.swing.JButton singlePlayBtn;
     private javax.swing.JButton tutorBtn;

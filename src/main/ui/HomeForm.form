@@ -255,7 +255,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="nameTextfield" min="-2" pref="200" max="-2" attributes="0"/>
+                      <Component id="nameTextField" min="-2" pref="200" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="pencilLogo" min="-2" pref="21" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -267,7 +267,7 @@
                   <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                       <Component id="accountPicture" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="nameTextfield" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
+                      <Component id="nameTextField" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
                       <Component id="pencilLogo" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -285,7 +285,7 @@
                 <Property name="text" type="java.lang.String" value="Name:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="nameTextfield">
+            <Component class="javax.swing.JTextField" name="nameTextField">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="33" green="0" red="0" type="rgb"/>
@@ -307,7 +307,7 @@
               </Properties>
               <Events>
                 <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="focusLost"/>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nameTextfieldActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nameTextFieldActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="accountPicture">

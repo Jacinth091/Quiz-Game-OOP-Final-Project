@@ -211,7 +211,7 @@ public class CreateMultiPlayer extends javax.swing.JFrame {
             if (playerOneName.isEmpty() || playerTwoName.isEmpty()) {
                 javax.swing.JOptionPane.showMessageDialog(null, "Please provide both players' names.");
                 return;
-            } else if (playerOneName.length() < 8 || playerTwoName.length() < 8) {
+            } else if (playerOneName.length() < 3 || playerTwoName.length() < 3) {
                 javax.swing.JOptionPane.showMessageDialog(null, "Player names must have at least 8 characters!");
                 return;
             }

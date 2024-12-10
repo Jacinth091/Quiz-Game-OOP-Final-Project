@@ -188,7 +188,7 @@ public class MultiPlayer extends GameStructure  {
     }
 
     @Override
-    protected void processPlayerAnswer(String playerAnswer, String player) {
+    public void processPlayerAnswer(String playerAnswer, String player) {
        if (isProcessingFlag) return;
 
        if (firstPlayerAnswered.isEmpty()) {
@@ -318,7 +318,7 @@ public class MultiPlayer extends GameStructure  {
 
 
     @Override
-    protected void displayNextQuestion() {
+    public void displayNextQuestion() {
         current = gameLogic.getQuestionFromMap();
         SwingUtilities.invokeLater(this::displayQuestion);
     }
@@ -1125,19 +1125,10 @@ public class MultiPlayer extends GameStructure  {
     // End of variables declaration//GEN-END:variables
 
     @Override
-    protected void processPlayerAnswer(String playerAnswer) {
+    public void processPlayerAnswer(String playerAnswer) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
-    public void askQuestion() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean checkAnswer(String answer) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     @Override
     public JToggleButton getPauseBtn() {

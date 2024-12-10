@@ -283,13 +283,13 @@ public class GameOver extends javax.swing.JFrame {
          this.dispose();
         appContext.resetSinglePlayer();
         appContext.getGameLogic(appContext.getGameMode()).setGameState(Play);
-        Leaderboard leaderboard = new Leaderboard(appContext);
-        leaderboard.setVisible(false);
-        leaderboard.updateScoreInLeaderboard(session.getPlayer().getPlayerName(),appContext.getGameLogic(appContext.getGameMode()).getPlayerScore()); 
-        leaderboard.execute();
+
+//        leaderboard.execute();
 
         transition = CompletableFuture.runAsync(() ->{
             appContext.getLoadingScreen().start();
+            appContext.getDbManager().updateScoreInLeaderboard(session.getPlayer().getPlayerId(),appContext.getGameLogic(appContext.getGameMode()).getPlayerScore()); 
+
             while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
                 try{
                     Thread.sleep(20);

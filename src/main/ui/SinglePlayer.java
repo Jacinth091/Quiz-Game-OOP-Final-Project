@@ -390,7 +390,7 @@ public class SinglePlayer extends GameStructure{
 
 
     @Override
-    protected void processPlayerAnswer(String playerAnswer) {
+    public void processPlayerAnswer(String playerAnswer) {
         if (isProcessingFlag) return;
 
         isProcessingFlag = true; 
@@ -548,7 +548,7 @@ public class SinglePlayer extends GameStructure{
     }
 
     @Override
-    protected void displayNextQuestion() {
+    public void displayNextQuestion() {
         current = gameLogic.getQuestionFromMap();
         SwingUtilities.invokeLater(this::displayQuestion);    
     }
@@ -704,17 +704,7 @@ public class SinglePlayer extends GameStructure{
     // End of variables declaration//GEN-END:variables
 
     @Override
-    protected void processPlayerAnswer(String playerAnswer, String player) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void askQuestion() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean checkAnswer(String answer) {
+    public void processPlayerAnswer(String playerAnswer, String player) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

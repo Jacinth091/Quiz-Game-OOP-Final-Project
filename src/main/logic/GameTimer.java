@@ -20,7 +20,7 @@ import main.update.TimeUpdatable;
 public class GameTimer{
 
     private Timer gameTimer;
-    private long timeElapsedInSeconds, timeRemainingInSeconds = 10;
+    private long timeElapsedInSeconds, timeRemainingInSeconds = 1 * 60;
     private long timerMinutes = 0;
     private long timerSeconds = 0;
     private long pauseStartTime;
@@ -75,7 +75,7 @@ public class GameTimer{
     }
     
     public void restartTimer(){
-        timeRemainingInSeconds = 10;
+        timeRemainingInSeconds = 1 * 60;
         timerMinutes = 0;
         timerSeconds = 0;
         gameState = Play;
