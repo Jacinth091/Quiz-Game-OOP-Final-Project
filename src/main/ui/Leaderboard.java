@@ -34,6 +34,7 @@ public class Leaderboard extends javax.swing.JFrame {
         initComponents();
         
         execute();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
