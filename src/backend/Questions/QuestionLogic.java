@@ -39,21 +39,21 @@ public class QuestionLogic {
         }
     }
     
-    public void displayAllQuestions() {
-        for (Question question : quesData.getQuestions()) {
-            // Display the question text
-            System.out.println("Question: " + question.getQuestionText());
-
-            // Display the options
-            char optionLabel = 'A'; // Start labeling options with 'A'
-            for (String opt : question.getOptions()) {
-                System.out.println(optionLabel + ") " + opt);
-                optionLabel++; // Increment the label for the next option
-            }
-
-            System.out.println(); // Add a blank line after each question for readability
-        }
-    }
+//    public void displayAllQuestions() {
+//        for (Question question : quesData.getQuestions()) {
+//            // Display the question text
+//            System.out.println("Question: " + question.getQuestionText());
+//
+//            // Display the options
+//            char optionLabel = 'A'; // Start labeling options with 'A'
+//            for (String opt : question.getOptions()) {
+//                System.out.println(optionLabel + ") " + opt);
+//                optionLabel++; // Increment the label for the next option
+//            }
+//
+//            System.out.println(); // Add a blank line after each question for readability
+//        }
+//    }
 
     public QuestionData getQuesData() {
         return quesData;

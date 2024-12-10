@@ -13,6 +13,7 @@ public class Images {
     
     private ImageIcon[] iconImgs;
     private ImageIcon[] images;
+    private String[] imageNames;
     private final String[] imgPaths = {
             "src",
             "mmamammama",
@@ -91,31 +92,36 @@ public class Images {
         return tempImgs;
     }    
     
-    private ImageIcon[] getImagesFromSource(String[] imagePaths){
-        imagesPaths = validatePaths(imagePaths);
-        tempImgs = new ImageIcon[images.length];
-        
-       for (int i = 0; i < tempImgs.length; i++) {
+    private ImageIcon[] getImagesFromSource(String[] imagePaths) {
+        imagesPaths = validatePaths(imagePaths);  // Assuming this returns a valid array of paths
+        tempImgs = new ImageIcon[imagesPaths.length];
+        imageNames = new String[imagesPaths.length]; // Array to store image names or paths
+
+        for (int i = 0; i < tempImgs.length; i++) {
             String filePath = imagesPaths[i].getPath();
             try {
                 ImageIcon tempImg = new ImageIcon(filePath);
+
                 // Check to see if the image load is successful or not
                 if (tempImg.getImageLoadStatus() != MediaTracker.COMPLETE) {
                     throw new NullPointerException("Image failed to load at path: " + filePath);
                 }
+
                 tempImgs[i] = tempImg;
+                imageNames[i] = filePath.substring(filePath.lastIndexOf(File.separator) + 1); // Extract image name
                 System.out.printf("Image %2d loaded successfully from: %s%n", i, filePath);
 
             } catch (NullPointerException e) {
                 System.out.println("Image loading failed for file " + filePath + ": " + e.getMessage());
             }
         }
-        
+
         return tempImgs;
-    }  
+    }
+ 
     
     private void initializeImages() {
-         iconImgs = getImagesFromSource(iconPaths, 50, 50);
+         iconImgs = getImagesFromSource(iconPaths);
 //         images = getImagesFromSource()
 
 
@@ -131,7 +137,49 @@ public class Images {
 
         return instance;
     }
+    
+    
+    public ImageIcon findImageByName(String imageName) {
+        for (int i = 0; i < imageNames.length; i++) {
+            if (imagesPaths[i].getPath().contains(imageName)) {
+                // If a match is found, return the ImageIcon from the corresponding path
+                try {
+                    // Load the ImageIcon using the file path
+                    ImageIcon imageIcon = new ImageIcon(imagesPaths[i].getPath());
 
+                    // Check if the image load is successful
+                    if (imageIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+                        throw new Exception("Failed to load image from: " + imagesPaths[i].getPath());
+                    }
+                    System.out.printf("Image %2d loaded successfully from: %s%n", i, imagesPaths[i].getPath());
+                    return imageIcon; 
+
+                } catch (Exception e) {
+                    System.out.println("Error loading image: " + e.getMessage());
+                }
+            }
+        }
+        return null; // Return null if the image is not found
+    }
+    
+    public ImageIcon initializeIconImgs(String imagePath) {
+       // Find the image by name using your helper method
+       ImageIcon temp = findImageByName(imagePath);
+
+       ImageIcon myImage = null;
+       if (temp != null) {
+           // Resize the image and assign it to myImage
+           myImage = resizeImageIcon(temp, 20, 20);
+           return myImage;  // Return the resized image
+       } else {
+           // Handle the case when the image is not found
+           System.out.println("Image not found!");
+           myImage = null;
+       }
+       return myImage;  // Return null if image not found
+   }
+    
+    
     public ImageIcon resizeImageIcon(ImageIcon icon, int width, int height) {
         Image image = icon.getImage(); // Get the image from the ImageIcon
         Image resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH); // Resize the image

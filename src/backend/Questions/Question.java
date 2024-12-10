@@ -63,6 +63,10 @@ public class Question {
         }
         this.options = options;
     }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
     
     
 

@@ -12,15 +12,14 @@ public class Player {
     
     private String playerId, playerName;
     
-    private int singlePlay_Score = 0;
-    private int multiPlay_Score = 0;
+    private int highScore;
+    private double player_Average;
     
 
-    public Player( String playerId, String playerName, int singlePlay_Score, int multiPlay_Score) {
+    public Player(String playerId, String playerName, int highScore) {
         this.playerId = playerId;
         this.playerName = playerName;
-        this.singlePlay_Score = singlePlay_Score;
-        this.multiPlay_Score = multiPlay_Score;
+        this.highScore = highScore;
     }
     public Player(){}
 
@@ -42,19 +41,23 @@ public class Player {
     }
 
     public int getSinglePlay_Score() {
-        return singlePlay_Score;
+        System.out.println("Get Single Score: " + this.highScore);
+
+        return highScore;
+        
     }
 
     public void setSinglePlay_Score(int singlePlay_Score) {
-        this.singlePlay_Score = singlePlay_Score;
+        this.highScore = singlePlay_Score;
+        System.out.println("Set Single Score: " + this.highScore);
     }
 
-    public int getMultiPlay_Score() {
-        return multiPlay_Score;
+    public double getPlayer_Average() {
+        return player_Average;
     }
 
-    public void setMultiPlay_Score(int multiPlay_Score) {
-        this.multiPlay_Score = multiPlay_Score;
+    public void setPlayer_Average(double player_Average) {
+        this.player_Average = player_Average;
     }
     
     

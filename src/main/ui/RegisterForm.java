@@ -11,6 +11,7 @@ import backend.AccountManager.LogInManager;
 
 
 import backend.Images;
+import java.awt.Color;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -35,10 +36,15 @@ public class RegisterForm extends javax.swing.JFrame {
     public RegisterForm(AppContext appContext){
         this.appContext = appContext;
         this.dbManager = appContext.getDbManager();
+        this.eyeOpen = appContext.getImageHelper().initializeIconImgs("eye.png");
+        this.eyeClose = appContext.getImageHelper().initializeIconImgs("hidden.png");
         initComponents();
+
         setLocationRelativeTo(null);
     }
     public RegisterForm(){
+        this.eyeOpen = appContext.getImageHelper().initializeIconImgs("eye.png");
+        this.eyeClose = appContext.getImageHelper().initializeIconImgs("hidden.png");
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -66,8 +72,8 @@ public class RegisterForm extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         PasswordField = new javax.swing.JPasswordField();
         reEnterPasswordField = new javax.swing.JPasswordField();
-        eyeLabel2 = new javax.swing.JLabel();
-        eyeLabel1 = new javax.swing.JLabel();
+        toggleBtn2 = new javax.swing.JToggleButton();
+        toggleBtn1 = new javax.swing.JToggleButton();
         jLabel9 = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Tempus Sans ITC", 2, 48)); // NOI18N
@@ -80,10 +86,10 @@ public class RegisterForm extends javax.swing.JFrame {
         jPanel2.setMaximumSize(new java.awt.Dimension(600, 700));
         jPanel2.setPreferredSize(new java.awt.Dimension(600, 700));
 
-        mainPanel.setBackground(new java.awt.Color(173, 216, 230));
+        mainPanel.setBackground(new java.awt.Color(0, 102, 204));
 
         jLabel5.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel5.setText("Username: ");
 
@@ -97,13 +103,12 @@ public class RegisterForm extends javax.swing.JFrame {
         });
 
         jLabel6.setFont(new java.awt.Font("Montserrat", 0, 14)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel6.setText("Password: ");
 
-        signUpBtn.setBackground(new java.awt.Color(0, 51, 102));
-        signUpBtn.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
-        signUpBtn.setForeground(new java.awt.Color(255, 255, 255));
+        signUpBtn.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        signUpBtn.setForeground(new java.awt.Color(0, 0, 51));
         signUpBtn.setText("Register");
         signUpBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         signUpBtn.setBorderPainted(false);
@@ -124,17 +129,16 @@ public class RegisterForm extends javax.swing.JFrame {
         });
 
         jLabel7.setBackground(new java.awt.Color(255, 51, 153));
-        jLabel7.setFont(new java.awt.Font("Montserrat", 1, 24)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel7.setFont(new java.awt.Font("Segoe UI Black", 1, 24)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel7.setText("Register");
 
-        jLabel3.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Already have an account");
 
-        logInBtn.setBackground(new java.awt.Color(0, 51, 102));
         logInBtn.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        logInBtn.setForeground(new java.awt.Color(255, 255, 255));
+        logInBtn.setForeground(new java.awt.Color(0, 0, 51));
         logInBtn.setText("Log In");
         logInBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         logInBtn.setBorderPainted(false);
@@ -158,7 +162,7 @@ public class RegisterForm extends javax.swing.JFrame {
         jSeparator1.setForeground(new java.awt.Color(255, 255, 255));
 
         jLabel8.setFont(new java.awt.Font("Montserrat", 0, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 0, 128));
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel8.setText("Re-enter Password");
 
@@ -180,33 +184,21 @@ public class RegisterForm extends javax.swing.JFrame {
             }
         });
 
-        eyeLabel2.setBackground(new java.awt.Color(255, 255, 255));
-        eyeLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        eyeLabel2.setText("eye");
-        eyeLabel2.setOpaque(true);
-        eyeLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                eyeLabel2MousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                eyeLabel2MouseReleased(evt);
+        toggleBtn2.setIcon(eyeClose);
+        toggleBtn2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        toggleBtn2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                toggleBtn2ActionPerformed(evt);
             }
         });
 
-        eyeLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        eyeLabel1.setText("eye");
-        eyeLabel1.setOpaque(true);
-        eyeLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                eyeLabel1MousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                eyeLabel1MouseReleased(evt);
+        toggleBtn1.setIcon(eyeClose);
+        toggleBtn1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        toggleBtn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                toggleBtn1ActionPerformed(evt);
             }
         });
-//        javax.swing.ImageIcon eyeOpen =  util.resizeImageIcon("src/Assets/icons/eye.png", 25,25);
-        eyeLabel1.setIcon(eyeOpen);
-        eyeLabel1.setHorizontalAlignment(JLabel.CENTER);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -216,16 +208,18 @@ public class RegisterForm extends javax.swing.JFrame {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGap(120, 120, 120)
                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(115, Short.MAX_VALUE))
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGap(44, 44, 44)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(83, 83, 83)
+                        .addGap(73, 73, 73)
                         .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(logInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(signUpBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                    .addComponent(UserField)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(PasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
@@ -234,11 +228,9 @@ public class RegisterForm extends javax.swing.JFrame {
                             .addComponent(reEnterPasswordField))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(eyeLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(eyeLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(signUpBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(UserField))
-                .addGap(0, 38, Short.MAX_VALUE))
+                            .addComponent(toggleBtn2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(toggleBtn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -250,29 +242,29 @@ public class RegisterForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(UserField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(UserField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(eyeLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(toggleBtn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(jLabel8)
-                .addGap(12, 12, 12)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(reEnterPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(eyeLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(36, 36, 36)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(toggleBtn2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(reEnterPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
                 .addComponent(signUpBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(logInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addGap(23, 23, 23))
         );
 
-        jLabel9.setFont(new java.awt.Font("Montserrat", 1, 48)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Segoe UI Black", 3, 60)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("Quiz Game");
@@ -282,30 +274,29 @@ public class RegisterForm extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(167, 167, 167)
-                        .addComponent(jLabel9))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(83, 83, 83)
-                        .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addGap(84, 84, 84)
+                .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(84, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel9)
+                .addGap(129, 129, 129))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
+                .addGap(45, 45, 45)
                 .addComponent(jLabel9)
-                .addGap(60, 60, 60)
+                .addGap(40, 40, 40)
                 .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addContainerGap(62, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -331,11 +322,11 @@ public class RegisterForm extends javax.swing.JFrame {
     }//GEN-LAST:event_logInBtnActionPerformed
 
     private void logInBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logInBtnMouseExited
-        logInBtn.setBackground(java.awt.Color.decode("#003366"));        // TODO add your handling code here:
+        logInBtn.setBackground(java.awt.Color.decode("#FFFFFF"));        // TODO add your handling code here:
     }//GEN-LAST:event_logInBtnMouseExited
 
     private void logInBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logInBtnMouseEntered
-        logInBtn.setBackground(java.awt.Color.decode("#000080"));        // TODO add your handling code here:
+        logInBtn.setBackground(java.awt.Color.decode("#999999"));        // TODO add your handling code here:
     }//GEN-LAST:event_logInBtnMouseEntered
 
     private void signUpBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signUpBtnActionPerformed
@@ -395,39 +386,41 @@ public class RegisterForm extends javax.swing.JFrame {
     }//GEN-LAST:event_signUpBtnActionPerformed
 
     private void signUpBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpBtnMouseExited
-        signUpBtn.setBackground(java.awt.Color.decode("#003366"));        // TODO add your handling code here:
+        signUpBtn.setBackground(java.awt.Color.decode("#FFFFFF"));        // TODO add your handling code here:
     }//GEN-LAST:event_signUpBtnMouseExited
 
     private void signUpBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpBtnMouseEntered
-        signUpBtn.setBackground(java.awt.Color.decode("#000080"));        // TODO add your handling code here:
+        signUpBtn.setBackground(Color.decode("#999999"));        // TODO add your handling code here:
+       // TODO add your handling code here:
     }//GEN-LAST:event_signUpBtnMouseEntered
 
     private void UserFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UserFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_UserFieldActionPerformed
 
-    private void eyeLabel2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eyeLabel2MousePressed
-        // TODO add your handling code here:
-        System.out.println("Pressed at eye label 2");
-
-    }//GEN-LAST:event_eyeLabel2MousePressed
-
-    private void eyeLabel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eyeLabel1MousePressed
-        // TODO add your handling code here:
-        System.out.println("Pressed at eye label 1");
-    }//GEN-LAST:event_eyeLabel1MousePressed
-
-    private void eyeLabel1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eyeLabel1MouseReleased
-        // TODO add your handling code here:
-        System.out.println("Released at eye label 1");
-
-    }//GEN-LAST:event_eyeLabel1MouseReleased
-
-    private void eyeLabel2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eyeLabel2MouseReleased
-        // TODO add your handling code here:
-        System.out.println("Released at eye label 2");
-
-    }//GEN-LAST:event_eyeLabel2MouseReleased
+    private void toggleBtn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleBtn2ActionPerformed
+        if (toggleBtn2.isSelected()) {
+            // Show password
+            reEnterPasswordField.setEchoChar((char) 0); // Remove the masking
+            toggleBtn2.setIcon(eyeOpen); // Change to 'closed eye' icon
+        } else { 
+            // Hide password
+           reEnterPasswordField.setEchoChar('*'); // Add the masking
+            toggleBtn2.setIcon(eyeClose); // Change to 'closed eye' icon
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_toggleBtn2ActionPerformed
+ 
+    private void toggleBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleBtn1ActionPerformed
+        if (toggleBtn1.isSelected()) {
+               // Show password
+               PasswordField.setEchoChar((char) 0); // Remove the masking
+               toggleBtn1.setIcon(eyeOpen); // Change to 'closed eye' icon
+           } else {
+               // Hide password
+               PasswordField.setEchoChar('*'); // Add the masking
+               toggleBtn1.setIcon(eyeClose); // Change to 'closed eye' icon
+           }        // TODO add your handling code here:
+    }//GEN-LAST:event_toggleBtn1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -470,8 +463,6 @@ public class RegisterForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPasswordField PasswordField;
     private javax.swing.JTextField UserField;
-    private javax.swing.JLabel eyeLabel1;
-    private javax.swing.JLabel eyeLabel2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -485,5 +476,7 @@ public class RegisterForm extends javax.swing.JFrame {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPasswordField reEnterPasswordField;
     private javax.swing.JButton signUpBtn;
+    private javax.swing.JToggleButton toggleBtn1;
+    private javax.swing.JToggleButton toggleBtn2;
     // End of variables declaration//GEN-END:variables
 }

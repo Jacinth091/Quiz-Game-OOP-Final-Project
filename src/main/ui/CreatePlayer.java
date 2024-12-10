@@ -13,6 +13,7 @@ import main.PlayerData.Session;
 import java.sql.Connection;
 import java.sql.SQLException;
 import main.PlayerData.Player;
+import main.PlayerData.Single;
 
 /**
  *
@@ -215,14 +216,14 @@ public class CreatePlayer extends javax.swing.JFrame {
             userId = session.getUserId();
             boolean createAccSuccess = dbManager.createPlayerAccount(connection, playerName , userId );
             if(!createAccSuccess){
-                javax.swing.JOptionPane.showMessageDialog(this, "Player Account Failed to Create");
+                javax.swing.JOptionPane.showMessageDialog(this, "Player Name Failed to Create");
 
             }
             else{
-                javax.swing.JOptionPane.showMessageDialog(this, "Player Account was successfuuly Added!");
+                javax.swing.JOptionPane.showMessageDialog(this, "Player Name was successfuuly Added!");
                 System.out.println("Account Created");
-                session.setPlayer(getPlayerDetails(connection, userId));
-                new HomeForm(appContext).setVisible(true); // Open the HomeForm on successful login
+                session.setPlayer(dbManager.getPlayerDetails(connection, userId));
+                new HomeForm(appContext).setVisible(true); // Open the HomeForm1 on successful login
                 this.dispose(); // Close the login form
 
             }
@@ -234,20 +235,6 @@ public class CreatePlayer extends javax.swing.JFrame {
         }
     }
     
-    private Player getPlayerDetails(Connection connection, String user_Id)throws SQLException{
-        Player player = null;
-        
-        try{
-            String[] data = dbManager.getPlayerAccount(connection, user_Id);
-            
-            player = new Player(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-            
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-
-        return player;
-    }
     /**
      * @param args the command line arguments
      */

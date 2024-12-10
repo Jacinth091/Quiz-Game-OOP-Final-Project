@@ -8,69 +8,83 @@ import backend.Database.DatabaseManager;
 import backend.Questions.Question;
 import main.logic.AppContext;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import main.PlayerData.Player;
 import main.PlayerData.Session;
+import main.PlayerData.Single;
 import main.logic.GameEnums;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
+import static main.logic.GameEnums.GameState.GameOver;
+import static main.logic.GameEnums.GameState.Pause;
+import static main.logic.GameEnums.GameState.Play;
 import main.logic.GameLogic;
-import main.logic.SinglePlayerLogic;
+import main.logic.GameStructure;
+import main.update.TimeUpdatable;
 
 /**
  *
  * @author laroc
  * @author Jacinth
  */
-public class SinglePlayer extends javax.swing.JFrame {
-    private GameEnums.GameMode gameMode = GameEnums.GameMode.SINGLE_PLAYER;
+public class SinglePlayer extends GameStructure{
+    private static SinglePlayer instance;
+    private GameEnums.GameMode gameMode;
 
-    private AppContext appContext;
-    private DatabaseManager dbManager;
-    private Session session;
-    private GameLogic gameLogic;
-
-    private SinglePlayerLogic singleLogic;
-    private Question current;
-    private Question next;
+//    private AppContext appContext;
+//    private DatabaseManager dbManager;
+//    private Session session;
+//    private GameLogic gameLogic;
+//
+//    private Timer gameTimer;
+//    private Question current;
+//    private Question next;
+//    
+//    private boolean isProcessingFlag;
+//    private Timer reEnableTimer, nextQuestionTimer;
     
-    private boolean isProcessingFlag;
-    private Timer reEnableTimer;
+    
+    
+
     /**
      * Creates new form singlePlayer
      * @param appContext
      */
     public SinglePlayer(AppContext appContext) {
-        this.appContext = appContext;
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        this.gameLogic = appContext.getGameLogic(gameMode);
-        singleLogic = new SinglePlayerLogic(appContext, gameMode,this);
-        current = singleLogic.getCurrent();
-        
-//        displayQuestion();
+        super(appContext, appContext.getGameMode());
+        this.gameMode = SINGLE_PLAYER;
+
         initComponents();
+        
+        setUpButtons();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        singleLogic.startTimer();
-
 
     }
 
     public SinglePlayer() {
-        this.appContext = AppContext.getInstance();
-        this.dbManager = appContext.getDbManager();
-        this.session = appContext.getSession();
-        session.setPlayer(new Player("1", "Gwapo", 0, 0));
-        singleLogic = new SinglePlayerLogic(appContext,gameMode, this);
-
+        super(AppContext.getInstance(),SINGLE_PLAYER);
+        this.gameMode = SINGLE_PLAYER;
+        this.session.setPlayer(new Single("1", "Gwapo",  0));
         initComponents();
-
+        setUpButtons();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-        singleLogic.startTimer();
 
-
+        startGame();
     }
 
     /**
@@ -88,19 +102,16 @@ public class SinglePlayer extends javax.swing.JFrame {
         choiceQ = new javax.swing.JButton();
         choiceE = new javax.swing.JButton();
         choiceR = new javax.swing.JButton();
-        QLabel = new javax.swing.JLabel();
-        ALabel = new javax.swing.JLabel();
-        Wlabel = new javax.swing.JLabel();
         choiceW = new javax.swing.JButton();
-        SLabel = new javax.swing.JLabel();
-        goBack = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jSeparator2 = new javax.swing.JSeparator();
         ply1Name = new javax.swing.JLabel();
         SocreLabel = new javax.swing.JLabel();
         SocreLabel1 = new javax.swing.JLabel();
-        plyScore = new javax.swing.JLabel();
+        plyScoreLabel = new javax.swing.JLabel();
         timerLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        PauseBtn = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,7 +122,6 @@ public class SinglePlayer extends javax.swing.JFrame {
         mainQuestionLabel.setFont(new java.awt.Font("Montserrat", 0, 18)); // NOI18N
         mainQuestionLabel.setForeground(new java.awt.Color(255, 255, 255));
         mainQuestionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        mainQuestionLabel.setText(current.getQuestionText());
         mainQuestionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -119,138 +129,54 @@ public class SinglePlayer extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(59, 59, 59)
-                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(64, Short.MAX_VALUE))
+                .addGap(33, 33, 33)
+                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 449, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(28, Short.MAX_VALUE)
-                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(mainQuestionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         choiceQ.setBackground(new java.awt.Color(0, 102, 204));
-        choiceQ.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceQ.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceQ.setForeground(new java.awt.Color(255, 255, 255));
-        choiceQ.setText(current.getOptions().get(0));
+        choiceQ.setActionCommand("choiceQ");
         choiceQ.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceQ.setFocusable(false);
-        choiceQ.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceQMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceQMouseExited(evt);
-            }
-        });
-        choiceQ.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optQEvent(evt);
-            }
-        });
+        choiceQ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         choiceE.setBackground(new java.awt.Color(0, 102, 204));
-        choiceE.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceE.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceE.setForeground(new java.awt.Color(255, 255, 255));
-        choiceE.setText(current.getOptions().get(2));
+        choiceE.setActionCommand("choiceE");
         choiceE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceE.setFocusable(false);
-        choiceE.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceEMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceEMouseExited(evt);
-            }
-        });
-        choiceE.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optEEvent(evt);
-            }
-        });
+        choiceE.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         choiceR.setBackground(new java.awt.Color(0, 102, 204));
-        choiceR.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceR.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceR.setForeground(new java.awt.Color(255, 255, 255));
-        choiceR.setText(current.getOptions().get(3));
+        choiceR.setActionCommand("choiceR");
         choiceR.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceR.setFocusable(false);
-        choiceR.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceRMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceRMouseExited(evt);
-            }
-        });
-        choiceR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optREvent(evt);
-            }
-        });
-
-        QLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        QLabel.setForeground(new java.awt.Color(0, 204, 255));
-        QLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        QLabel.setText("Q");
-
-        ALabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        ALabel.setForeground(new java.awt.Color(0, 204, 255));
-        ALabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        ALabel.setText("E");
-
-        Wlabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        Wlabel.setForeground(new java.awt.Color(0, 204, 255));
-        Wlabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        Wlabel.setText("W");
+        choiceR.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         choiceW.setBackground(new java.awt.Color(0, 102, 204));
-        choiceW.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
+        choiceW.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         choiceW.setForeground(new java.awt.Color(255, 255, 255));
-        choiceW.setText(current.getOptions().get(1));
+        choiceW.setActionCommand("choiceW");
         choiceW.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         choiceW.setFocusable(false);
-        choiceW.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                choiceWMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                choiceWMouseExited(evt);
-            }
-        });
-        choiceW.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optWEvent(evt);
-            }
-        });
+        choiceW.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        SLabel.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
-        SLabel.setForeground(new java.awt.Color(0, 204, 255));
-        SLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        SLabel.setText("R");
-
-        goBack.setBackground(new java.awt.Color(0, 102, 204));
-        goBack.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
-        goBack.setForeground(new java.awt.Color(255, 255, 255));
-        goBack.setText("Go back");
-        goBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        goBack.setFocusable(false);
-        goBack.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                goBackMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                goBackMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                goBackMouseExited(evt);
-            }
-        });
+        jPanel3.setBackground(new java.awt.Color(0, 0, 51));
 
         jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
-        jSeparator2.setPreferredSize(new java.awt.Dimension(0, 2));
+        jSeparator2.setPreferredSize(new java.awt.Dimension(0, 5));
 
         ply1Name.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         ply1Name.setForeground(new java.awt.Color(255, 255, 255));
@@ -266,10 +192,10 @@ public class SinglePlayer extends javax.swing.JFrame {
         SocreLabel1.setForeground(new java.awt.Color(255, 255, 255));
         SocreLabel1.setText("Name:");
 
-        plyScore.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        plyScore.setForeground(new java.awt.Color(255, 255, 255));
-        plyScore.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        plyScore.setText("0");
+        plyScoreLabel.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        plyScoreLabel.setForeground(new java.awt.Color(255, 255, 255));
+        plyScoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -286,8 +212,8 @@ public class SinglePlayer extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(SocreLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(plyScore, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(9, Short.MAX_VALUE))
+                        .addComponent(plyScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,7 +227,7 @@ public class SinglePlayer extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(SocreLabel)
-                    .addComponent(plyScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(plyScoreLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(20, 20, 20))
         );
 
@@ -310,6 +236,20 @@ public class SinglePlayer extends javax.swing.JFrame {
         timerLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         timerLabel.setText("00:00");
 
+        jLabel1.setFont(new java.awt.Font("Montserrat", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Time");
+
+        PauseBtn.setBackground(new java.awt.Color(0, 102, 204));
+        PauseBtn.setForeground(new java.awt.Color(255, 255, 255));
+        PauseBtn.setActionCommand("Pause");
+        PauseBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PauseBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -317,62 +257,58 @@ public class SinglePlayer extends javax.swing.JFrame {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(108, 108, 108)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(choiceQ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(QLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ALabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(90, 90, 90)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(choiceR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(Wlabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(SLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
+                        .addGap(43, 43, 43)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(238, 238, 238)
-                                .addComponent(goBack))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(choiceQ, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(50, 50, 50)
+                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(237, 237, 237)
-                        .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
+                                .addGap(225, 225, 225)
+                                .addComponent(jLabel1)))
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(timerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addGap(253, 253, 253)
+                                .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(goBack)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24)
-                .addComponent(timerLabel)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                        .addComponent(choiceW, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Wlabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(SLabel))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(230, 230, 230)
-                        .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(QLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(choiceE, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ALabel)))
-                .addContainerGap(81, Short.MAX_VALUE))
+                        .addGap(8, 8, 8)
+                        .addComponent(PauseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(25, 25, 25)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timerLabel)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(choiceW, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(choiceQ, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(36, 36, 36)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(choiceE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(choiceR, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -383,146 +319,327 @@ public class SinglePlayer extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void goBackMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseExited
-        goBack.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
+    private void PauseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PauseBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_goBackMouseExited
-
-    private void goBackMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseEntered
-        goBack.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_goBackMouseEntered
-
-    private void goBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goBackMouseClicked
-        new HomeForm(appContext).setVisible(true);
-
-        this.setVisible(false);        // TODO add your handling code here:
-        singleLogic.stopTimer();
-    }//GEN-LAST:event_goBackMouseClicked
-
-    private void choiceWMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseExited
-        choiceW.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseExited
-
-    private void choiceWMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceWMouseEntered
-        choiceW.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceWMouseEntered
-
-    private void choiceRMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseExited
-        choiceR.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceRMouseExited
-
-    private void choiceRMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceRMouseEntered
-        choiceR.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceRMouseEntered
-
-    private void choiceEMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseExited
-        choiceE.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceEMouseExited
-
-    private void choiceEMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceEMouseEntered
-        choiceE.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceEMouseEntered
-
-    private void choiceQMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseExited
-        choiceQ.setBackground(Color.decode("#0066CC")); // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseExited
-
-    private void choiceQMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choiceQMouseEntered
-        choiceQ.setBackground(Color.decode("#6699FF"));          // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_choiceQMouseEntered
-
-    private void optQEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optQEvent
-        // TODO add your handling code here:
-        processPlayerAnswer();
-    }//GEN-LAST:event_optQEvent
-
-    private void optWEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optWEvent
-        // TODO add your handling code here:
-        processPlayerAnswer();
-    }//GEN-LAST:event_optWEvent
-
-    private void optEEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optEEvent
-        // TODO add your handling code here:
-        processPlayerAnswer();
+        actionPerformed(evt);
         
-    }//GEN-LAST:event_optEEvent
+    }//GEN-LAST:event_PauseBtnActionPerformed
+    
+    
+    // TODO: Guba Pa na version 
+    /*
+        Kani na function kay dili pa mao
+    */
 
-    private void optREvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optREvent
-        // TODO add your handling code here:
-        processPlayerAnswer();
-    }//GEN-LAST:event_optREvent
-    
-    
-    
-    public void processPlayerAnswer(){
-        if(isProcessingFlag) return;
-
-        if(reEnableTimer != null && reEnableTimer.isRunning()){
-            reEnableTimer.stop();
+    public void displayQuestion(){
+        mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", current.getQuestionText().split("\n")) + "</div></html>");
+        for(int i =0; i < playerButton.length; i++){
+           playerButton[i].setText("<html>" + String.join("<br>", current.getOptions().get(i).split("\n")) + "</html>");
         }
-        
-        isProcessingFlag = true;
-        choiceQ.setEnabled(false);
-        choiceW.setEnabled(false);
-        choiceE.setEnabled(false);
-        choiceR.setEnabled(false);
-        
-        
-        System.out.println("Processing!...");
-//        checkAnswers();
+    }
 
+    @Override
+    protected void setUpButtons() {
+        playerButton = new JButton[]{
+            choiceQ, choiceW, choiceE, choiceR
+        };
         
-        reEnableTimer = new Timer(500, (ae) ->{
-            choiceQ.setEnabled(true);
-            choiceW.setEnabled(true);
-            choiceE.setEnabled(true);
-            choiceR.setEnabled(true);
-            isProcessingFlag= false;
+//        if (playBtn == null || pauseBtn == null) {
+//            System.out.println("Icons are not loaded properly.");
+//        }
+        PauseBtn.setIcon(pauseBtn);
+        playerButton();
+    }
 
-        });
-        reEnableTimer.setDelay(1000);
-        reEnableTimer.start();
-            // Delay the next question display by 1 second
-        Timer nextQuestionTimer = new Timer(500, (ae) -> {
+    @Override
+    protected void playerButton(){
+        for(JButton btn : playerButton){
+            btn.addActionListener((e) -> {
+                if(!isProcessingFlag){
+                    actionPerformed(e);
+                }
+            });
+
+            btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if(!isProcessingFlag){
+                    btn.setBackground(Color.decode("#6699FF")); 
+
+                }
+
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if(!isProcessingFlag) {
+                    btn.setBackground(Color.decode("#0066CC")); 
+                }
+            }
+            });
+
+        }
+    }
+
+
+    @Override
+    public void processPlayerAnswer(String playerAnswer) {
+        if (isProcessingFlag) return;
+
+        isProcessingFlag = true; 
+
+        boolean isCorrect = gameLogic.checkAnswerPerQuestion(playerAnswer, current);
+        System.out.println("IsCorrect? " + isCorrect);
+        gameLogic.checkAnswer(isCorrect);
+        gameLogic.updateQuestionUsed(isCorrect);
+        updateScoreLabel();
+        SwingUtilities.invokeLater(() -> changeBtnColor( playerAnswer, gameLogic.getCorrectAnswer(current)));
+
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(700); // Delay before resetting colors
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).thenRun(() -> SwingUtilities.invokeLater(() -> {
+            resetButtonColor();
+            if(GameOver.equals(gameLogic.getGameState())) return;
             displayNextQuestion();
-        });
-        nextQuestionTimer.setRepeats(false); // Only execute once
-        nextQuestionTimer.start();
+            isProcessingFlag = false; // Re-enable interactions
+        }));
+
+    }
+
+    @Override
+    protected void changeBtnColor(String plyAnswer, String correctAnswer) {
+        Color correctColor = new Color(70, 229, 76); // Green
+        Color incorrectColor = new Color(229, 70, 70); // Red
+
+        resetButtonColor();
+
+        for (JButton choice : playerButton) {
+            String choiceText = choice.getText();
+            choiceText = choiceText.replaceAll("<.*?>", "");
+            if (choiceText.equals(correctAnswer)) {
+                choice.setBackground(correctColor);
+            } else {
+                choice.setBackground(incorrectColor);
+            }
+        }    
+    }
+
+    @Override
+    protected void updateTimeLabel(long timerMinutes, long timerSeconds) {
+        if (Play.equals(gameLogic.getGameState())) {
+            SwingUtilities.invokeLater(() -> 
+                timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds))
+            );
+        }
+    }
+
+    @Override
+    public void updateScoreLabel() {
+        if(Play.equals(gameLogic.getGameState())){
+            System.out.println("Player Score: " + gameLogic.getPlayerScore());
+            plyScoreLabel.setText(String.valueOf(gameLogic.getPlayerScore()));
+        }    
+    }
+
+    @Override
+    protected void resetButtonColor(){
+        for (JButton btn: playerButton) {
+            btn.setBackground(SINGLE_DEFAULT_COLOR);
+            btn.setForeground(new Color(255,255,255));
+        }
+    }
+
+    @Override
+    public void toggleBtns(boolean value){
+        PauseBtn.setEnabled(value);
+        for(JButton btn : playerButton){
+            btn.setEnabled(value);
+       }
+    }
+
+
+    @Override
+    public GameEnums.GameMode getGameMode() {
+        return gameMode;
+    }
+
+    @Override
+    public void startGame() {
+        displayNextQuestion();
+        gameLogic.getGameTimerClass().addEventUpdate(() -> SwingUtilities.invokeLater(this::timeUpdate));
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
+        gameLogic.startTimer();
     }
     
-    public void displayNextQuestion(){
-        next = gameLogic.getQuestionFromMap();
-        char[] label = {'Q', 'W', 'E', 'R'};
-        System.out.println("Current Question:\n"+ next.getQuestionText());
-        for (int i =0; i < next.getOptions().size(); i++) {
-            System.out.println(label[i] + ") " + next.getOptions().get(i));
-        }
-        for (String line : next.getQuestionText().split("\n")) {
-           // Add <br> for each line to create a new line in HTML format
-           mainQuestionLabel.setText("<html><div style='text-align: center;'>" + String.join("<br>", next.getQuestionText().split("\n")) + "</div></html>");
+    @Override
+    public void restartGame() {
+        gameLogic.startTimer();
+        displayNextQuestion();
+        SwingUtilities.invokeLater(() ->toggleBtns(true));
+        PauseBtn.setSelected(false);
+        PauseBtn.setIcon(pauseBtn);
+        updateScoreLabel();
+        repaint();
+        revalidate();
+
+    }
+
+    @Override
+    public void pauseGame() {
+        if (PauseBtn.isSelected()) {
+          // Set icon to play button
+          PauseBtn.setIcon(playBtn);
+          pauseBtnDelay(false);
+          
+          gameLogic.getGameTimerClass().setGameState(Pause);
+          gameLogic.getGameTimerClass().pauseTimer();
+      } else {
+
+          PauseBtn.setIcon(pauseBtn);
+          pauseBtnDelay(true);
+
+          gameLogic.getGameTimerClass().setGameState(Play);
+          gameLogic.getGameTimerClass().startTimer();
+      }
+          PauseBtn.revalidate();
+          PauseBtn.repaint();
+
+    }
+    
+    public void pauseBtnDelay(boolean value) {
+       CompletableFuture.runAsync(() -> {
+           try {
+               // Wait for the delay before showing the pause screen
+               Thread.sleep(500);  // 500ms delay
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+       }).thenCompose(v -> CompletableFuture.runAsync(() -> {
+           // Reset and show the pause screen after the delay
+           appContext.resetPauseFrame();
+           // Ensure the pause screen is made visible in the event dispatch thread
+           SwingUtilities.invokeLater(() -> {
+             pauseScreen = appContext.getPauseScreen(appContext);
+             pauseScreen.setLocationRelativeTo(this);
+             pauseScreen.setVisible(true);
+           });
+       })).thenRun(() -> SwingUtilities.invokeLater(() -> {
+           // Update the button state or do other UI updates after the delay
+           toggleBtns(value);
+       }));
+   }
+
+    @Override
+    public void stopGame() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void displayNextQuestion() {
+        current = gameLogic.getQuestionFromMap();
+        SwingUtilities.invokeLater(this::displayQuestion);    
+    }
+
+    @Override
+    public void timeUpdate() {
+        System.out.println("GameState: " + appContext.getGameLogic(SINGLE_PLAYER).getGameState());
+        if(!SINGLE_PLAYER.equals(appContext.getGameLogic(SINGLE_PLAYER).getGameMode())) return;
+        if (null != gameLogic.getGameState()) 
+            switch (gameLogic.getGameState()) {
+            case Play:
+                SwingUtilities.invokeLater(() ->
+                        updateTimeLabel(gameLogic.getGameTimerClass().getTimerMinutes(),
+                                gameLogic.getGameTimerClass().getTimerSeconds())
+                );  break;
+            case Pause:
+                System.out.println("Paused!");
+                pauseGame();
+                break;
+            case GameOver:
+                SwingUtilities.invokeLater(() ->toggleBtns(false));
+                
+                CompletableFuture.runAsync(() ->{
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }).thenCompose(v -> CompletableFuture.runAsync(() ->{
+                    gameLogic.getGameTimerClass().stopTimer();
+                    session.getPlayer().setSinglePlay_Score(gameLogic.getPlayerScore());
+                    session.getPlayer().setPlayer_Average(gameLogic.computePlayerScore(gameLogic.getQuestionsUsed(), gameLogic.getQuesAnsweredCorrect()));
+                    
+                })).thenRun(() -> {SwingUtilities.invokeLater(() ->{
+                    
+                    GameOver gameOver = appContext.getGameOver(appContext);
+                    gameOver.fetchUpdatedScore();
+                    gameOver.updatePlayerInfoLabels();
+                    gameOver.setVisible(true);
+                    
+                    });
+                
+                }); 
+                break;
+            default:
+                break;
         }
 
-            choiceQ.setText(next.getOptions().get(0));
-            choiceW.setText(next.getOptions().get(1));
-            choiceE.setText(next.getOptions().get(2));
-            choiceR.setText(next.getOptions().get(3));
-    
     }
+    
+  
+   @Override
+    public void actionPerformed(ActionEvent e) {
+        String actionCmd = e.getActionCommand();
+//        System.out.println(actionCmd);
+        if(actionCmd.equals("choiceQ") || actionCmd.equals("choiceW") || actionCmd.equals("choiceE") || actionCmd.equals("choiceR")){
+            JButton src = (JButton) e.getSource();
+            
+            String textFromBtn = src.getText();
+            String plyAnswer = textFromBtn.replaceAll("<.*?>", ""); // Removes all tags
+
+            if(Play.equals(gameLogic.getGameState())){
+                processPlayerAnswer(plyAnswer);
+            }
+            else{
+                System.out.println("GameState: " + gameLogic.getGameState());
+            }
+            
+           
+        }
+        else if(actionCmd.equals("Pause")){
+            pauseGame();
+        }
+       
+
+    }
+
+    
+    public static synchronized SinglePlayer getInstance(AppContext appContext){
+        if(instance == null){
+            instance = new SinglePlayer(appContext);
+        }
+        return instance;
+    } 
+    public static void resetInstance() {
+        if (instance != null) {
+            instance.dispose(); // Clean up the current instance
+            instance = null;
+        }
+    }
+
     
     /**
      * @param args the command line arguments
@@ -559,40 +676,44 @@ public class SinglePlayer extends javax.swing.JFrame {
             }
         });
     }
-
     
-    public void updateTimeLabel(long timerMinutes, long timerSeconds){
-        timerLabel.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
-    }
-
-    public SinglePlayerLogic getSingleLogic() {
-        return singleLogic;
+    @Override
+    public JToggleButton getPauseBtn() {
+        return PauseBtn;
     }
     
     
-    
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel ALabel;
-    private javax.swing.JLabel QLabel;
-    private javax.swing.JLabel SLabel;
+    private javax.swing.JToggleButton PauseBtn;
     private javax.swing.JLabel SocreLabel;
     private javax.swing.JLabel SocreLabel1;
-    private javax.swing.JLabel Wlabel;
     private javax.swing.JButton choiceE;
     private javax.swing.JButton choiceQ;
     private javax.swing.JButton choiceR;
     private javax.swing.JButton choiceW;
-    private javax.swing.JButton goBack;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel mainQuestionLabel;
     private javax.swing.JLabel ply1Name;
-    private javax.swing.JLabel plyScore;
+    private javax.swing.JLabel plyScoreLabel;
     private javax.swing.JLabel timerLabel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void processPlayerAnswer(String playerAnswer, String player) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    
+
+ 
+
+ 
+
+ 
 }
 

@@ -8,7 +8,9 @@ package main.logic;
  *
  * @author PCC
  */
-public interface Updatable {
-    void update();
-    
+public interface Playable {
+    void startGame();
+    void pauseGame();
+    void restartGame();
+    void stopGame();
 }

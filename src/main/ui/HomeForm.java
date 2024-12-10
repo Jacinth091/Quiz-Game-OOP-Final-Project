@@ -7,8 +7,16 @@ package main.ui;
 
 import java.awt.Color;
 import backend.Database.DatabaseManager;
+import java.util.concurrent.CompletableFuture;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import main.PlayerData.Session;
 import main.logic.AppContext;
+import main.logic.GameEnums;
+import static main.logic.GameEnums.GameMode.MULTIPLAYER;
+import static main.logic.GameEnums.GameMode.SINGLE_PLAYER;
+import main.ui.SinglePlayer;
 
 /**
  *
@@ -18,6 +26,15 @@ public class HomeForm extends javax.swing.JFrame {
     private AppContext appContext;
     private DatabaseManager dbManager;
     private Session session;
+    private GameEnums.GameState gameState;
+    private CompletableFuture transition;
+    
+    private String newName;
+    
+    protected ImageIcon profileIcon;
+    protected ImageIcon editPen;
+    
+    
     /**
      * Creates new form HomeForm
      * @param appContext
@@ -28,7 +45,14 @@ public class HomeForm extends javax.swing.JFrame {
         this.dbManager = appContext.getDbManager();
         this.session = appContext.getSession();
         System.out.println("User ID: "+ session.getUserId());
+        System.out.println("Player ID: " + session.getPlayer().getPlayerId());
+
         System.out.println("Player Name: " + session.getPlayer().getPlayerName().toUpperCase());
+        
+        this.profileIcon = appContext.getImageHelper().resizeImageIcon(appContext.getImageHelper().findImageByName("user.png"), 45, 45) ;
+        this.editPen = appContext.getImageHelper().initializeIconImgs("newPencil.png");
+        
+        this.gameState = appContext.getGameState();
         initComponents();
         setLocationRelativeTo(null);
 
@@ -37,7 +61,9 @@ public class HomeForm extends javax.swing.JFrame {
     }
     public HomeForm() {
         initComponents();
-        setLocationRelativeTo(null);
+        this.profileIcon = appContext.getImageHelper().resizeImageIcon(appContext.getImageHelper().findImageByName("user.png"), 45, 45) ;    
+        this.editPen = appContext.getImageHelper().initializeIconImgs("newPencil.png");
+        setLocationRelativeTo(null);    
         setResizable(false);
 
 
@@ -61,9 +87,10 @@ public class HomeForm extends javax.swing.JFrame {
         LogoutBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        nameTextfield = new javax.swing.JTextField();
+        nameTextField = new javax.swing.JTextField();
         accountPicture = new javax.swing.JLabel();
         pencilLogo = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         IDnumber = new javax.swing.JLabel();
 
@@ -73,11 +100,12 @@ public class HomeForm extends javax.swing.JFrame {
         homeQuizPanel.setBackground(new java.awt.Color(0, 0, 51));
         homeQuizPanel.setPreferredSize(new java.awt.Dimension(600, 700));
 
-        singlePlayBtn.setBackground(new java.awt.Color(0, 51, 102));
+        singlePlayBtn.setBackground(new java.awt.Color(0, 102, 204));
         singlePlayBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         singlePlayBtn.setForeground(new java.awt.Color(229, 225, 218));
         singlePlayBtn.setText("Singleplayer");
         singlePlayBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        singlePlayBtn.setFocusable(false);
         singlePlayBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 singlePlayBtnMouseClicked(evt);
@@ -95,11 +123,12 @@ public class HomeForm extends javax.swing.JFrame {
             }
         });
 
-        multiPlayBtn.setBackground(new java.awt.Color(0, 51, 102));
+        multiPlayBtn.setBackground(new java.awt.Color(0, 102, 204));
         multiPlayBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         multiPlayBtn.setForeground(new java.awt.Color(229, 225, 218));
         multiPlayBtn.setText("Multiplayer");
         multiPlayBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        multiPlayBtn.setFocusable(false);
         multiPlayBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 multiPlayBtnMouseClicked(evt);
@@ -117,12 +146,16 @@ public class HomeForm extends javax.swing.JFrame {
             }
         });
 
-        leaderBoardBtn.setBackground(new java.awt.Color(0, 51, 102));
+        leaderBoardBtn.setBackground(new java.awt.Color(0, 102, 204));
         leaderBoardBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         leaderBoardBtn.setForeground(new java.awt.Color(229, 225, 218));
         leaderBoardBtn.setText("Leaderboards");
         leaderBoardBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        leaderBoardBtn.setFocusable(false);
         leaderBoardBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                leaderBoardBtnMouseClicked(evt);
+            }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 leaderBoardBtnMouseEntered(evt);
             }
@@ -136,11 +169,12 @@ public class HomeForm extends javax.swing.JFrame {
             }
         });
 
-        tutorBtn.setBackground(new java.awt.Color(0, 51, 102));
+        tutorBtn.setBackground(new java.awt.Color(0, 102, 204));
         tutorBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         tutorBtn.setForeground(new java.awt.Color(229, 225, 218));
         tutorBtn.setText("Tutorial");
         tutorBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tutorBtn.setFocusable(false);
         tutorBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 tutorBtnMouseEntered(evt);
@@ -149,17 +183,23 @@ public class HomeForm extends javax.swing.JFrame {
                 tutorBtnMouseExited(evt);
             }
         });
+        tutorBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tutorBtnActionPerformed(evt);
+            }
+        });
 
-        jLabel5.setFont(new java.awt.Font("Montserrat", 1, 48)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Segoe UI Black", 3, 60)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(229, 225, 218));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Quiz Game");
 
-        LogoutBtn.setBackground(new java.awt.Color(0, 51, 102));
+        LogoutBtn.setBackground(new java.awt.Color(0, 102, 204));
         LogoutBtn.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         LogoutBtn.setForeground(new java.awt.Color(229, 225, 218));
         LogoutBtn.setText("Logout");
         LogoutBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        LogoutBtn.setFocusable(false);
         LogoutBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 LogoutBtnMouseClicked(evt);
@@ -178,27 +218,29 @@ public class HomeForm extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(229, 225, 218));
         jLabel1.setText("Name:");
 
-        nameTextfield.setBackground(new java.awt.Color(0, 0, 51));
-        nameTextfield.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
-        nameTextfield.setForeground(new java.awt.Color(229, 225, 218));
-        nameTextfield.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        nameTextfield.setText(session.getPlayer().getPlayerName());
-        nameTextfield.setBorder(null);
-        nameTextfield.setFocusable(false);
-        nameTextfield.addFocusListener(new java.awt.event.FocusAdapter() {
+        nameTextField.setBackground(new java.awt.Color(0, 0, 51));
+        nameTextField.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
+        nameTextField.setForeground(new java.awt.Color(229, 225, 218));
+        nameTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        nameTextField.setText(session.getPlayer().getPlayerName());
+        nameTextField.setBorder(null);
+        nameTextField.setFocusable(false);
+        nameTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 HomeForm.this.focusLost(evt);
             }
         });
-        nameTextfield.addActionListener(new java.awt.event.ActionListener() {
+        nameTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameTextfieldActionPerformed(evt);
+                nameTextFieldActionPerformed(evt);
             }
         });
 
+        accountPicture.setIcon(profileIcon);
         accountPicture.setText("account");
 
         pencilLogo.setForeground(new java.awt.Color(255, 255, 255));
+        pencilLogo.setIcon(editPen);
         pencilLogo.setText("Pen");
         pencilLogo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         pencilLogo.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -206,6 +248,32 @@ public class HomeForm extends javax.swing.JFrame {
                 pencilLogoMouseClicked(evt);
             }
         });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(accountPicture, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pencilLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(accountPicture, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel1)
+                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pencilLogo))
+        );
+
+        jPanel2.setBackground(new java.awt.Color(0, 0, 51));
 
         jLabel2.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(229, 225, 218));
@@ -215,41 +283,26 @@ public class HomeForm extends javax.swing.JFrame {
         IDnumber.setForeground(new java.awt.Color(229, 225, 218));
         IDnumber.setText(session.getPlayer().getPlayerId());
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(accountPicture, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(nameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(pencilLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(IDnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(24, Short.MAX_VALUE)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(IDnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(accountPicture, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(nameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pencilLogo))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(IDnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(14, 14, 14))
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(IDnumber, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout homeQuizPanelLayout = new javax.swing.GroupLayout(homeQuizPanel);
@@ -257,15 +310,13 @@ public class HomeForm extends javax.swing.JFrame {
         homeQuizPanelLayout.setHorizontalGroup(
             homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(homeQuizPanelLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeQuizPanelLayout.createSequentialGroup()
-                .addContainerGap(78, Short.MAX_VALUE)
+                .addContainerGap(40, Short.MAX_VALUE)
                 .addGroup(homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeQuizPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(71, 71, 71))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeQuizPanelLayout.createSequentialGroup()
                         .addGroup(homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeQuizPanelLayout.createSequentialGroup()
@@ -278,13 +329,18 @@ public class HomeForm extends javax.swing.JFrame {
                                     .addComponent(tutorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(leaderBoardBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(94, 94, 94)))
-                        .addGap(128, 128, 128))))
+                        .addGap(128, 128, 128))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeQuizPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(69, 69, 69))))
         );
         homeQuizPanelLayout.setVerticalGroup(
             homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(homeQuizPanelLayout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
+                .addGroup(homeQuizPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(54, 54, 54)
@@ -297,7 +353,7 @@ public class HomeForm extends javax.swing.JFrame {
                 .addComponent(tutorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(45, 45, 45)
                 .addComponent(LogoutBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(142, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -315,89 +371,168 @@ public class HomeForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void singlePlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singlePlayBtnActionPerformed
-        // TODO add your handling code here:
+         // TODO add your handling code here:
+        this.dispose();// Hide the current frame
+//        System.out.println("GameMode:" + appContext.getGameMode());
+        appContext.resetSinglePlayer();
+        appContext.setGameMode(SINGLE_PLAYER);        
+        appContext.getGameLogic(appContext.getGameMode()).setGameMode(SINGLE_PLAYER);
+        appContext.setGame(appContext.getSinglePlayer(appContext));
+        
+
+        //TODO: TO BE MODIFIED!!
+        transition = CompletableFuture.runAsync(() ->{
+            
+            appContext.getLoadingScreen().start();
+            while(!appContext.getLoadingScreen().getIsLoadingComplete() ){
+                try{
+                    Thread.sleep(20);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            
+        }).thenRunAsync(() -> {
+          SwingUtilities.invokeLater(() -> {
+
+            appContext.getGame().startGame();
+          
+          });
+      });
+        transition.thenRun(() -> {
+          appContext.getLoadingScreen().setIsLoadingComplete(false);
+          appContext.getLoadingScreen().dispose();
+            appContext.getGame().setVisible(true);
+
+      });
+        
     }//GEN-LAST:event_singlePlayBtnActionPerformed
 
     private void multiPlayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multiPlayBtnActionPerformed
-        // TODO add your handling code here:
-  
-    }//GEN-LAST:event_multiPlayBtnActionPerformed
+       // TODO add your handling code here:
+        this.dispose();// Hide the current frame
+        appContext.resetCreateMultiPlayer();
+        appContext.setGameMode(null);
+        CreateMultiPlayer create = appContext.getCreateMulti(appContext);
+        appContext.setGameMode(MULTIPLAYER);
+        appContext.getGameLogic(appContext.getGameMode()).setGameMode(MULTIPLAYER);
+        create.setVisible(true);
 
+    }//GEN-LAST:event_multiPlayBtnActionPerformed
+ 
     private void leaderBoardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderBoardBtnActionPerformed
-        // TODO add your handling code here:
+        new Leaderboard(appContext).execute();
+        this.setVisible(false);          // TODO add your handling code here:
     }//GEN-LAST:event_leaderBoardBtnActionPerformed
 
     private void singlePlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseClicked
-            new SinglePlayer(appContext).setVisible(true);
-            this.setVisible(false);
+
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_singlePlayBtnMouseClicked
 
     private void multiPlayBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseClicked
-            new MultiPlayer(appContext).setVisible(true);
-            this.setVisible(false);        // TODO add your handling code here:
+
     }//GEN-LAST:event_multiPlayBtnMouseClicked
 
     private void LogoutBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseClicked
         new SignIn(appContext).setVisible(true);
-         this.setVisible(false);   // TODO add your handling code here:
+        appContext.resetMultiPlayer();
+        appContext.resetSinglePlayer();
+        this.setVisible(false);   // TODO add your handling code here:
     }//GEN-LAST:event_LogoutBtnMouseClicked
 
     private void singlePlayBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseEntered
-        singlePlayBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+        singlePlayBtn.setBackground(Color.decode("#6699FF"));         // TODO add your handling code here:
     }//GEN-LAST:event_singlePlayBtnMouseEntered
 
     private void multiPlayBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseEntered
-        multiPlayBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+        multiPlayBtn.setBackground(Color.decode("#6699FF"));         // TODO add your handling code here:
     }//GEN-LAST:event_multiPlayBtnMouseEntered
 
     private void leaderBoardBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseEntered
-        leaderBoardBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+        leaderBoardBtn.setBackground(Color.decode("#6699FF"));         // TODO add your handling code here:
     }//GEN-LAST:event_leaderBoardBtnMouseEntered
 
     private void tutorBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tutorBtnMouseEntered
-        tutorBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+        tutorBtn.setBackground(Color.decode("#6699FF"));         // TODO add your handling code here:
     }//GEN-LAST:event_tutorBtnMouseEntered
 
     private void LogoutBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseEntered
-        LogoutBtn.setBackground(Color.decode("#000080"));         // TODO add your handling code here:
+        LogoutBtn.setBackground(Color.decode("#6699FF"));         // TODO add your handling code here:
     }//GEN-LAST:event_LogoutBtnMouseEntered
 
     private void singlePlayBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_singlePlayBtnMouseExited
-       singlePlayBtn.setBackground(Color.decode("#003366"));         // TODO add your handling code here:
+       singlePlayBtn.setBackground(Color.decode("#0066CC"));         // TODO add your handling code here:
     }//GEN-LAST:event_singlePlayBtnMouseExited
 
     private void multiPlayBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiPlayBtnMouseExited
-        multiPlayBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+        multiPlayBtn.setBackground(Color.decode("#0066CC"));        // TODO add your handling code here:
     }//GEN-LAST:event_multiPlayBtnMouseExited
 
     private void leaderBoardBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseExited
-        leaderBoardBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+        leaderBoardBtn.setBackground(Color.decode("#0066CC"));        // TODO add your handling code here:
     }//GEN-LAST:event_leaderBoardBtnMouseExited
 
     private void tutorBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tutorBtnMouseExited
-        tutorBtn.setBackground(Color.decode("#003366"));         // TODO add your handling code here:
+        tutorBtn.setBackground(Color.decode("#0066CC"));         // TODO add your handling code here:
     }//GEN-LAST:event_tutorBtnMouseExited
 
     private void LogoutBtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutBtnMouseExited
-        LogoutBtn.setBackground(Color.decode("#003366"));        // TODO add your handling code here:
+        LogoutBtn.setBackground(Color.decode("#0066CC"));        // TODO add your handling code here:
     }//GEN-LAST:event_LogoutBtnMouseExited
 
     private void pencilLogoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pencilLogoMouseClicked
-            
-//             nameTextfield.requestFocus();
-             nameTextfield.requestFocusInWindow();
-             nameTextfield.setFocusable(true);  
+        nameTextField.requestFocusInWindow(); // Focus on the text field
+        nameTextField.setFocusable(true);
+        
+
+
+        // Assuming you have the player ID and the text field for input
+//        String newPlayerName = nameTextfield.getText(); // Get the entered name
+//        String playerId = session.getPlayerId();
+
 
     }//GEN-LAST:event_pencilLogoMouseClicked
 
-    private void nameTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTextfieldActionPerformed
-        nameTextfield.setFocusable(false);        // TODO add your handling code here:
-    }//GEN-LAST:event_nameTextfieldActionPerformed
+    private void nameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTextFieldActionPerformed
+        newName = nameTextField.getText();
+        nameTextField.setFocusable(false); 
+        if (newName != null && !newName.trim().isEmpty()) {
+            dbManager.updatePlayerName(session.getPlayer().getPlayerId(), newName);
+            session.getPlayer().setPlayerName(newName);
+        } else {
+            System.out.println("Player name cannot be empty.");
+        }
+        
+        
+        
+        nameTextField.setFocusable(false);        // TODO add your handling code here:
+        
+        
+        
+        
+        
+    }//GEN-LAST:event_nameTextFieldActionPerformed
 
     private void focusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_focusLost
-        nameTextfield.setFocusable(false);      // TODO add your handling code here:
+            session.getPlayer().setPlayerName(newName);
+            nameTextField.setFocusable(false);
+// TODO add your handling code here:
     }//GEN-LAST:event_focusLost
+
+    private void leaderBoardBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leaderBoardBtnMouseClicked
+//        new Leaderboard();
+//        this.setVisible(false);        // TODO add your handling code here:
+    }//GEN-LAST:event_leaderBoardBtnMouseClicked
+
+    private void tutorBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorBtnActionPerformed
+  JOptionPane.showMessageDialog(this, "Welcome to the Quiz Game Tutorial!\n" +
+                "Select Single Player or 2 Player mode to start the game.\n" +
+                "Answer questions within the time limit.\n" +
+                "Good luck and have fun!");        // TODO add your handling code here:
+    }//GEN-LAST:event_tutorBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -426,6 +561,8 @@ public class HomeForm extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -444,9 +581,10 @@ public class HomeForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JButton leaderBoardBtn;
     private javax.swing.JButton multiPlayBtn;
-    private javax.swing.JTextField nameTextfield;
+    private javax.swing.JTextField nameTextField;
     private javax.swing.JLabel pencilLogo;
     private javax.swing.JButton singlePlayBtn;
     private javax.swing.JButton tutorBtn;

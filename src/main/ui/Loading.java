@@ -4,25 +4,28 @@
  */
 package main.ui;
 
+import main.logic.AppContext;
+
 /**
  *
  * @author PCC
  */
 public class Loading extends javax.swing.JFrame implements Runnable{
+    private static Loading instance;
     private Thread loading;
     private int max, current, width,filledWidth;
     private boolean isLoadingComplete;
+    
+    private AppContext appContext;
 
     /**
      * Creates new form Loading
      */
     public Loading() {
-        initComponents();
-        setLocationRelativeTo(null);
-        setDefault();
-
-        startThread();
+        setUndecorated(true);
+ 
     }
+    
     public void setDefault(){
         max =100;
         current =0;
@@ -38,7 +41,6 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         LoadingBar = new javax.swing.JProgressBar();
         LoadingLabel = new javax.swing.JLabel();
@@ -47,10 +49,8 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         setName("LoadingFrame"); // NOI18N
         setResizable(false);
 
-
-        mainPanel.setBackground(new java.awt.Color(0, 0, 51));
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         LoadingBar.setBackground(new java.awt.Color(236, 236, 236));
         LoadingBar.setFont(new java.awt.Font("Montserrat", 1, 14)); // NOI18N
@@ -58,7 +58,8 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         LoadingBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         LoadingBar.setStringPainted(true);
 
-        LoadingLabel.setFont(new java.awt.Font("Montserrat", 1, 36)); // NOI18N
+        LoadingLabel.setFont(new java.awt.Font("Segoe UI Black", 3, 36)); // NOI18N
+        LoadingLabel.setForeground(new java.awt.Color(255, 255, 255));
         LoadingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         LoadingLabel.setText("Loading..");
         LoadingLabel.setToolTipText("");
@@ -87,32 +88,15 @@ public class Loading extends javax.swing.JFrame implements Runnable{
                 .addGap(33, 33, 33))
         );
 
-        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
-        mainPanel.setLayout(mainPanelLayout);
-        mainPanelLayout.setHorizontalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
-        );
-        mainPanelLayout.setVerticalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(76, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -154,6 +138,22 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         });
     }
     
+    public static synchronized Loading getInstance(){
+        if(instance == null){
+            instance = new Loading();
+        }
+        return instance;
+    }
+    
+    public void start(){
+        initComponents();
+        setLocationRelativeTo(null);
+        setVisible(true);
+        setDefault();
+
+        startThread();
+    }
+    
     public void startThread(){
         
         if(loading == null){
@@ -165,37 +165,24 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     }
     
     public void startLoading() throws InterruptedException{
-
-        
-        
         while(loading != null){
-            
             try{
-                System.out.println("JANJAN");
-                System.out.println("current: " + current + " %");
-                System.out.println("IsLoadingComplete: " + isLoadingComplete);
-
-                if(current <= max){
+                if(max > current){
                     updateLoadingBar();
-
                 }
-                else if(current >= max){
+                else if(current == max){
                     current = max;
                     isLoadingComplete = true;
                 }
-                
-                Thread.sleep(50);
+               
+                Thread.sleep(15);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
-            
-            
-        }
-        
+        } 
     }
     public void updateLoadingBar(){
         filledWidth = (int)(( current / (double)max) * 2);
-
 
         LoadingBar.setMaximum(max);
         LoadingBar.setValue(current);
@@ -203,12 +190,24 @@ public class Loading extends javax.swing.JFrame implements Runnable{
         current++;
                 
     }
+
+    public boolean getIsLoadingComplete() {
+        return isLoadingComplete;
+    }
+
+    public void setIsLoadingComplete(boolean isLoadingComplete) {
+        this.isLoadingComplete = isLoadingComplete;
+    }
+    
+    
+    
     
     @Override
     public void run(){
         
         try{
             startLoading();
+            setDefault();
             
         }catch(InterruptedException e){
             e.printStackTrace();
@@ -224,6 +223,5 @@ public class Loading extends javax.swing.JFrame implements Runnable{
     private javax.swing.JProgressBar LoadingBar;
     private javax.swing.JLabel LoadingLabel;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel mainPanel;
     // End of variables declaration//GEN-END:variables
 }
